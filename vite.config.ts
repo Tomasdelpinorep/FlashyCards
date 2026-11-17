@@ -11,5 +11,10 @@ export default defineConfig({
   root: r('./src/client'),
   publicDir: r('./public'),
   build: { outDir: r('./dist'), emptyOutDir: true },
-  plugins: [react(), tailwindcss(), cloudflare({ configPath: r('./wrangler.jsonc') })],
+  plugins: [react(), tailwindcss(), cloudflare({
+      configPath: r('./wrangler.jsonc'),
+      // Keep local D1/KV state at the repo root (where `wrangler d1 migrations apply --local`
+      // writes it) instead of the default <vite root>/.wrangler, i.e. src/client/.wrangler.
+      persistState: { path: r('./.wrangler/state') },
+    })],
 })

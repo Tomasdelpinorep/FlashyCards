@@ -1,25 +1,27 @@
 import { useCallback, useEffect, useState } from 'react'
+import type { MeResponse } from '../shared/schemas'
+import { api } from './lib/api'
 
-type Health = { ok: boolean; time: string }
-type State = { status: 'loading' } | { status: 'ok'; data: Health } | { status: 'error'; message: string }
+type State = { status: 'loading' } | { status: 'ok'; data: MeResponse } | { status: 'error'; message: string }
 
+// Placeholder until the real screens land (M3+): shows who is signed in and their decks.
 export default function App() {
   const [state, setState] = useState<State>({ status: 'loading' })
 
-  const check = useCallback(async () => {
+  const load = useCallback(async () => {
     setState({ status: 'loading' })
     try {
-      const res = await fetch('/api/health')
+      const res = await api.me.$get()
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      setState({ status: 'ok', data: (await res.json()) as Health })
+      setState({ status: 'ok', data: await res.json() })
     } catch (err) {
       setState({ status: 'error', message: err instanceof Error ? err.message : String(err) })
     }
   }, [])
 
   useEffect(() => {
-    void check()
-  }, [check])
+    void load()
+  }, [load])
 
   return (
     <div className="min-h-dvh bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
@@ -30,30 +32,35 @@ export default function App() {
         </header>
 
         <section className="rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800" aria-live="polite">
-          <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">API status</h2>
-          {state.status === 'loading' && <p className="mt-2">Checking…</p>}
-          {state.status === 'ok' && (
-            <div className="mt-2">
-              <p className="flex items-center gap-2 font-medium text-green-700 dark:text-green-400">
-                <span className="size-2 rounded-full bg-current" aria-hidden />
-                {state.data.ok ? 'Online' : 'Not OK'}
-              </p>
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                Server time: <time dateTime={state.data.time}>{new Date(state.data.time).toLocaleString()}</time>
-              </p>
-            </div>
-          )}
+          {state.status === 'loading' && <p>Loading…</p>}
           {state.status === 'error' && (
-            <p className="mt-2 font-medium text-red-700 dark:text-red-400">Unreachable ({state.message})</p>
+            <p className="font-medium text-red-700 dark:text-red-400">Could not load your account ({state.message})</p>
+          )}
+          {state.status === 'ok' && (
+            <>
+              <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Signed in as</h2>
+              <p className="mt-1 font-medium break-all">{state.data.user.email}</p>
+              <h2 className="mt-4 text-sm font-medium text-zinc-500 dark:text-zinc-400">Your decks</h2>
+              <ul className="mt-2 flex flex-col gap-2">
+                {state.data.decks.map((deck) => (
+                  <li key={deck.id} className="flex items-center justify-between rounded-xl bg-zinc-100 px-3 py-2 dark:bg-zinc-900">
+                    <span className="font-medium">{deck.name}</span>
+                    <span className="text-sm text-zinc-500 uppercase dark:text-zinc-400">
+                      {deck.sourceLang} → {deck.targetLang}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </section>
 
         <button
           type="button"
-          onClick={() => void check()}
+          onClick={() => void load()}
           className="h-12 w-full rounded-xl bg-zinc-900 font-medium text-white active:scale-[0.99] dark:bg-zinc-100 dark:text-zinc-900"
         >
-          Check again
+          Reload
         </button>
       </main>
     </div>

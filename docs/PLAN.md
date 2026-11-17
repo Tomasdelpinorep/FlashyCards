@@ -10,6 +10,7 @@ This is the source of truth for implementation. The architect agent wrote it, an
   - Drop the `direction` column and remove it from the unique indexes. The unique index becomes `(deck_id, term_key)`.
 - **Example sentence level:** default **A1–A2** (`decks.settings_json.sentenceLevel = 'A1-A2'`). Sentences should be short and simple, 5–10 words.
 - **Auth:** Cloudflare Access (email allowlist, one-time PIN), with JWT verification in the Worker.
+- **Duplicates:** judged by the TARGET-language word. Homographs are separate cards only when the user gave different meaning hints. The full spec is in **`docs/DUPLICATES.md` (§10)**. It overrides the cards indexes in §3, step 2 of the "Adding words" flow in §2, and the suggest query in §5.
 
 ## 1. Decisions
 | Area | Choice |

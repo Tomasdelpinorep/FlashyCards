@@ -6,7 +6,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "types": ["vite/client"],
+    "types": ["vite/client", "./worker-configuration.d.ts"],
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,

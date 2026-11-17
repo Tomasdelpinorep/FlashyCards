@@ -1,8 +1,10 @@
 # Copy to .dev.vars (git-ignored) for local development.
 # Values here override "vars" in wrangler.jsonc when running `npm run dev`.
 
-# Local-only auth bypass (honoured only on localhost). Never set in production.
-DEV_AUTH_EMAIL=you@example.com
+# Local-only auth bypass: every request to http://localhost or http://127.0.0.1 is treated
+# as this user (no Cloudflare Access token needed, ALLOWED_EMAILS not consulted).
+# Ignored for any other host. Never set this in wrangler.jsonc or in production.
+DEV_AUTH_EMAIL=dev@example.com
 
 # "fake" = deterministic offline generator, "anthropic" = real API calls.
 AI_PROVIDER=fake
