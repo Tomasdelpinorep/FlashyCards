@@ -125,11 +125,27 @@ describe('deck CRUD', () => {
     expect((await as(ALICE, `/api/decks/${deck.id}`, { method: 'DELETE' })).status).toBe(404)
   })
 
-  it('refuses to delete the only deck (409)', async () => {
-    const { as } = setup()
+  it('deletes the last deck; /me then returns 0 decks and does not recreate the default', async () => {
+    const { as, sqlite } = setup()
     const { decks } = await me(as, ALICE)
+    expect(decks).toHaveLength(1)
     const res = await as(ALICE, `/api/decks/${decks[0]!.id}`, { method: 'DELETE' })
-    expect(res.status).toBe(409)
+    expect(res.status).toBe(200)
+    expect((await me(as, ALICE)).decks).toEqual([])
+    expect((await me(as, ALICE)).decks).toEqual([])
+    expect(sqlite.prepare('SELECT COUNT(*) AS n FROM decks').get()).toMatchObject({ n: 0 })
+
+    // A user with zero decks can create one again.
+    const created = await as(ALICE, '/api/decks', { method: 'POST', body: { name: 'Neu', sourceLang: 'en', targetLang: 'de' } })
+    expect(created.status).toBe(201)
+    expect((await me(as, ALICE)).decks.map((d) => d.name)).toEqual(['Neu'])
+  })
+
+  it('creates the default deck when the user row is created, whatever the first request is', async () => {
+    const { as, sqlite } = setup()
+    expect((await as(ALICE, '/api/languages')).status).toBe(200)
+    expect(sqlite.prepare('SELECT COUNT(*) AS n FROM decks').get()).toMatchObject({ n: 1 })
+    expect((await me(as, ALICE)).decks).toHaveLength(1)
   })
 
   it('validates create and update bodies', async () => {
@@ -153,8 +169,6 @@ describe('deck CRUD', () => {
     const { as } = setup()
     const aliceDeck = (await me(as, ALICE)).decks[0]!
     await me(as, BOB)
-    // Bob gets a second deck so the 409 "only deck" rule cannot mask the result.
-    await as(BOB, '/api/decks', { method: 'POST', body: { name: 'Two', sourceLang: 'en', targetLang: 'es' } })
 
     const patch = await as(BOB, `/api/decks/${aliceDeck.id}`, { method: 'PATCH', body: { name: 'pwned' } })
     expect(patch.status).toBe(404)

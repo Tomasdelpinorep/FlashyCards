@@ -1,4 +1,5 @@
 import { DEFAULT_USER_SETTINGS, parseSettings, UserSettingsSchema, type UserDTO, type UserSettings } from '../../shared/schemas'
+import { DEFAULT_DECK } from './decks'
 
 export type UserRow = {
   id: string
@@ -14,16 +15,31 @@ export async function getUserByEmail(db: D1Database, email: string): Promise<Use
 
 /**
  * Return the user for `email` (lowercased), creating it if missing. Reads first so the
- * common path costs no D1 write; the insert is conflict-safe for concurrent first requests.
+ * common path costs no D1 write.
+ *
+ * A brand-new user also gets the default deck, in the same batch: the deck insert is
+ * conditional on the user row with *this request's* fresh id existing, so when concurrent
+ * first requests race, only the one whose user insert won creates a deck. Nothing ever
+ * recreates the default deck later; a user may have zero decks.
  */
 export async function upsertUser(db: D1Database, rawEmail: string): Promise<UserRow> {
   const email = rawEmail.trim().toLowerCase()
   const existing = await getUserByEmail(db, email)
   if (existing) return existing
-  await db
-    .prepare('INSERT INTO users (id, email, settings_json, created_at) VALUES (?, ?, ?, ?) ON CONFLICT(email) DO NOTHING')
-    .bind(crypto.randomUUID(), email, '{}', Date.now())
-    .run()
+  const id = crypto.randomUUID()
+  const now = Date.now()
+  const d = DEFAULT_DECK
+  await db.batch([
+    db
+      .prepare('INSERT INTO users (id, email, settings_json, created_at) VALUES (?, ?, ?, ?) ON CONFLICT(email) DO NOTHING')
+      .bind(id, email, '{}', now),
+    db
+      .prepare(
+        `INSERT INTO decks (id, user_id, name, source_lang, target_lang, settings_json, created_at)
+         SELECT ?, ?, ?, ?, ?, ?, ? WHERE EXISTS (SELECT 1 FROM users WHERE id = ?)`,
+      )
+      .bind(crypto.randomUUID(), id, d.name, d.sourceLang, d.targetLang, JSON.stringify(d.settings), now, id),
+  ])
   const row = await getUserByEmail(db, email)
   if (!row) throw new Error('user upsert failed')
   return row

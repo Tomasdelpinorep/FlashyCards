@@ -15,6 +15,13 @@ export interface LanguageConfig {
   ttsLang: string
   /** Definite/indefinite articles that may prefix a noun (lowercase). */
   articles: readonly string[]
+  /**
+   * Lowercase prefixes (with their trailing space) that glossKey() strips from a gloss in
+   * this language, e.g. English "to begin" -> "begin" (docs/DUPLICATES.md section 10.1).
+   */
+  glossStripPrefixes: readonly string[]
+  /** Lowercase column titles in this language that mark an import header row ("wort", "deutsch"). */
+  importHeaderWords: readonly string[]
   /** Article -> colour token for gendered nouns (der blue, die red, das green). */
   genderColors?: Readonly<Record<string, 'blue' | 'red' | 'green'>>
   /** Extra grammar instructions for the AI prompt when this is the target language. */
@@ -29,6 +36,8 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     name: 'English',
     ttsLang: 'en-US',
     articles: ['the', 'a', 'an'],
+    glossStripPrefixes: ['to ', 'a ', 'an ', 'the '],
+    importHeaderWords: ['english', 'word', 'words', 'term', 'terms', 'translation', 'meaning', 'hint', 'front', 'back'],
     grammarPromptHints:
       'Verbs: irregular past tense and past participle. Nouns: irregular plural. Adjectives: irregular comparative and superlative.',
     hasWordlist: false,
@@ -38,6 +47,8 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     name: 'German',
     ttsLang: 'de-DE',
     articles: ['der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einen', 'einem', 'einer', 'eines'],
+    glossStripPrefixes: ['der ', 'die ', 'das ', 'ein ', 'eine '],
+    importHeaderWords: ['deutsch', 'german', 'wort', 'wörter', 'begriff', 'übersetzung', 'bedeutung', 'vokabel', 'vokabeln'],
     genderColors: { der: 'blue', die: 'red', das: 'green' },
     grammarPromptHints: [
       'Nouns: gender, article, plural with its article, irregular genitive.',
@@ -52,6 +63,8 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     name: 'Spanish',
     ttsLang: 'es-ES',
     articles: ['el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas'],
+    glossStripPrefixes: ['el ', 'la ', 'los ', 'las ', 'un ', 'una '],
+    importHeaderWords: ['español', 'spanish', 'palabra', 'palabras', 'término', 'traducción', 'significado'],
     genderColors: { el: 'blue', la: 'red' },
     grammarPromptHints: [
       'Nouns: gender, article, plural.',

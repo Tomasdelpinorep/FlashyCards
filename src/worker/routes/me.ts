@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { UpdateMeSchema, type MeResponse } from '../../shared/schemas'
-import { ensureDefaultDeck, listDecks, toDeckDTO } from '../db/decks'
+import { listDecks, toDeckDTO } from '../db/decks'
 import { toUserDTO, updateUser, userSettings } from '../db/users'
 import type { AppEnv } from '../env'
 import { validate } from '../middleware/errors'
@@ -8,7 +8,6 @@ import { validate } from '../middleware/errors'
 export const meRoutes = new Hono<AppEnv>()
   .get('/me', async (c) => {
     const user = c.get('user')
-    await ensureDefaultDeck(c.env.DB, user.id)
     const decks = await listDecks(c.env.DB, user.id)
     return c.json({ user: toUserDTO(user), decks: decks.map(toDeckDTO) } satisfies MeResponse)
   })

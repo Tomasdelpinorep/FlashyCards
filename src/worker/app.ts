@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import type { AppEnv } from './env'
 import { createAuthMiddleware, type AuthOptions } from './middleware/auth'
 import { notFound, onError } from './middleware/errors'
+import { cardRoutes } from './routes/cards'
 import { deckRoutes } from './routes/decks'
 import { languageRoutes } from './routes/languages'
 import { meRoutes } from './routes/me'
@@ -23,5 +24,6 @@ export function createApp(options: AppOptions = {}) {
       .route('/', languageRoutes)
       .route('/', meRoutes)
       .route('/decks', deckRoutes)
+      .route('/cards', cardRoutes)
   )
 }

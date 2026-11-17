@@ -12,7 +12,7 @@ export type DeckRow = {
 
 export type NewDeck = { name: string; sourceLang: string; targetLang: string; settings: DeckSettings }
 
-/** The deck every user gets on first login: English speaker learning German. */
+/** The deck every user gets when their user row is created (first login): English speaker learning German. */
 export const DEFAULT_DECK: NewDeck = {
   name: 'German',
   sourceLang: 'en',
@@ -44,23 +44,6 @@ export async function createDeck(db: D1Database, userId: string, deck: NewDeck):
   return row
 }
 
-/**
- * Create the default deck only if the user has no decks yet. A single
- * INSERT ... SELECT ... WHERE NOT EXISTS statement, so concurrent first requests
- * cannot create two default decks.
- */
-export async function ensureDefaultDeck(db: D1Database, userId: string): Promise<void> {
-  const d = DEFAULT_DECK
-  await db
-    .prepare(
-      `INSERT INTO decks (id, user_id, name, source_lang, target_lang, settings_json, created_at)
-       SELECT ?, ?, ?, ?, ?, ?, ?
-       WHERE NOT EXISTS (SELECT 1 FROM decks WHERE user_id = ?)`,
-    )
-    .bind(crypto.randomUUID(), userId, d.name, d.sourceLang, d.targetLang, JSON.stringify(d.settings), Date.now(), userId)
-    .run()
-}
-
 export async function updateDeck(
   db: D1Database,
   userId: string,
@@ -88,11 +71,6 @@ export async function updateDeck(
 export async function deleteDeck(db: D1Database, userId: string, deckId: string): Promise<boolean> {
   const res = await db.prepare('DELETE FROM decks WHERE id = ? AND user_id = ?').bind(deckId, userId).run()
   return res.meta.changes > 0
-}
-
-export async function countDecks(db: D1Database, userId: string): Promise<number> {
-  const row = await db.prepare('SELECT COUNT(*) AS n FROM decks WHERE user_id = ?').bind(userId).first<{ n: number }>()
-  return row?.n ?? 0
 }
 
 export function deckSettings(row: DeckRow): DeckSettings {

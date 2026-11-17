@@ -102,6 +102,35 @@ export type UpdateDeckInput = z.infer<typeof UpdateDeckSchema>
 
 export const DeckIdParamSchema = z.object({ id: z.string().min(1).max(64) })
 
+export const CardIdParamSchema = z.object({ id: z.string().min(1).max(64) })
+
+export const InputLangSchema = z.enum(['target', 'source', 'auto'])
+
+/** POST /decks/:id/import. Row limits (500 rows, 100 chars) are enforced by parseImport. */
+export const ImportSchema = z
+  .object({
+    text: z.string().max(200_000),
+    filename: z.string().max(255).optional(),
+    inputLang: InputLangSchema,
+  })
+  .strict()
+export type ImportInput = z.infer<typeof ImportSchema>
+
+export const CARD_STATUSES = ['pending', 'ready', 'failed', 'suspended', 'deleted', 'duplicate'] as const
+export const CardStatusSchema = z.enum(CARD_STATUSES)
+export type CardStatus = z.infer<typeof CardStatusSchema>
+
+/** Statuses the card list can filter on. Without a filter, duplicates (and deleted cards) are excluded. */
+export const ListableStatusSchema = z.enum(['pending', 'ready', 'failed', 'suspended', 'duplicate'])
+
+export const CardListQuerySchema = z.object({
+  status: ListableStatusSchema.optional(),
+  q: z.string().trim().max(100).optional(),
+  cursor: z.string().max(200).optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+})
+export type CardListQuery = z.infer<typeof CardListQuerySchema>
+
 // ---------- response DTOs ----------
 
 export type UserDTO = {
@@ -122,5 +151,67 @@ export type DeckDTO = {
 }
 
 export type MeResponse = { user: UserDTO; decks: DeckDTO[] }
+
+export type CardRef = { id: string; display: string }
+
+export type CardDTO = {
+  id: string
+  deckId: string
+  status: CardStatus
+  /** What to show for the word: the resolved lemma (with article) once ready, else the input term. */
+  display: string
+  inputTerm: string
+  inputHint: string | null
+  inputLang: z.infer<typeof InputLangSchema>
+  /** Main translation once resolved; null while pending. */
+  translation: string | null
+  extraTranslations: string[]
+  duplicateOf?: CardRef
+  state: number
+  due: number
+  createdAt: number
+}
+
+export type CardListResponse = { cards: CardDTO[]; nextCursor: string | null }
+
+/** docs/DUPLICATES.md section 10.6. */
+export type DuplicateReport = {
+  input: string
+  hint?: string
+  line?: number
+  reason: 'in_file' | 'in_deck' | 'resolved'
+  existing: { id: string; display: string; status: CardStatus }
+  addedTranslation: string | null
+}
+
+export type InvalidImportRow = { line: number; term: string; reason: 'empty_term' | 'too_long' }
+
+/** `added` = cards inserted by this import (= ready + pending). */
+export type ImportResponse = {
+  added: number
+  ready: number
+  pending: number
+  invalid: InvalidImportRow[]
+  duplicates: DuplicateReport[]
+}
+
+/** Basic deck counts (M3). Duplicate and deleted cards are never counted. */
+export type DeckStats = {
+  total: number
+  ready: number
+  pending: number
+  failed: number
+  suspended: number
+  /** Ready cards never studied (FSRS state New). */
+  new: number
+  /** Ready cards in Learning or Relearning. */
+  learning: number
+  /** Ready cards in Review. */
+  review: number
+  /** Ready, already-studied cards due now. */
+  dueNow: number
+  /** Cards reported as duplicates (for the Home banner); not part of `total`. */
+  duplicates: number
+}
 
 export type ApiError = { error: string; message?: string; issues?: unknown }
