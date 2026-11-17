@@ -1,0 +1,11 @@
+# Copy to .dev.vars (git-ignored) for local development.
+# Values here override "vars" in wrangler.jsonc when running `npm run dev`.
+
+# Local-only auth bypass (honoured only on localhost). Never set in production.
+DEV_AUTH_EMAIL=you@example.com
+
+# "fake" = deterministic offline generator, "anthropic" = real API calls.
+AI_PROVIDER=fake
+
+# Only needed when AI_PROVIDER=anthropic.
+ANTHROPIC_API_KEY=

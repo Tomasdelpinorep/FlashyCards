@@ -1,0 +1,40 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "flashcards",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+
+  // Static SPA assets (built by Vite into dist/client). Unknown non-/api paths
+  // fall back to index.html; /api/* always goes to the Worker first.
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "flashcards",
+      // TODO(user): run `npx wrangler d1 create flashcards` once you have a
+      // Cloudflare account and paste the returned database_id here.
+      // Local dev (`npm run dev`, `db:migrate:local`) works with this placeholder.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // Non-secret configuration. Secrets (ANTHROPIC_API_KEY) go in `.dev.vars`
+  // locally and `wrangler secret put` in production.
+  // DEV_AUTH_EMAIL must NEVER be set here; it belongs in .dev.vars only.
+  "vars": {
+    "ACCESS_TEAM_DOMAIN": "", // TODO(user): e.g. "https://<team>.cloudflareaccess.com"
+    "ACCESS_AUD": "",         // TODO(user): AUD tag of the Access application
+    "ALLOWED_EMAILS": "",     // TODO(user): comma-separated email allowlist
+    "AI_PROVIDER": "anthropic",
+    "AI_MODEL": "claude-haiku-5-5",
+    "AI_USER_DAILY_LIMIT": "200",
+    "AI_GLOBAL_DAILY_LIMIT": "2000"
+  }
+}
