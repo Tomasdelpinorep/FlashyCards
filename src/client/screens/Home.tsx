@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { GenerationBanner } from '../components/GenerationBanner'
 import { NoDecks } from '../components/NoDecks'
 import { btnPrimary, card, ErrorText, muted, Screen } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
@@ -17,7 +18,6 @@ export function Home() {
   }
 
   const s = stats.data
-  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
   return (
     <Screen
       title="Flashcards"
@@ -44,11 +44,7 @@ export function Home() {
     >
       <ErrorText error={stats.error} />
 
-      {s && s.pending > 0 && (
-        <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200" role="status">
-          Preparing {plural(s.pending, 'word')}…
-        </p>
-      )}
+      <GenerationBanner deckId={deck.id} stats={s} />
       {s && s.duplicates > 0 && (
         <p className="rounded-xl bg-zinc-100 px-4 py-3 text-sm dark:bg-zinc-900">
           {s.duplicates === 1 ? '1 word was' : `${s.duplicates} words were`} already in your deck ·{' '}

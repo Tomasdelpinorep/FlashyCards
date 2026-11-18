@@ -1,6 +1,7 @@
+import { mergeContent, withArticle } from '../../shared/display'
 import type { LanguageCode } from '../../shared/languages'
 import { collapseWhitespace, termKey } from '../../shared/normalize'
-import type { CardDTO, CardListQuery, CardListResponse, CardStatus, DeckStats } from '../../shared/schemas'
+import type { CardDTO, CardListQuery, CardListResponse, CardRef, CardStatus, DeckStats } from '../../shared/schemas'
 import { parseJsonArray } from './util'
 
 export type CardRow = {
@@ -18,6 +19,8 @@ export type CardRow = {
   extra_translations_json: string
   duplicate_of: string | null
   status: CardStatus
+  gen_error: string | null
+  override_json: string | null
   state: number
   due: number
   created_at: number
@@ -28,6 +31,11 @@ export type CardListRow = CardRow & {
   e_lemma: string | null
   e_translation: string | null
   e_grammar: string | null
+  e_pos: string | null
+  e_alts: string | null
+  e_cefr: string | null
+  e_example_target: string | null
+  e_example_source: string | null
   dup_input_term: string | null
   dup_lemma: string | null
   dup_grammar: string | null
@@ -41,10 +49,7 @@ export function lemmaDisplay(lemma: string, grammarJson: string | null | undefin
   } catch {
     article = undefined
   }
-  if (typeof article === 'string' && article.trim() && !lemma.toLowerCase().startsWith(`${article.trim().toLowerCase()} `)) {
-    return `${article.trim()} ${lemma}`
-  }
-  return lemma
+  return withArticle(lemma, typeof article === 'string' ? article : null)
 }
 
 export function cardDisplay(inputTerm: string, lemma: string | null | undefined, grammarJson?: string | null): string {
@@ -52,16 +57,36 @@ export function cardDisplay(inputTerm: string, lemma: string | null | undefined,
 }
 
 export function toCardDTO(row: CardListRow): CardDTO {
+  const content =
+    row.status === 'pending' || row.status === 'failed'
+      ? null
+      : mergeContent(
+          row.e_lemma === null
+            ? null
+            : {
+                lemma: row.e_lemma,
+                pos: row.e_pos,
+                translation: row.e_translation,
+                alt_translations_json: row.e_alts,
+                cefr: row.e_cefr,
+                grammar_json: row.e_grammar,
+                example_target: row.e_example_target,
+                example_source: row.e_example_source,
+              },
+          row.override_json,
+        )
   const dto: CardDTO = {
     id: row.id,
     deckId: row.deck_id,
     status: row.status,
-    display: cardDisplay(row.input_term, row.e_lemma, row.e_grammar),
+    display: content ? withArticle(content.lemma, content.grammar?.article) : row.input_term,
     inputTerm: row.input_term,
     inputHint: row.input_hint,
     inputLang: row.input_lang,
-    translation: row.e_translation,
+    translation: content?.translation ?? null,
     extraTranslations: parseJsonArray(row.extra_translations_json),
+    content,
+    genError: row.gen_error,
     state: row.state,
     due: row.due,
     createdAt: row.created_at,
@@ -74,6 +99,8 @@ export function toCardDTO(row: CardListRow): CardDTO {
 
 const LIST_SELECT = `
   SELECT c.*, e.lemma AS e_lemma, e.translation AS e_translation, e.grammar_json AS e_grammar,
+         e.pos AS e_pos, e.alt_translations_json AS e_alts, e.cefr AS e_cefr,
+         e.example_target AS e_example_target, e.example_source AS e_example_source,
          dc.input_term AS dup_input_term, de.lemma AS dup_lemma, de.grammar_json AS dup_grammar
   FROM cards c
   LEFT JOIN entries e ON e.id = c.entry_id
@@ -148,6 +175,32 @@ export async function listCards(
   }
 }
 
+/**
+ * GET /cards/:id: an owned, non-deleted card with `alsoInDeck` (other ready cards of the deck
+ * sharing a gloss key, at most 3; DUPLICATES.md 10.6). Two queries.
+ */
+export async function getCard(db: D1Database, userId: string, cardId: string): Promise<CardDTO | null> {
+  const row = await db
+    .prepare(`${LIST_SELECT} WHERE c.id = ? AND c.status <> 'deleted' AND c.deck_id IN (SELECT id FROM decks WHERE user_id = ?)`)
+    .bind(cardId, userId)
+    .first<CardListRow>()
+  if (!row) return null
+  const dto = toCardDTO(row)
+  const { results } = await db
+    .prepare(
+      `SELECT DISTINCT o.id, o.input_term, e.lemma, e.grammar_json
+       FROM card_glosses g
+       JOIN card_glosses og ON og.deck_id = g.deck_id AND og.gloss_key = g.gloss_key AND og.card_id <> g.card_id
+       JOIN cards o ON o.id = og.card_id AND o.status = 'ready'
+       LEFT JOIN entries e ON e.id = o.entry_id
+       WHERE g.card_id = ? ORDER BY o.created_at LIMIT 3`,
+    )
+    .bind(cardId)
+    .all<{ id: string; input_term: string; lemma: string | null; grammar_json: string | null }>()
+  dto.alsoInDeck = results.map((r): CardRef => ({ id: r.id, display: cardDisplay(r.input_term, r.lemma, r.grammar_json) }))
+  return dto
+}
+
 export async function deckStats(db: D1Database, deckId: string, now = Date.now()): Promise<DeckStats> {
   const row = await db
     .prepare(
@@ -185,4 +238,19 @@ export async function softDeleteCard(db: D1Database, userId: string, cardId: str
   if (!row) return false
   await db.prepare('DELETE FROM card_glosses WHERE card_id = ?').bind(cardId).run()
   return true
+}
+
+/**
+ * POST /decks/:id/retry-failed: failed cards go back to pending with a fresh attempt count.
+ * Duplicates (and deleted cards) are never touched. One statement.
+ */
+export async function retryFailed(db: D1Database, deckId: string): Promise<number> {
+  const res = await db
+    .prepare(
+      `UPDATE cards SET status = 'pending', gen_attempts = 0, gen_error = NULL, gen_claimed_at = NULL, updated_at = ?
+       WHERE deck_id = ? AND status = 'failed'`,
+    )
+    .bind(Date.now(), deckId)
+    .run()
+  return res.meta.changes
 }

@@ -9,11 +9,13 @@ import {
   type InputLang,
 } from '../../shared/parseImport'
 import type { ImportResponse } from '../../shared/schemas'
+import { GenerationBanner } from '../components/GenerationBanner'
 import { ImportSummary } from '../components/ImportSummary'
 import { btnPrimary, btnSecondary, btnSmall, card, ErrorText, input, muted, Screen } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
-import { invalidReason } from '../lib/importCopy'
-import { useImport } from '../lib/queries'
+import { useGeneration } from '../lib/generation'
+import { duplicateText, invalidReason } from '../lib/importCopy'
+import { useDeckStats, useImport } from '../lib/queries'
 
 const PREVIEW_LIMIT = 8
 
@@ -30,6 +32,8 @@ function ImportTab({ deckId, sourceLang, targetLang }: { deckId: string; sourceL
   const [fileError, setFileError] = useState<string | null>(null)
   const [result, setResult] = useState<ImportResponse | null>(null)
   const importMutation = useImport(deckId)
+  const generation = useGeneration()
+  const stats = useDeckStats(deckId)
 
   const preview = useMemo(() => {
     const parsed = parseImport(text, { filename })
@@ -55,12 +59,37 @@ function ImportTab({ deckId, sourceLang, targetLang }: { deckId: string; sourceL
   }
 
   const submit = () =>
-    importMutation.mutate({ text, filename, inputLang }, { onSuccess: (r) => setResult(r) })
+    importMutation.mutate(
+      { text, filename, inputLang },
+      {
+        onSuccess: (r) => {
+          setResult(r)
+          if (r.pending > 0) generation.start()
+        },
+      },
+    )
 
   if (result) {
     return (
       <Screen title="Add words">
         <ImportSummary result={result} targetLang={targetLang} />
+        <GenerationBanner deckId={deckId} stats={stats.data} />
+        {generation.state.duplicates.length > 0 && (
+          <details className={`${card} text-sm`}>
+            <summary className="cursor-pointer font-medium">
+              {generation.state.duplicates.length} more already in your deck (found while preparing)
+            </summary>
+            <ul className="mt-2 flex flex-col gap-1.5">
+              {generation.state.duplicates.map((d, i) => (
+                <li key={i}>
+                  <Link className="underline decoration-zinc-300 underline-offset-2 dark:decoration-zinc-600" to={`/words/${d.existing.id}`}>
+                    {duplicateText(d, targetLang)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
         <Link to="/words" className={btnPrimary}>
           See your words
         </Link>

@@ -33,15 +33,29 @@ function meta(changes = 0, lastRowId = 0) {
   }
 }
 
+/**
+ * Counts executed statements, the unit D1 bills against the Workers "queries per invocation"
+ * limit: every prepare().first/all/run/raw is one, and so is every statement inside a batch.
+ */
+export class QueryCounter {
+  count = 0
+  readonly log: string[] = []
+  record(sql: string) {
+    this.count++
+    this.log.push(sql.replace(/\s+/g, ' ').trim().slice(0, 120))
+  }
+}
+
 class Statement {
   constructor(
     private readonly db: DatabaseSync,
+    private readonly counter: QueryCounter,
     readonly sql: string,
     readonly params: SQLInputValue[] = [],
   ) {}
 
   bind(...values: unknown[]) {
-    return new Statement(this.db, this.sql, values.map(toSqlValue))
+    return new Statement(this.db, this.counter, this.sql, values.map(toSqlValue))
   }
 
   private stmt(): StatementSync {
@@ -50,6 +64,7 @@ class Statement {
 
   /** Synchronous core used by both the async API and batch(). */
   execute() {
+    this.counter.record(this.sql)
     const stmt = this.stmt()
     // Statements that return rows (SELECT, ... RETURNING) go through all(); others through run().
     if (stmt.columns().length > 0) {
@@ -77,6 +92,7 @@ class Statement {
   }
 
   async raw<T = unknown[]>(options?: { columnNames?: boolean }): Promise<T[]> {
+    this.counter.record(this.sql)
     const stmt = this.stmt()
     const cols = stmt.columns().map((c) => c.name)
     const rows = stmt.all(...this.params).map((r) => cols.map((c) => (r as Record<string, unknown>)[c]))
@@ -85,10 +101,13 @@ class Statement {
 }
 
 class Database {
-  constructor(readonly sqlite: DatabaseSync) {}
+  constructor(
+    readonly sqlite: DatabaseSync,
+    readonly counter: QueryCounter,
+  ) {}
 
   prepare(sql: string) {
-    return new Statement(this.sqlite, sql)
+    return new Statement(this.sqlite, this.counter, sql)
   }
 
   /** Like D1: all statements run in one transaction; any failure rolls back all of them. */
@@ -118,7 +137,7 @@ class Database {
   }
 }
 
-export type TestD1 = { db: D1Database; sqlite: DatabaseSync }
+export type TestD1 = { db: D1Database; sqlite: DatabaseSync; counter: QueryCounter }
 
 /** Fresh in-memory database with every migration applied. */
 export function createTestD1(): TestD1 {
@@ -127,5 +146,6 @@ export function createTestD1(): TestD1 {
   for (const file of readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith('.sql')).sort()) {
     sqlite.exec(readFileSync(join(MIGRATIONS_DIR, file), 'utf8'))
   }
-  return { db: new Database(sqlite) as unknown as D1Database, sqlite }
+  const counter = new QueryCounter()
+  return { db: new Database(sqlite, counter) as unknown as D1Database, sqlite, counter }
 }

@@ -1,5 +1,6 @@
 /** Zod schemas and DTO types shared by the Worker and the client. */
 import { z } from 'zod'
+import type { CardContent } from './display'
 import { LANGUAGE_CODES } from './languages'
 
 export const LanguageCodeSchema = z.enum(LANGUAGE_CODES)
@@ -166,7 +167,13 @@ export type CardDTO = {
   /** Main translation once resolved; null while pending. */
   translation: string | null
   extraTranslations: string[]
+  /** Generated content (entry merged with the card's override); null while pending/failed. */
+  content: CardContent | null
+  /** Why generation failed ('not_a_word', or the last error), for failed cards. */
+  genError: string | null
   duplicateOf?: CardRef
+  /** Other ready cards sharing a gloss (<= 3); only on GET /cards/:id (and M5's /learn, /review). */
+  alsoInDeck?: CardRef[]
   state: number
   due: number
   createdAt: number
@@ -213,5 +220,28 @@ export type DeckStats = {
   /** Cards reported as duplicates (for the Home banner); not part of `total`. */
   duplicates: number
 }
+
+/** POST /decks/:id/generate (PLAN section 4, DUPLICATES.md 10.6). Duplicates count toward `processed`. */
+export type GenerateResponse = {
+  /** Cards that left 'pending' in this call: ready + duplicate + failed. */
+  processed: number
+  /** Resolved from the shared cache (entry_aliases), no AI call. */
+  fromCache: number
+  /** Resolved by the AI call. */
+  generated: number
+  /** Cards that became 'failed' (not a word, or 3 failed attempts). */
+  failed: number
+  /** Cards still pending in the deck after this call. */
+  remaining: number
+  /** True when the daily AI limit stopped some cards from being generated. */
+  rateLimited: boolean
+  /** When the daily limit resets (ms since epoch, next UTC midnight); set when rateLimited. */
+  limitResetsAt?: number
+  duplicates: DuplicateReport[]
+}
+
+export type RetryFailedResponse = { retried: number }
+
+export type CardResponse = { card: CardDTO }
 
 export type ApiError = { error: string; message?: string; issues?: unknown }

@@ -2,8 +2,10 @@ import { Navigate, Route, Routes } from 'react-router'
 import { TabBar } from './components/TabBar'
 import { btnPrimary, ErrorText } from './components/ui'
 import { DeckProvider } from './lib/deck'
+import { GenerationProvider } from './lib/generation'
 import { useMe } from './lib/queries'
 import { AddWords } from './screens/AddWords'
+import { CardDetail } from './screens/CardDetail'
 import { Home } from './screens/Home'
 import { Settings } from './screens/Settings'
 import { Words } from './screens/Words'
@@ -25,13 +27,16 @@ export default function App() {
         )}
         {me.isSuccess && (
           <DeckProvider decks={me.data.decks}>
+            <GenerationProvider>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/words" element={<Words />} />
+              <Route path="/words/:id" element={<CardDetail />} />
               <Route path="/add" element={<AddWords />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            </GenerationProvider>
           </DeckProvider>
         )}
       </main>

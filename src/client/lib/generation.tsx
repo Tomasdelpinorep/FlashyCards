@@ -1,0 +1,102 @@
+/**
+ * The client-side generation loop (PLAN.md section 2, step 3-4): calls POST /generate until
+ * `remaining` is 0. It starts after an import, resumes on load when the deck still has pending
+ * cards, stops (with a message) when the daily AI limit is reached, and backs off when a call
+ * makes no progress (another tab/request holds the lease, or a transient AI error).
+ */
+import { useQueryClient } from '@tanstack/react-query'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import type { DuplicateReport } from '../../shared/schemas'
+import { useCurrentDeck } from './deck'
+import { generateOnce, keys, useDeckStats } from './queries'
+
+export type GenerationState = {
+  running: boolean
+  /** Cards processed (ready, duplicate or failed) since the loop started. */
+  done: number
+  /** done + what is still pending. */
+  total: number
+  rateLimited: boolean
+  limitResetsAt: number | null
+  error: string | null
+  /** Duplicates found while generating (DUPLICATES.md 10.6 reason 'resolved'). */
+  duplicates: DuplicateReport[]
+}
+
+const IDLE: GenerationState = { running: false, done: 0, total: 0, rateLimited: false, limitResetsAt: null, error: null, duplicates: [] }
+const NO_PROGRESS_DELAY_MS = 3000
+const MAX_IDLE_ROUNDS = 40 // ~2 minutes without progress -> give up until the next trigger
+
+type Ctx = { state: GenerationState; start: () => void }
+const GenerationContext = createContext<Ctx>({ state: IDLE, start: () => {} })
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+export function GenerationProvider({ children }: { children: ReactNode }) {
+  const { deck } = useCurrentDeck()
+  const deckId = deck?.id
+  const stats = useDeckStats(deckId)
+  const qc = useQueryClient()
+  const [state, setState] = useState<GenerationState>(IDLE)
+  const run = useRef<{ deckId: string; cancelled: boolean } | null>(null)
+
+  // A different deck: stop the old loop and start from scratch.
+  useEffect(() => {
+    setState(IDLE)
+    return () => {
+      if (run.current) run.current.cancelled = true
+      run.current = null
+    }
+  }, [deckId])
+
+  const start = useCallback(() => {
+    if (!deckId || (run.current && !run.current.cancelled)) return
+    const me = { deckId, cancelled: false }
+    run.current = me
+    setState({ ...IDLE, running: true })
+    void (async () => {
+      let idle = 0
+      let done = 0
+      try {
+        while (!me.cancelled) {
+          const r = await generateOnce(deckId)
+          if (me.cancelled) return
+          done += r.processed
+          setState((s) => ({
+            ...s,
+            done,
+            total: done + r.remaining,
+            rateLimited: r.rateLimited,
+            limitResetsAt: r.limitResetsAt ?? null,
+            duplicates: [...s.duplicates, ...r.duplicates],
+          }))
+          if (r.processed > 0 || r.remaining === 0) void qc.invalidateQueries({ queryKey: keys.deck(deckId) })
+          if (r.remaining === 0 || r.rateLimited) break
+          idle = r.processed > 0 ? 0 : idle + 1
+          if (idle >= MAX_IDLE_ROUNDS) break
+          if (idle > 0) await sleep(NO_PROGRESS_DELAY_MS)
+        }
+      } catch (err) {
+        if (!me.cancelled) setState((s) => ({ ...s, error: err instanceof Error ? err.message : String(err) }))
+      } finally {
+        if (run.current === me) {
+          run.current = null
+          setState((s) => ({ ...s, running: false }))
+        }
+      }
+    })()
+  }, [deckId, qc])
+
+  // Resume on load (and whenever pending cards appear), unless the daily limit or an error stopped us.
+  const pending = stats.data?.pending ?? 0
+  const limited = state.rateLimited && state.limitResetsAt !== null && Date.now() < state.limitResetsAt
+  useEffect(() => {
+    if (pending > 0 && !state.running && !limited && !state.error) start()
+  }, [pending, state.running, limited, state.error, start])
+
+  return <GenerationContext.Provider value={{ state, start }}>{children}</GenerationContext.Provider>
+}
+
+export function useGeneration() {
+  return useContext(GenerationContext)
+}

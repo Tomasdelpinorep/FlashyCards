@@ -1,6 +1,6 @@
 /** Small shared UI pieces and class names (mobile-first, light and dark). */
 import type { ReactNode } from 'react'
-import { LANGUAGES, isLanguageCode } from '../../shared/languages'
+import { articleColor, highlightSegments } from '../../shared/display'
 
 export const btnPrimary =
   'inline-flex h-12 w-full items-center justify-center rounded-xl bg-zinc-900 px-4 font-medium text-white active:scale-[0.99] disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900'
@@ -42,15 +42,31 @@ const ARTICLE_COLORS = {
 
 /** A word with its leading article coloured by gender (der blue, die red, das green). */
 export function Word({ text, lang }: { text: string; lang: string }) {
-  const colors = isLanguageCode(lang) ? LANGUAGES[lang].genderColors : undefined
-  const space = text.indexOf(' ')
-  const article = space > 0 ? text.slice(0, space) : ''
-  const color = colors?.[article.toLowerCase()]
-  if (!color) return <>{text}</>
+  const parts = articleColor(lang, text)
+  if (!parts) return <>{text}</>
   return (
     <>
-      <span className={ARTICLE_COLORS[color]}>{article}</span>
-      {text.slice(space)}
+      <span className={ARTICLE_COLORS[parts.color]}>{parts.article}</span>
+      {parts.rest}
     </>
+  )
+}
+
+/** A sentence with its [[ ]] parts highlighted (shown plain when the markers are missing). */
+export function Sentence({ text, className = '' }: { text: string | null | undefined; className?: string }) {
+  const segments = highlightSegments(text)
+  if (segments.length === 0) return null
+  return (
+    <p className={className}>
+      {segments.map((s, i) =>
+        s.mark ? (
+          <mark key={i} className="rounded bg-amber-100 px-0.5 font-semibold text-inherit dark:bg-amber-900/60">
+            {s.text}
+          </mark>
+        ) : (
+          <span key={i}>{s.text}</span>
+        ),
+      )}
+    </p>
   )
 }

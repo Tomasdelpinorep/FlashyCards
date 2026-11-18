@@ -140,7 +140,7 @@
     (plus one per merged translation). If D1 counts batch statements against the Workers Free
     "queries per invocation" limit, very large imports may need the inserts folded into a single
     `INSERT OR IGNORE ... SELECT FROM json_each(?) RETURNING id` (unbounded rows, one statement).
-    Kept the spec's <= 7-rows form for now.
+    Kept the spec's <= 7-rows form for now. *(Resolved in M4: see "D1 query budget" below.)*
 
 - **Card list.** `GET /decks/:id/cards?status&q&cursor&limit` (limit 1-100, default 50), newest
   first, keyset cursor `"<created_at>_<id>"`. Without `status`, duplicate and deleted cards are
@@ -159,4 +159,142 @@
   (convenience only; falls back to the first deck). Summary copy lives in
   `src/client/lib/importCopy.ts` (unit-tested); summary lines link to
   `/words?q=<display>&card=<id>`, which highlights the card.
+
+## M4 (AI generation, cache, rate limit)
+
+- **D1 query budget (Part 0).** D1 on Workers Free allows ~50 queries per invocation and every
+  statement of a `db.batch` counts. Rule from M4 on: **a request issues a fixed number of
+  statements regardless of how many rows it handles**. Lists travel as ONE JSON parameter
+  expanded with `json_each()`, never as chunked `IN (...)` lists or one statement per row.
+  - Import: alias lookup = 1 query (aliases joined to entries); candidates = 1 query (glosses
+    aggregated with `json_group_array`); one batch with the merge UPDATE (a set-based,
+    idempotent, 10-capped rewrite of `extra_translations_json`), ONE
+    `INSERT OR IGNORE INTO cards ... SELECT ... FROM json_each(?) ORDER BY key RETURNING id` for
+    all rows, and ONE gloss insert. Measured: **5 statements for a 500-row import** (was ~72),
+    7 with alias hits and merges, +1 when a parallel import wins a race.
+  - Generate: measured **15 statements** for a 10-card call with cache hits, misses, duplicates
+    and not_a_word; 12 on the parallel-race path (phase B).
+  - `test/helpers/d1.ts` counts executed statements (each batch member counts).
+    `ctx.countQueries(fn)` lets tests assert import <= 25 and generate <= 30, auth and deck
+    lookup included.
+  - This supersedes §10.3's "<= 7 rows per INSERT" and "chunks of <= 90 keys". `selectIn`/`chunk`
+    remain in `db/util.ts` but no request path uses them.
+  - The `cards_lemma_uq` backstop is not caught and retried one card at a time (§10.4). The guard
+    can only fail across requests, and `batchSeen` excludes within-batch conflicts first, so the
+    index cannot fire from our own statements. If it ever fires the request returns 500, the
+    leases expire after 90 s, and the next call retries.
+
+- **Generate is set-based.** §10.4's per-card steps are folded into statements:
+  - The guarded `UPDATE ... NOT EXISTS` is ONE `UPDATE cards ... FROM json_each(?) ... RETURNING
+    id` for every card to ready.
+  - markDuplicate, failures/attempts and lease release are one statement each.
+  - Cards the guard rejected (a parallel request readied the same lemma first) are re-read
+    (1 query) and marked duplicate in a second small batch. Cards already marked duplicate *of
+    such a loser* in the same call are re-pointed to the winner.
+  - `entries` uses `INSERT ... SELECT ... ON CONFLICT DO NOTHING`; aliases and the winner read
+    go in the same 3-statement batch.
+
+- **Generator abstraction.** The `ai/` folder holds:
+  - `generator.ts`: the interface plus `GeneratorError{retryable}`
+  - `create.ts`: `createGenerator` picks Anthropic for `AI_PROVIDER=anthropic` with a key,
+    otherwise fake, with a `console.warn` when anthropic is requested without a key
+  - `anthropic.ts`, `fake.ts`, `prompts.ts`, `schema.ts`
+
+  `createApp({ generator })` injects one for tests (routes call `c.get('generator')()`).
+  - **Risk:** the requested "fall back to fake when there is no key" also applies in production.
+    Fake entries (model `fake`) would then land in the global cache and be reused. Set the
+    secret before deploying with `AI_PROVIDER=anthropic`. Fake rows can be found with
+    `entries.model = 'fake'`.
+
+- **Anthropic request** (per the `claude-api` skill): `client.messages.parse` with
+  `output_config.format = zodOutputFormat(BatchSchema)`.
+  - Model `AI_MODEL` (default `claude-haiku-5-5`), `max_tokens: 8000`.
+  - `thinking: {type:'disabled'}` (PLAN §1) plus `output_config.effort: 'low'`. On Haiku 5.5,
+    `disabled` is only accepted at effort <= high, and the default effort there is `medium`.
+  - No `temperature`/`top_p`/`top_k` (Haiku 5.5 rejects non-default sampling).
+  - SDK `maxRetries: 1`, timeout 60 s.
+  - Error mapping:
+    - Retryable: 429, 408/409, >= 500 (incl. 529), connection errors, `max_tokens` truncation,
+      schema misses.
+    - Not retryable: refusals and other 4xx (400/401/403).
+  - The skill recommends adaptive thinking with low effort over disabling it. I kept PLAN's
+    "thinking disabled" because the output is short and structured. Revisit if the real-key
+    check shows weak sentences.
+
+- **Every failed call counts an attempt, retryable or not.** PLAN §5 only names 429/5xx, but a
+  non-retryable error (bad key, 400) would otherwise loop forever.
+  - The card stays pending and becomes `failed` after 3 attempts; `gen_error` keeps the last
+    message.
+  - An item missing from the response, or one without a lemma or translation, also counts an
+    attempt.
+  - `not_a_word` fails at once (`gen_error = 'not_a_word'`).
+  - The budget consumed by a failed call is not refunded.
+
+- **Schema details** beyond PLAN §5:
+  - `input_side` (§10.2).
+  - `verb.perfect_3sg` ("ist gegangen"), so the client shows "geht · ging · ist gegangen" with no
+    language logic.
+  - Gender is a language-neutral enum: masculine/feminine/neuter.
+  - `LanguageConfig.genderArticles` (de der/die/das, es el/la) drives article/gender agreement.
+    A known gender sets the article; an article alone sets the gender.
+  - The German hints in `languages.ts` now name the schema fields and ask for both parts of a
+    separable verb to be wrapped, so `[[ ]]` may appear more than once. `hasValidMarkers`
+    accepts one or more well-formed pairs; a sentence with malformed markers is stored with them
+    stripped.
+
+- **Post-validation:**
+  - Outputs are matched by `input` (exact, then case-insensitive), then by position when the
+    counts match.
+  - A leading article is stripped from the lemma.
+  - At most 3 alternative translations, deduped against the main translation.
+  - For `auto` input the side comes from the model; otherwise the user's declared `input_lang`
+    wins.
+
+- **Rate limit.**
+  - `checkBudget` (1 query) computes how many misses fit under both the per-user and the global
+    limit.
+  - `consumeBudget` is ONE guarded `INSERT ... SELECT ... WHERE NOT EXISTS(over limit) ON
+    CONFLICT DO UPDATE` that writes both scope rows or neither.
+  - Partial batches are allowed: with 2 words left, 2 of 10 misses are generated and
+    `rateLimited: true`. The remaining cards have their lease released, with no attempt counted.
+  - Cache hits are still resolved while limited.
+  - `limitResetsAt` is ms since epoch (next UTC midnight).
+  - Identical misses in one call are sent (and counted) once.
+
+- **Spec test "dog after Hund -> Hund's extras = ['dog']"** only holds when "dog" is not already
+  one of Hund's glosses, because mergeTranslation skips known glosses. The fake lexicon gives Hund
+  "dog" + "hound", so that test overrides Hund's translation to "hound". A second test checks
+  that the normal case adds nothing (`addedTranslation: null`).
+
+- **"Duplicates excluded from learn/review"** is tested for stats, the default card list and
+  retry-failed. `/learn` and `/review` do not exist yet (M5/M6); they must filter
+  `status = 'ready'`, which excludes duplicates.
+
+- **Card DTO.**
+  - `content`: the entry merged with `override_json` by `shared/display.ts mergeContent`; null
+    while pending or failed.
+  - `genError`.
+  - `alsoInDeck`: GET `/cards/:id` only, <= 3, one self-join on `card_glosses`.
+  - `display` and `translation` now come from the merged content.
+  - `GET /api/cards/:id` was added (PLAN §4) for the detail view.
+
+- **Client.**
+  - `GenerationProvider` (in `App`) runs the `/generate` loop for the current deck:
+    - starts after an import that left pending cards, and resumes whenever stats show pending
+      cards;
+    - stops on `remaining = 0`, on `rateLimited` (no auto-resume until `limitResetsAt`), or on an
+      error ("Try again");
+    - backs off 3 s when a call makes no progress (another tab holds the lease).
+  - `GenerationBanner` (on Home and under the import summary) shows "Preparing N words… x/N",
+    the daily-limit message, and "N couldn't be prepared · Retry failed".
+  - Duplicates found by generate are listed under the import summary with the §10.8 copy, and
+    counted in Home's existing "already in your deck · View" banner.
+  - The words list shows "translation · also: …" and each row links to `/words/:id`.
+  - `/words/:id` is a simple detail view: coloured article, forms, translation + also, other
+    meanings, highlighted sentence + translation, duplicate/also-in-deck links, delete, and retry
+    for failed cards.
+
+- **Cache is level-agnostic.** Entries are keyed by (lemma, sense), not by the deck's sentence
+  level, as in the PLAN schema. A B1 deck reuses an A1-A2 sentence that is already cached.
+  `prompt_version` is stored so stale rows can be refreshed later.
 

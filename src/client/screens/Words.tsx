@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
+import { duplicateOfText, translationLine } from '../../shared/display'
 import type { CardDTO } from '../../shared/schemas'
 import { NoDecks } from '../components/NoDecks'
 import { btnSecondary, btnSmall, ErrorText, input, muted, Screen, Word } from '../components/ui'
@@ -136,22 +137,24 @@ function CardRow({
     card.status === 'pending'
       ? 'Preparing…'
       : card.status === 'duplicate'
-        ? `Already in your deck${card.duplicateOf ? ` as ${card.duplicateOf.display}` : ''}`
+        ? duplicateOfText(card.duplicateOf)
         : card.status === 'failed'
-          ? 'Generation failed'
-          : [card.translation, ...card.extraTranslations].filter(Boolean).join(', ') || card.inputHint || ''
+          ? card.genError === 'not_a_word'
+            ? 'Not recognised as a word'
+            : 'Generation failed'
+          : translationLine(card.translation, card.extraTranslations) || card.inputHint || ''
   return (
     <li
       ref={highlighted ? (el) => el?.scrollIntoView({ block: 'center' }) : undefined}
       className={`flex items-center gap-3 py-3 ${highlighted ? '-mx-2 rounded-xl bg-amber-50 px-2 dark:bg-amber-950' : ''}`}
     >
-      <div className="min-w-0 flex-1">
+      <Link to={`/words/${card.id}`} className="min-w-0 flex-1">
         <p className="truncate font-medium">
           <Word text={card.display} lang={lang} />
           {card.inputHint && card.status === 'pending' && <span className="font-normal text-zinc-500 dark:text-zinc-400"> · {card.inputHint}</span>}
         </p>
         <p className={`truncate ${muted} ${card.status === 'failed' ? 'text-red-700 dark:text-red-400' : ''}`}>{subtitle}</p>
-      </div>
+      </Link>
       {card.status !== 'duplicate' && (
         <button type="button" className={`${btnSmall} shrink-0`} onClick={onDelete} disabled={deleting} aria-label={`Delete ${card.display}`}>
           {deleting ? '…' : 'Delete'}

@@ -24,6 +24,11 @@ export interface LanguageConfig {
   importHeaderWords: readonly string[]
   /** Article -> colour token for gendered nouns (der blue, die red, das green). */
   genderColors?: Readonly<Record<string, 'blue' | 'red' | 'green'>>
+  /**
+   * Grammatical gender -> definite singular article. Used to check that an AI-generated
+   * article agrees with the gender (post-validation). Absent for languages without gender.
+   */
+  genderArticles?: Readonly<Partial<Record<'masculine' | 'feminine' | 'neuter', string>>>
   /** Extra grammar instructions for the AI prompt when this is the target language. */
   grammarPromptHints: string
   /** Whether a bundled frequency word list exists (wordlist table). */
@@ -50,11 +55,13 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     glossStripPrefixes: ['der ', 'die ', 'das ', 'ein ', 'eine '],
     importHeaderWords: ['deutsch', 'german', 'wort', 'wörter', 'begriff', 'übersetzung', 'bedeutung', 'vokabel', 'vokabeln'],
     genderColors: { der: 'blue', die: 'red', das: 'green' },
+    genderArticles: { masculine: 'der', feminine: 'die', neuter: 'das' },
     grammarPromptHints: [
-      'Nouns: gender, article, plural with its article, irregular genitive.',
-      'Verbs: present 3rd person singular, Präteritum 3rd person singular, past participle, auxiliary (haben/sein), separable, reflexive, governed case.',
-      'Adjectives: irregular comparative and superlative.',
-      'Prepositions: governed case.',
+      'Nouns: gender; article (der/die/das); plural with its article ("die Hunde"), null if the noun has no plural; genitive only if irregular ("des Namens"). Nouns are capitalised.',
+      'Verbs: verb.present_3sg ("geht"), verb.past_3sg (Präteritum, "ging"), verb.perfect_3sg ("ist gegangen"), verb.participle ("gegangen"), verb.auxiliary ("haben" or "sein"), verb.separable, verb.reflexive (reflexive lemmas look like "sich freuen"); governs_case when the object is dative or genitive.',
+      'Adjectives: comparative and superlative only if irregular ("größer", "am größten").',
+      'Prepositions: governs_case ("accusative", "dative", "genitive", or "accusative/dative" for two-way prepositions).',
+      'Separable verbs in example_target: wrap both parts, e.g. "Ich [[stehe]] um sieben Uhr [[auf]]."',
     ].join('\n'),
     hasWordlist: false, // becomes true in M7 (migrations/0002_wordlist_de.sql)
   },
@@ -66,9 +73,10 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     glossStripPrefixes: ['el ', 'la ', 'los ', 'las ', 'un ', 'una '],
     importHeaderWords: ['español', 'spanish', 'palabra', 'palabras', 'término', 'traducción', 'significado'],
     genderColors: { el: 'blue', la: 'red' },
+    genderArticles: { masculine: 'el', feminine: 'la' },
     grammarPromptHints: [
-      'Nouns: gender, article, plural.',
-      'Verbs: present 3rd person singular, preterite 3rd person singular, past participle, reflexive, irregular stem changes.',
+      'Nouns: gender; article (el/la); plural with its article ("los perros").',
+      'Verbs: verb.present_3sg, verb.past_3sg (pretérito indefinido), verb.perfect_3sg ("ha comido"), verb.participle, verb.reflexive; irregular stem changes in grammar.note.',
       'Adjectives: feminine form if irregular.',
     ].join('\n'),
     hasWordlist: false,

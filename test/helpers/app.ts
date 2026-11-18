@@ -1,5 +1,7 @@
 /** Test harness: app with a local JWKS, an in-memory D1, and token/request helpers. */
 import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT, type JWK } from 'jose'
+import type { SentenceGenerator } from '../../src/worker/ai/generator'
+import { FakeGenerator } from '../../src/worker/ai/fake'
 import { createApp } from '../../src/worker/app'
 import type { Bindings } from '../../src/worker/env'
 import { createTestD1 } from './d1'
@@ -29,8 +31,10 @@ export async function signToken(
 
 type RequestOpts = { method?: string; token?: string; body?: unknown; host?: string }
 
-export function setup(envOverrides: Partial<Bindings> = {}) {
-  const { db, sqlite } = createTestD1()
+export function setup(envOverrides: Partial<Bindings> = {}, options: { generator?: SentenceGenerator } = {}) {
+  const { db, sqlite, counter } = createTestD1()
+  /** The generator every request uses (a FakeGenerator unless the test passes its own). */
+  const generator = options.generator ?? new FakeGenerator()
   const env: Bindings = {
     DB: db,
     ACCESS_TEAM_DOMAIN: TEAM_DOMAIN,
@@ -42,7 +46,7 @@ export function setup(envOverrides: Partial<Bindings> = {}) {
     AI_GLOBAL_DAILY_LIMIT: '2000',
     ...envOverrides,
   }
-  const app = createApp({ jwks: () => localJwks })
+  const app = createApp({ jwks: () => localJwks, generator: () => generator })
 
   /** Request against a non-local host (as in production) unless `host` says otherwise. */
   async function request(path: string, opts: RequestOpts = {}) {
@@ -63,5 +67,12 @@ export function setup(envOverrides: Partial<Bindings> = {}) {
     return request(path, { ...opts, token: await signToken(email) })
   }
 
-  return { app, env, sqlite, request, as }
+  /** Number of D1 statements executed while `fn` runs (run it alone: the counter is per database). */
+  async function countQueries<T>(fn: () => Promise<T>): Promise<{ result: T; queries: number; log: string[] }> {
+    const start = counter.count
+    const result = await fn()
+    return { result, queries: counter.count - start, log: counter.log.slice(start) }
+  }
+
+  return { app, env, sqlite, request, as, generator, countQueries }
 }

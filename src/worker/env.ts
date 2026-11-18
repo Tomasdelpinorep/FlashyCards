@@ -1,3 +1,4 @@
+import type { SentenceGenerator } from './ai/generator'
 import type { UserRow } from './db/users'
 
 /**
@@ -19,7 +20,11 @@ export type Bindings = {
   ANTHROPIC_API_KEY?: string
 }
 
-export type Variables = { user: UserRow }
+export type Variables = {
+  user: UserRow
+  /** Lazily creates the sentence generator for this request (see createApp). */
+  generator: () => SentenceGenerator
+}
 
 /** Hono env for every route. `user` is set by the auth middleware. */
 export type AppEnv = { Bindings: Bindings; Variables: Variables }

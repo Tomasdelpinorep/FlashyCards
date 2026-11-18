@@ -2,13 +2,16 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { LanguageConfig } from '../../shared/languages'
 import type {
+  CardResponse,
   CardListResponse,
   CreateDeckInput,
   DeckDTO,
   DeckStats,
+  GenerateResponse,
   ImportInput,
   ImportResponse,
   MeResponse,
+  RetryFailedResponse,
 } from '../../shared/schemas'
 import { api, unwrap } from './api'
 
@@ -20,6 +23,7 @@ export const keys = {
   stats: (deckId: string) => ['decks', deckId, 'stats'] as const,
   cards: (deckId: string, status?: string, q?: string) => ['decks', deckId, 'cards', status ?? 'all', q ?? ''] as const,
   deck: (deckId: string) => ['decks', deckId] as const,
+  card: (cardId: string) => ['cards', cardId] as const,
 }
 
 export function useMe() {
@@ -94,5 +98,27 @@ export function useDeleteDeck() {
   return useMutation({
     mutationFn: (deckId: string) => unwrap<{ ok: true }>(api.decks[':id'].$delete({ param: { id: deckId } })),
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.me }),
+  })
+}
+
+export function useCard(cardId: string | undefined) {
+  return useQuery({
+    queryKey: keys.card(cardId ?? ''),
+    enabled: !!cardId,
+    queryFn: () => unwrap<CardResponse>(api.cards[':id'].$get({ param: { id: cardId! } })),
+    select: (d) => d.card,
+  })
+}
+
+/** One /generate call (the loop lives in lib/generation.tsx). */
+export function generateOnce(deckId: string): Promise<GenerateResponse> {
+  return unwrap<GenerateResponse>(api.decks[':id'].generate.$post({ param: { id: deckId } }))
+}
+
+export function useRetryFailed(deckId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => unwrap<RetryFailedResponse>(api.decks[':id']['retry-failed'].$post({ param: { id: deckId } })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.deck(deckId) }),
   })
 }

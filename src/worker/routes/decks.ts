@@ -9,11 +9,13 @@ import {
   ImportSchema,
   UpdateDeckSchema,
 } from '../../shared/schemas'
-import { deckStats, listCards } from '../db/cards'
+import { deckStats, listCards, retryFailed } from '../db/cards'
 import { createDeck, deckSettings, deleteDeck, getDeck, toDeckDTO, updateDeck } from '../db/decks'
 import type { AppEnv } from '../env'
 import { validate } from '../middleware/errors'
+import { generateForDeck } from '../services/generation'
 import { importCards, TooManyRowsError } from '../services/importer'
+import { limitsFrom } from '../services/rateLimit'
 
 // Decks owned by another user are reported as 404 (never 403) so their existence is not revealed.
 const notFound = { error: 'not_found', message: 'Deck not found' } as const
@@ -60,6 +62,22 @@ export const deckRoutes = new Hono<AppEnv>()
       }
       throw err
     }
+  })
+  .post('/:id/generate', validate('param', DeckIdParamSchema), async (c) => {
+    const user = c.get('user')
+    const deck = await getDeck(c.env.DB, user.id, c.req.valid('param').id)
+    if (!deck) return c.json(notFound, 404)
+    const result = await generateForDeck(c.env.DB, deck, {
+      generator: c.get('generator')(),
+      limits: limitsFrom(c.env),
+      userId: user.id,
+    })
+    return c.json(result, 200)
+  })
+  .post('/:id/retry-failed', validate('param', DeckIdParamSchema), async (c) => {
+    const deck = await getDeck(c.env.DB, c.get('user').id, c.req.valid('param').id)
+    if (!deck) return c.json(notFound, 404)
+    return c.json({ retried: await retryFailed(c.env.DB, deck.id) }, 200)
   })
   .get('/:id/cards', validate('param', DeckIdParamSchema), validate('query', CardListQuerySchema), async (c) => {
     const deck = await getDeck(c.env.DB, c.get('user').id, c.req.valid('param').id)
