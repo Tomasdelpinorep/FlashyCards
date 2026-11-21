@@ -428,3 +428,68 @@
 - **Not in M5:** the Learn-new flow (M6), so a ready New card only becomes reviewable through
   `POST /reviews` (the smoke test did exactly that). Train never shows New cards; a deck with only
   New cards shows "Nothing to review yet". No test-only or unauthenticated path was added.
+
+## M6 (Learn-new flow)
+
+- **`GET /decks/:id/learn?limit&tzOffset&extra`** (`db/cards.ts learnQueue`).
+  - It returns `{ cards, remainingToday, readyNewTotal, newToday, dailyNewLimit }`. The cards are
+    `status = 'ready' AND state = 0`, ordered `created_at, rowid` (oldest first, in import order),
+    each with `alsoInDeck`. Pending, failed, suspended, duplicate and deleted cards never appear.
+  - `newToday` = **distinct** cards of the deck with a review log by this user since the start of
+    the local day (`tzOffset`, as in `/stats`) whose `state_before = 0`. `/stats` now uses the same
+    SQL fragment (`NEW_TODAY_SQL`), switched from `COUNT(*)` to `COUNT(DISTINCT card_id)`. The two
+    are equal in practice, since a card leaves New on its first review.
+  - `remainingToday = max(0, dailyNewLimit − newToday)`; the page is `min(limit, remainingToday)`,
+    with `limit` 1–100 and a default of 50.
+  - **"Learn more anyway" = `?extra=N`** (1–50). It bypasses the daily cap: the page is
+    `min(limit, extra)` New cards. `remainingToday` still reports the real value (0), and nothing
+    is stored on the server: once those cards are reviewed they count toward `newToday` like any
+    other. Home and the Learn empty state offer "Learn 5 more" (`/learn?extra=5`).
+  - Measured: **5 statements** (auth, deck, counts, page, alsoInDeck); 3 when the cap leaves
+    nothing to fetch. The test asserts ≤ 5 and ≤ 3.
+- **Client session** (`lib/learnSession.ts`, pure, unit-tested). It wraps the M5 Train queue
+  (`lib/session.ts`) rather than duplicating it.
+  - Groups of 5. Each group gets its intros; "Got it" moves the card into the check queue, and
+    "I already know this" posts **Easy, direction `target-source`**, through the outbox, after
+    which the card leaves the session.
+  - The quick check is the M5 session: `currentCard`/`gradeCard`, with learning steps requeued.
+    The next group starts as soon as the check has nothing due *now* (every card of the group
+    graded once and no requeued step due). Steps still waiting then interleave with the next
+    group's check as they come due. After the last group they are shown early (learn-ahead) until
+    they graduate. Each group therefore does not have to fully graduate before the next begins,
+    which spaces the 10-minute step naturally.
+  - "Words learned" = distinct cards graded in the quick check; "already knew" = Easy from the intro.
+  - The direction is the saved `studyDirection` (Mixed picks per card). The Learn screen has **no
+    direction toggle** (the spec says to use the saved one; Train still has the toggle).
+  - Shortcuts (Space flips, 1–4 grade) apply in the quick check only. The intro has two plain
+    buttons and no shortcut, so a key press can't mark a card as known by accident.
+- **Reload / resume** (server is the source of truth).
+  - The `/learn` query awaits `outbox.flush()` before fetching, so grades made before a reload
+    already reached the server when online.
+  - A small record in **sessionStorage** (`flashcards.learn.v1`: deck id, ids in flight, learned
+    ids, already-knew count; dropped after 6 h or when the summary shows) lets the reloaded screen:
+    - take cards it had left mid-step back from `GET /review` (only ids it touched, and only those
+      still Learning/Relearning) and keep stepping them;
+    - keep the summary counters.
+  - New cards with a review still sitting in the outbox (offline) are skipped, so they are not
+    introduced twice.
+  - With `?extra=N`, a resumed session only tops up to N in total.
+  - A card that was "got it" but not yet graded is still New on the server, so it simply gets its
+    intro again.
+  - Leaving mid-session and coming back within 6 h continues the same counters (same tab).
+- **UI.**
+  - Train's front/back/grade-button components moved to `components/StudyCard.tsx`, and Learn
+    reuses them. The intro card is the full back via `shared/display.ts introFaces()`, which always
+    includes "Also in your deck" when non-empty (§10.8, §10.9 M6) and is unit-tested.
+  - `enqueueReview` (`lib/queries.ts`) is now the one place Train and Learn post reviews.
+  - Home has a secondary "Learn new · N ready" (N = ready New cards), shown disabled at 0. When
+    `newToday ≥ dailyNewLimit` it reads "Daily limit reached · Learn 5 more". The Learn empty state
+    says "Daily limit reached" with "N new words today · M ready", or "No new words ready" (plus
+    "N words are still being prepared" and "Add words").
+  - The import summary's primary button is "Learn them now" → `/learn` when the import added cards.
+    Words that are still generating show up once they're ready. "Add new words" (M7) will reuse it.
+- Tests: `test/worker/learn.test.ts` covers the daily cap across a local-midnight boundary, the
+  exclusions, the order, `extra`, limit 0, 5×Good → Learning → Review, Easy on New → days out,
+  `alsoInDeck`, 404 and the statement budget. `test/client/learnSession.test.ts` covers
+  intro→check→requeue, interleaving, all-known groups and resume. `introFaces` is in
+  `test/shared/cardFaces.test.ts`.

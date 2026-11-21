@@ -1,7 +1,16 @@
 import { mergeContent, withArticle } from '../../shared/display'
 import type { LanguageCode } from '../../shared/languages'
 import { collapseWhitespace, termKey } from '../../shared/normalize'
-import type { CardDTO, CardListQuery, CardListResponse, CardRef, CardStatus, DeckStats, ReviewQueueResponse } from '../../shared/schemas'
+import type {
+  CardDTO,
+  CardListQuery,
+  CardListResponse,
+  CardRef,
+  CardStatus,
+  DeckStats,
+  LearnQueueResponse,
+  ReviewQueueResponse,
+} from '../../shared/schemas'
 import { LEARN_AHEAD_MS, type SrsFields } from '../../shared/srs'
 import { parseJsonArray } from './util'
 
@@ -288,6 +297,58 @@ export function localDayStart(now: number, tzOffset = 0): number {
   return Math.floor((now - shift) / DAY_MS) * DAY_MS + shift
 }
 
+/**
+ * "New cards first reviewed today": distinct cards of deck ?3 with a log by user ?4 since ?5 whose
+ * state before the review was New. Shared by /stats and /learn so both count the same thing.
+ */
+const NEW_TODAY_SQL = `(SELECT COUNT(DISTINCT l.card_id) FROM review_logs l JOIN cards lc ON lc.id = l.card_id
+   WHERE l.user_id = ?4 AND l.reviewed_at >= ?5 AND lc.deck_id = ?3 AND l.state_before = 0)`
+
+export const DEFAULT_LEARN_LIMIT = 50
+
+/**
+ * GET /decks/:id/learn (PLAN section 4): ready New cards, oldest first (import order), each with
+ * `alsoInDeck`. The page is capped at `dailyNewLimit - newToday` (the user's local day), unless
+ * `extra` ("learn more anyway") is given: then up to `extra` cards regardless of the cap.
+ * Pending, failed, suspended, duplicate and deleted cards never appear (status = 'ready').
+ * 3 statements (counts, page, alsoInDeck); 1 when the cap leaves nothing to fetch.
+ */
+export async function learnQueue(
+  db: D1Database,
+  deckId: string,
+  opts: { userId: string; dailyNewLimit: number; limit?: number; extra?: number; tzOffset?: number; now?: number },
+): Promise<LearnQueueResponse> {
+  const now = opts.now ?? Date.now()
+  const counts = await db
+    .prepare(
+      `SELECT ${NEW_TODAY_SQL} AS newToday,
+         (SELECT COUNT(*) FROM cards WHERE deck_id = ?3 AND status = 'ready' AND state = 0) AS readyNewTotal`,
+    )
+    // ?1/?2 are unused here: NEW_TODAY_SQL is numbered for deckStats' statement.
+    .bind(null, null, deckId, opts.userId, localDayStart(now, opts.tzOffset))
+    .first<{ newToday: number; readyNewTotal: number }>()
+  const newToday = counts?.newToday ?? 0
+  const readyNewTotal = counts?.readyNewTotal ?? 0
+  const remainingToday = Math.max(0, opts.dailyNewLimit - newToday)
+  const limit = opts.limit ?? DEFAULT_LEARN_LIMIT
+  const take = Math.min(limit, opts.extra ?? remainingToday, readyNewTotal)
+
+  let cards: CardDTO[] = []
+  if (take > 0) {
+    const { results } = await db
+      .prepare(
+        `${LIST_SELECT} WHERE c.deck_id = ?1 AND c.status = 'ready' AND c.state = 0
+         ORDER BY c.created_at, c.rowid LIMIT ?2`,
+      )
+      .bind(deckId, take)
+      .all<CardListRow>()
+    cards = results.map(toCardDTO)
+    const also = await alsoInDeck(db, cards.map((c) => c.id))
+    for (const c of cards) c.alsoInDeck = also.get(c.id) ?? []
+  }
+  return { cards, remainingToday, readyNewTotal, newToday, dailyNewLimit: opts.dailyNewLimit }
+}
+
 /** Deck counts in ONE statement. Day-based counts use the client's local day (`tzOffset`). */
 export async function deckStats(
   db: D1Database,
@@ -312,8 +373,7 @@ export async function deckStats(
          COALESCE(SUM(status = 'duplicate'), 0) AS duplicates,
          (SELECT COUNT(*) FROM review_logs l JOIN cards lc ON lc.id = l.card_id
             WHERE l.user_id = ?4 AND l.reviewed_at >= ?5 AND lc.deck_id = ?3) AS reviewedToday,
-         (SELECT COUNT(*) FROM review_logs l JOIN cards lc ON lc.id = l.card_id
-            WHERE l.user_id = ?4 AND l.reviewed_at >= ?5 AND lc.deck_id = ?3 AND l.state_before = 0) AS newToday
+         ${NEW_TODAY_SQL} AS newToday
        FROM cards WHERE deck_id = ?3`,
     )
     .bind(now + LEARN_AHEAD_MS, dayStart + DAY_MS, deckId, opts.userId, dayStart)

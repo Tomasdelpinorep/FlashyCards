@@ -1,5 +1,5 @@
 /** TanStack Query hooks for every API call the client makes. */
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import type { LanguageConfig } from '../../shared/languages'
 import type {
   CardResponse,
@@ -10,13 +10,16 @@ import type {
   GenerateResponse,
   ImportInput,
   ImportResponse,
+  LearnQueueResponse,
   MeResponse,
   RetryFailedResponse,
+  ReviewInput,
   ReviewQueueResponse,
   UpdateMeInput,
   UserDTO,
 } from '../../shared/schemas'
 import { api, unwrap } from './api'
+import { getOutbox } from './outbox'
 
 export type CardStatusFilter = 'pending' | 'ready' | 'failed' | 'suspended' | 'duplicate'
 
@@ -28,6 +31,7 @@ export const keys = {
   deck: (deckId: string) => ['decks', deckId] as const,
   card: (cardId: string) => ['cards', cardId] as const,
   review: (deckId: string, ahead: boolean) => ['decks', deckId, 'review', ahead ? 1 : 0] as const,
+  learn: (deckId: string, extra: number) => ['decks', deckId, 'learn', extra] as const,
 }
 
 export function useMe() {
@@ -155,4 +159,43 @@ export function useReviewQueue(deckId: string | undefined, ahead: boolean) {
         api.decks[':id'].review.$get({ param: { id: deckId! }, query: { limit: '50', ...(ahead ? { ahead: '1' as const } : {}) } }),
       ),
   })
+}
+
+/**
+ * Record a review optimistically (Train and Learn): it goes to the outbox, which posts it in the
+ * background; the deck stats refresh once the drain finishes.
+ */
+export function enqueueReview(qc: QueryClient, deckId: string, review: ReviewInput): void {
+  const outbox = getOutbox()
+  outbox.enqueue(review)
+  void outbox.flush().then(() => qc.invalidateQueries({ queryKey: keys.stats(deckId) }))
+}
+
+/**
+ * The New cards to learn (GET /decks/:id/learn), fetched once per session like the review queue.
+ * Waits for the outbox to drain first so the server, the source of truth, already has every grade
+ * made before a reload.
+ */
+export function useLearnQueue(deckId: string | undefined, extra: number | undefined) {
+  return useQuery({
+    queryKey: keys.learn(deckId ?? '', extra ?? 0),
+    enabled: !!deckId,
+    staleTime: Infinity,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      await getOutbox().flush().catch(() => undefined)
+      return unwrap<LearnQueueResponse>(
+        api.decks[':id'].learn.$get({
+          param: { id: deckId! },
+          query: { limit: '50', tzOffset: String(new Date().getTimezoneOffset()), ...(extra ? { extra: String(extra) } : {}) },
+        }),
+      )
+    },
+  })
+}
+
+/** GET /decks/:id/review once, outside a query (Learn's resume after a reload). */
+export function fetchReviewQueue(deckId: string): Promise<ReviewQueueResponse> {
+  return unwrap<ReviewQueueResponse>(api.decks[':id'].review.$get({ param: { id: deckId }, query: { limit: '100' } }))
 }

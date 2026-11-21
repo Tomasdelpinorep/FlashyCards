@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 import { AddWords } from './screens/AddWords'
 import { CardDetail } from './screens/CardDetail'
 import { Home } from './screens/Home'
+import { Learn } from './screens/Learn'
 import { Settings } from './screens/Settings'
 import { Train } from './screens/Train'
 import { Words } from './screens/Words'
@@ -40,6 +41,7 @@ export default function App() {
               <Route path="/add" element={<AddWords />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/train" element={<Train />} />
+              <Route path="/learn" element={<Learn />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             </GenerationProvider>

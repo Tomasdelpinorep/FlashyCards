@@ -7,11 +7,12 @@ import {
   DEFAULT_DECK_SETTINGS,
   DeckIdParamSchema,
   ImportSchema,
+  LearnQuerySchema,
   ReviewQueueQuerySchema,
   StatsQuerySchema,
   UpdateDeckSchema,
 } from '../../shared/schemas'
-import { deckStats, listCards, retryFailed, reviewQueue } from '../db/cards'
+import { deckStats, learnQueue, listCards, retryFailed, reviewQueue } from '../db/cards'
 import { createDeck, deckSettings, deleteDeck, getDeck, toDeckDTO, updateDeck } from '../db/decks'
 import type { AppEnv } from '../env'
 import { validate } from '../middleware/errors'
@@ -97,6 +98,20 @@ export const deckRoutes = new Hono<AppEnv>()
     if (!deck) return c.json(notFound, 404)
     const stats = await deckStats(c.env.DB, deck.id, { userId, tzOffset: c.req.valid('query').tzOffset })
     return c.json({ stats }, 200)
+  })
+  .get('/:id/learn', validate('param', DeckIdParamSchema), validate('query', LearnQuerySchema), async (c) => {
+    const userId = c.get('user').id
+    const deck = await getDeck(c.env.DB, userId, c.req.valid('param').id)
+    if (!deck) return c.json(notFound, 404)
+    const q = c.req.valid('query')
+    const queue = await learnQueue(c.env.DB, deck.id, {
+      userId,
+      dailyNewLimit: deckSettings(deck).dailyNewLimit,
+      limit: q.limit,
+      extra: q.extra,
+      tzOffset: q.tzOffset,
+    })
+    return c.json(queue, 200)
   })
   .get('/:id/review', validate('param', DeckIdParamSchema), validate('query', ReviewQueueQuerySchema), async (c) => {
     const deck = await getDeck(c.env.DB, c.get('user').id, c.req.valid('param').id)

@@ -4,6 +4,7 @@ import { NoDecks } from '../components/NoDecks'
 import { btnPrimary, btnSecondary, card, ErrorText, muted, Screen } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
 import { useDeckStats } from '../lib/queries'
+import { LEARN_MORE_STEP } from '../lib/learnSession'
 
 export function Home() {
   const { deck, decks, selectDeck } = useCurrentDeck()
@@ -71,10 +72,35 @@ export function Home() {
           {s.reviewedToday} reviewed today{s.dueToday > s.dueNow ? ` · ${s.dueToday - s.dueNow} more due later today` : ''}
         </p>
       )}
+      <LearnButton readyNew={s?.new} newToday={s?.newToday} dailyNewLimit={deck.settings.dailyNewLimit} />
       <Link to="/add" className={btnSecondary}>
         Add words
       </Link>
     </Screen>
+  )
+}
+
+/** "Learn new · N ready", or "Daily limit reached · Learn 5 more" once today's new cards are used up. */
+function LearnButton({ readyNew, newToday, dailyNewLimit }: { readyNew?: number; newToday?: number; dailyNewLimit: number }) {
+  if (readyNew === undefined || newToday === undefined || readyNew === 0) {
+    return (
+      <span className={`${btnSecondary} opacity-40`} aria-disabled="true">
+        Learn new · {readyNew ?? '–'} ready
+      </span>
+    )
+  }
+  const remaining = Math.max(0, dailyNewLimit - newToday)
+  if (remaining === 0) {
+    return (
+      <Link to={`/learn?extra=${LEARN_MORE_STEP}`} className={btnSecondary}>
+        Daily limit reached · Learn {LEARN_MORE_STEP} more
+      </Link>
+    )
+  }
+  return (
+    <Link to="/learn" className={btnSecondary}>
+      Learn new · {readyNew} ready
+    </Link>
   )
 }
 

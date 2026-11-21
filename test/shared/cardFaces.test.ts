@@ -1,6 +1,6 @@
 /** Train front/back view-model (shared/display.ts cardFaces), DUPLICATES.md 10.8 / 10.9 M5. */
 import { describe, expect, it } from 'vitest'
-import { blankMarkers, cardFaces, pickDirection, type StudyCardInput } from '../../src/shared/display'
+import { blankMarkers, cardFaces, introFaces, pickDirection, type StudyCardInput } from '../../src/shared/display'
 
 const beginnen: StudyCardInput = {
   display: 'beginnen',
@@ -62,6 +62,25 @@ describe('cardFaces', () => {
     const f = cardFaces({ display: 'Hund', translation: null, extraTranslations: [], content: null }, 'source-target')
     expect(f.front).toEqual({ kind: 'source', translation: '', sentence: null })
     expect(f.back.forms).toBeNull()
+  })
+})
+
+describe('introFaces (Learn intro card, DUPLICATES.md 10.9 M6)', () => {
+  it('shows both sides with forms, "· also:", both sentences and "Also in your deck"', () => {
+    expect(introFaces(beginnen)).toEqual({
+      word: 'beginnen',
+      forms: 'beginnt · begann · hat begonnen',
+      translation: 'to begin · also: to start',
+      exampleTarget: 'Der Film [[beginnt]] um acht.',
+      exampleSource: 'The film [[begins]] at eight.',
+      alsoInDeck: [{ id: 'a', display: 'anfangen' }],
+      speech: { word: 'beginnen', sentence: 'Der Film beginnt um acht.' },
+    })
+  })
+
+  it('has an empty alsoInDeck when there is none', () => {
+    expect(introFaces({ ...beginnen, alsoInDeck: undefined }).alsoInDeck).toEqual([])
+    expect(introFaces({ ...beginnen, alsoInDeck: [] }).alsoInDeck).toEqual([])
   })
 })
 

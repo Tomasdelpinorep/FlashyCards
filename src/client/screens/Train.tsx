@@ -10,23 +10,16 @@ import { Link } from 'react-router'
 import { cardFaces, pickDirection, type FaceDirection } from '../../shared/display'
 import { isLanguageCode, LANGUAGES } from '../../shared/languages'
 import type { StudyDirection } from '../../shared/schemas'
-import { formatInterval, GRADE_LABELS, GRADES, loadSrs, previewIntervals, type Grade, type Srs } from '../../shared/srs'
+import { formatInterval, loadSrs, previewIntervals, type Grade, type Srs } from '../../shared/srs'
 import { NoDecks } from '../components/NoDecks'
-import { btnPrimary, btnSecondary, card as cardClass, ErrorText, muted, Screen, Sentence, Word } from '../components/ui'
+import { CardBack, CardFront, GradeButtons } from '../components/StudyCard'
+import { btnPrimary, btnSecondary, card as cardClass, ErrorText, muted, Screen } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
-import { getOutbox } from '../lib/outbox'
-import { keys, useMe, useReviewQueue, useUpdateMe } from '../lib/queries'
+import { enqueueReview, useMe, useReviewQueue, useUpdateMe } from '../lib/queries'
 import { currentCard, gradeCard, startSession, type Session } from '../lib/session'
-import { speak, stopSpeaking, ttsSupported } from '../lib/tts'
+import { speak, stopSpeaking } from '../lib/tts'
 
 const TICK_MS = 15_000
-
-const GRADE_STYLES: Record<Grade, string> = {
-  1: 'border-red-300 text-red-800 dark:border-red-800 dark:text-red-300',
-  2: 'border-amber-300 text-amber-800 dark:border-amber-800 dark:text-amber-300',
-  3: 'border-green-300 text-green-800 dark:border-green-800 dark:text-green-300',
-  4: 'border-blue-300 text-blue-800 dark:border-blue-800 dark:text-blue-300',
-}
 
 export function Train() {
   const { deck } = useCurrentDeck()
@@ -102,8 +95,7 @@ export function Train() {
       if (!current || !session || !srs || !flipped || !deck) return
       const reviewedAt = Date.now()
       const { after } = srs.review(current.id, current.srs, g, reviewedAt)
-      const outbox = getOutbox()
-      outbox.enqueue({
+      enqueueReview(qc, deck.id, {
         id: crypto.randomUUID(),
         cardId: current.id,
         rating: g,
@@ -111,7 +103,6 @@ export function Train() {
         reviewedAt,
         durationMs: Math.min(86_400_000, Math.max(0, reviewedAt - (shown.current?.at ?? reviewedAt))),
       })
-      void outbox.flush().then(() => qc.invalidateQueries({ queryKey: keys.stats(deck.id) }))
       stopSpeaking()
       setSession(gradeCard(session, current, g, after, reviewedAt))
       setNextDue((n) => (n === null || after.due < n ? after.due : n))
@@ -192,9 +183,9 @@ export function Train() {
             aria-live="polite"
           >
             {!flipped ? (
-              <Front faces={faces} lang={targetLang} />
+              <CardFront faces={faces} lang={targetLang} />
             ) : (
-              <Back faces={faces} lang={targetLang} onSpeak={() => speak([faces.speech.word, faces.speech.sentence], ttsLang)} />
+              <CardBack back={faces.back} lang={targetLang} onSpeak={() => speak([faces.speech.word, faces.speech.sentence], ttsLang)} />
             )}
           </section>
 
@@ -203,20 +194,7 @@ export function Train() {
               Show answer <span className="ml-2 text-xs opacity-60">Space</span>
             </button>
           ) : (
-            <div className="grid grid-cols-4 gap-2" role="group" aria-label="How well did you know it?">
-              {GRADES.map((g) => (
-                <button
-                  key={g}
-                  type="button"
-                  disabled={!srs}
-                  onClick={() => grade(g)}
-                  className={`flex h-16 flex-col items-center justify-center rounded-xl border text-sm font-medium disabled:opacity-40 ${GRADE_STYLES[g]}`}
-                >
-                  <span>{GRADE_LABELS[g]}</span>
-                  <span className="text-xs tabular-nums opacity-70">{labels?.[g] ?? '…'}</span>
-                </button>
-              ))}
-            </div>
+            <GradeButtons labels={labels} disabled={!srs} onGrade={grade} />
           )}
           <p className={`${muted} text-center`}>
             {session.queue.length + session.again.length} left{session.reviewed > 0 ? ` · ${session.reviewed} reviewed` : ''}
@@ -237,58 +215,6 @@ export function Train() {
         />
       )}
     </Screen>
-  )
-}
-
-function Front({ faces, lang }: { faces: ReturnType<typeof cardFaces>; lang: string }) {
-  const f = faces.front
-  if (f.kind === 'target') {
-    return (
-      <>
-        <p className="text-4xl font-semibold tracking-tight">
-          <Word text={f.word} lang={lang} />
-        </p>
-        {f.sentence && <p className="text-lg text-zinc-600 dark:text-zinc-300">{f.sentence}</p>}
-      </>
-    )
-  }
-  return (
-    <>
-      <p className="text-3xl font-semibold tracking-tight">{f.translation}</p>
-      <Sentence text={f.sentence} className="text-lg text-zinc-600 dark:text-zinc-300" />
-    </>
-  )
-}
-
-function Back({ faces, lang, onSpeak }: { faces: ReturnType<typeof cardFaces>; lang: string; onSpeak: () => void }) {
-  const b = faces.back
-  return (
-    <>
-      <div>
-        <p className="text-4xl font-semibold tracking-tight">
-          <Word text={b.word} lang={lang} />
-        </p>
-        {b.forms && <p className={muted}>{b.forms}</p>}
-      </div>
-      <p className="text-xl">{b.translation}</p>
-      <div className="flex flex-col gap-1 border-t border-zinc-200 pt-3 dark:border-zinc-800">
-        <Sentence text={b.exampleTarget} className="text-base" />
-        <Sentence text={b.exampleSource} className={muted} />
-      </div>
-      {b.alsoInDeck.length > 0 && <p className={muted}>Also in your deck: {b.alsoInDeck.map((o) => o.display).join(', ')}</p>}
-      {ttsSupported() && (
-        <button
-          type="button"
-          className="mx-auto inline-flex h-9 items-center rounded-lg border border-zinc-300 px-3 text-sm font-medium dark:border-zinc-700"
-          onClick={(e) => {
-            e.stopPropagation()
-            onSpeak()
-          }}
-        >
-          Listen
-        </button>
-      )}
-    </>
   )
 }
 

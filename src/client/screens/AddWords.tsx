@@ -90,9 +90,20 @@ function ImportTab({ deckId, sourceLang, targetLang }: { deckId: string; sourceL
             </ul>
           </details>
         )}
-        <Link to="/words" className={btnPrimary}>
-          See your words
-        </Link>
+        {result.added > 0 ? (
+          <>
+            <Link to="/learn" className={btnPrimary}>
+              Learn them now
+            </Link>
+            <Link to="/words" className={btnSecondary}>
+              See your words
+            </Link>
+          </>
+        ) : (
+          <Link to="/words" className={btnPrimary}>
+            See your words
+          </Link>
+        )}
         <button
           type="button"
           className={btnSecondary}

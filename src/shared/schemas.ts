@@ -164,6 +164,20 @@ export type ReviewQueueQuery = z.infer<typeof ReviewQueueQuerySchema>
 
 export const StatsQuerySchema = z.object({ tzOffset: TzOffsetSchema.optional() })
 
+/** How many cards `?extra=N` ("learn more anyway") may add past the daily new limit. */
+export const LEARN_EXTRA_MAX = 50
+
+/**
+ * GET /decks/:id/learn. `limit` caps the page; the daily cap (dailyNewLimit - newToday) applies
+ * unless `extra` is given, which returns up to `extra` New cards regardless of the cap.
+ */
+export const LearnQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+  tzOffset: TzOffsetSchema.optional(),
+  extra: z.coerce.number().int().min(1).max(LEARN_EXTRA_MAX).optional(),
+})
+export type LearnQuery = z.infer<typeof LearnQuerySchema>
+
 // ---------- response DTOs ----------
 
 export type UserDTO = {
@@ -204,7 +218,7 @@ export type CardDTO = {
   /** Why generation failed ('not_a_word', or the last error), for failed cards. */
   genError: string | null
   duplicateOf?: CardRef
-  /** Other ready cards sharing a gloss (<= 3); only on GET /cards/:id (and M5's /learn, /review). */
+  /** Other ready cards sharing a gloss (<= 3); on GET /cards/:id, /learn and /review. */
   alsoInDeck?: CardRef[]
   state: number
   due: number
@@ -286,6 +300,19 @@ export type CardResponse = { card: CardDTO }
 
 /** GET /decks/:id/review. `nextDueAt`: when the next studied card is due (null if none). */
 export type ReviewQueueResponse = { cards: CardDTO[]; nextDueAt: number | null }
+
+/**
+ * GET /decks/:id/learn: ready New cards, oldest first, each with `alsoInDeck`.
+ * `remainingToday` = max(0, dailyNewLimit - newToday) (unaffected by `extra`);
+ * `readyNewTotal` = every ready New card in the deck ("10 left today · 34 ready").
+ */
+export type LearnQueueResponse = {
+  cards: CardDTO[]
+  remainingToday: number
+  readyNewTotal: number
+  newToday: number
+  dailyNewLimit: number
+}
 
 /** POST /reviews: the card's schedule after the review (unchanged on a repeated id). */
 export type ReviewResponse = {

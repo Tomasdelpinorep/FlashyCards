@@ -278,6 +278,18 @@ export function cardFaces(card: StudyCardInput, direction: FaceDirection, opts: 
   }
 }
 
+/**
+ * The Learn intro card (PLAN section 6, DUPLICATES.md 10.8/10.9 M6): both sides at once, i.e. the
+ * full back of the card, with "Also in your deck" always included (when non-empty) because
+ * the intro shows the English side too.
+ */
+export type IntroFaces = CardFaces['back'] & { speech: CardFaces['speech'] }
+
+export function introFaces(card: StudyCardInput): IntroFaces {
+  const { back, speech } = cardFaces(card, 'source-target')
+  return { ...back, alsoInDeck: [...(card.alsoInDeck ?? [])], speech }
+}
+
 /** Resolve a session mode to the direction of one card ('mixed' -> random, 50/50). */
 export function pickDirection(mode: FaceDirection | 'mixed', random: () => number = Math.random): FaceDirection {
   if (mode !== 'mixed') return mode
