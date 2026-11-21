@@ -39,7 +39,9 @@ export function Home() {
             </select>
           </label>
         ) : (
-          <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">{deck.name}</span>
+          <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400" data-testid="deck-name">
+            {deck.name}
+          </span>
         )
       }
     >

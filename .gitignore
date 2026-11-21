@@ -6,3 +6,7 @@ dist/
 !.dev.vars.example
 *.log
 .DS_Store
+# Playwright (npm run test:e2e); the e2e D1 state lives in .wrangler/e2e-state (ignored above)
+test-results/
+playwright-report/
+blob-report/

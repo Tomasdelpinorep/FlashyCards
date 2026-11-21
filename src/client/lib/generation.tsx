@@ -6,29 +6,18 @@
  */
 import { useQueryClient } from '@tanstack/react-query'
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
-import type { DuplicateReport } from '../../shared/schemas'
 import { ApiError } from './api'
 import { useCurrentDeck } from './deck'
+import { IDLE, shouldResume, startState, type GenerationState } from './generationState'
 import { generateOnce, keys, useDeckStats } from './queries'
 
-export type GenerationState = {
-  running: boolean
-  /** Cards processed (ready, duplicate or failed) since the loop started. */
-  done: number
-  /** done + what is still pending. */
-  total: number
-  rateLimited: boolean
-  limitResetsAt: number | null
-  error: string | null
-  /** Duplicates found while generating (DUPLICATES.md 10.6 reason 'resolved'). */
-  duplicates: DuplicateReport[]
-}
+export type { GenerationState }
 
-const IDLE: GenerationState = { running: false, done: 0, total: 0, rateLimited: false, limitResetsAt: null, error: null, duplicates: [] }
 const NO_PROGRESS_DELAY_MS = 3000
 const MAX_IDLE_ROUNDS = 40 // ~2 minutes without progress -> give up until the next trigger
 
-type Ctx = { state: GenerationState; start: () => void }
+/** `start({ fresh: true })` after a new import or suggestion: forgets earlier runs' duplicates. */
+type Ctx = { state: GenerationState; start: (opts?: { fresh?: boolean }) => void }
 const GenerationContext = createContext<Ctx>({ state: IDLE, start: () => {} })
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -40,6 +29,8 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient()
   const [state, setState] = useState<GenerationState>(IDLE)
   const run = useRef<{ deckId: string; cancelled: boolean } | null>(null)
+  // When the last run ended (ms); stats fetched before that are stale for resuming.
+  const lastRunEndedAt = useRef(0)
 
   // A different deck: stop the old loop and start from scratch.
   useEffect(() => {
@@ -50,11 +41,11 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
     }
   }, [deckId])
 
-  const start = useCallback(() => {
+  const start = useCallback((opts?: { fresh?: boolean }) => {
     if (!deckId || (run.current && !run.current.cancelled)) return
     const me = { deckId, cancelled: false }
     run.current = me
-    setState({ ...IDLE, running: true })
+    setState((s) => startState(s, opts?.fresh ?? false))
     void (async () => {
       let idle = 0
       let done = 0
@@ -82,6 +73,7 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
       } finally {
         if (run.current === me) {
           run.current = null
+          lastRunEndedAt.current = Date.now()
           setState((s) => ({ ...s, running: false }))
         }
       }
@@ -91,9 +83,12 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
   // Resume on load (and whenever pending cards appear), unless the daily limit or an error stopped us.
   const pending = stats.data?.pending ?? 0
   const limited = state.rateLimited && state.limitResetsAt !== null && Date.now() < state.limitResetsAt
+  const statsUpdatedAt = stats.dataUpdatedAt
   useEffect(() => {
-    if (pending > 0 && !state.running && !limited && !state.error) start()
-  }, [pending, state.running, limited, state.error, start])
+    if (shouldResume({ pending, running: state.running, limited, error: state.error, statsUpdatedAt, lastRunEndedAt: lastRunEndedAt.current })) {
+      start()
+    }
+  }, [pending, state.running, limited, state.error, statsUpdatedAt, start])
 
   return <GenerationContext.Provider value={{ state, start }}>{children}</GenerationContext.Provider>
 }

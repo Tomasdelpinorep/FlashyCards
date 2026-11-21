@@ -1,0 +1,39 @@
+// Worker config for the browser end-to-end tests ONLY (npm run test:e2e). Never deployed.
+//
+// It mirrors ../wrangler.jsonc (keep everything except `vars` in sync by hand) and lives in its
+// own folder on purpose: wrangler reads `.dev.vars` from the
+// config's directory, so the user's ../.dev.vars (their own DEV_AUTH_EMAIL / AI_PROVIDER) can
+// never leak into, or be overwritten by, the e2e server. There is no e2e/.dev.vars: these vars
+// are the whole environment.
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "flashcards",
+  "main": "../src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "flashcards",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "../migrations"
+    }
+  ],
+  "vars": {
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": "",
+    // Deterministic offline generator: no API key, no network.
+    "AI_PROVIDER": "fake",
+    "AI_MODEL": "claude-haiku-5-5",
+    // High enough that one run never hits them (the rate limit is covered by unit tests).
+    "AI_USER_DAILY_LIMIT": "100000",
+    "AI_GLOBAL_DAILY_LIMIT": "100000",
+    // Localhost-only dev bypass (src/worker/middleware/auth.ts). The e2e server binds 127.0.0.1.
+    "DEV_AUTH_EMAIL": "e2e@example.com"
+  }
+}

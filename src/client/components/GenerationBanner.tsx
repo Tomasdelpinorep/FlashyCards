@@ -1,6 +1,7 @@
 /** Progress of example-sentence generation, the daily-limit message and "Retry failed". */
 import type { DeckStats } from '../../shared/schemas'
 import { AI_NOT_CONFIGURED, useGeneration } from '../lib/generation'
+import { bannerProgress } from '../lib/generationState'
 import { useRetryFailed } from '../lib/queries'
 import { ErrorText } from './ui'
 
@@ -15,16 +16,17 @@ export function GenerationBanner({ deckId, stats }: { deckId: string; stats: Dec
   const retry = useRetryFailed(deckId)
   const pending = stats?.pending ?? 0
   const failed = stats?.failed ?? 0
+  const progress = bannerProgress(state, pending)
 
   return (
     <>
-      {state.running && state.total > 0 && (
+      {progress && (
         <div className="flex flex-col gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200" role="status">
           <p>
-            Preparing {words(state.total)}… {state.done}/{state.total}
+            Preparing {words(progress.total)}… {progress.done}/{progress.total}
           </p>
           <div className="h-1.5 overflow-hidden rounded-full bg-amber-200 dark:bg-amber-900" aria-hidden="true">
-            <div className="h-full rounded-full bg-amber-600 transition-[width] dark:bg-amber-400" style={{ width: `${Math.round((100 * state.done) / state.total)}%` }} />
+            <div className="h-full rounded-full bg-amber-600 transition-[width] dark:bg-amber-400" style={{ width: `${Math.round((100 * progress.done) / progress.total)}%` }} />
           </div>
         </div>
       )}
@@ -42,7 +44,7 @@ export function GenerationBanner({ deckId, stats }: { deckId: string; stats: Dec
       {state.error && pending > 0 && (
         <div className="flex items-center justify-between gap-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200" role="alert">
           <span>{state.error === AI_NOT_CONFIGURED ? `${AI_NOT_CONFIGURED}. ${words(pending)} will wait until it is.` : `Couldn't prepare words: ${state.error}`}</span>
-          <button type="button" className="shrink-0 font-medium underline" onClick={start}>
+          <button type="button" className="shrink-0 font-medium underline" onClick={() => start()}>
             Try again
           </button>
         </div>

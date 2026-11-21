@@ -572,3 +572,50 @@
   common words" (`PATCH /decks/:id`, 0-50,000); M8 adds the other deck settings.
 - **Tooling.** `tsx` was added as a dev dependency to run the scripts (`npm run wordlist:sql`,
   `npm run wordlist:build`); `scripts/` is type-checked with the node project.
+
+## M8-QA (browser e2e, partial: scope cut by the user)
+
+- **Setup.** `@playwright/test` 1.65 (Chromium only) + `@axe-core/playwright` (installed, not used
+  yet). `npm run test:e2e` / `test:e2e:update`. Specs in `e2e/*.spec.ts` (vitest only includes
+  `test/**`). Playwright's `webServer` runs `e2e/server.mjs`, which wipes `.wrangler/e2e-state`,
+  applies the migrations to it with `wrangler d1 migrations apply --local --persist-to`, then starts
+  Vite with `E2E=1` on 127.0.0.1:5180. This happens in the launcher, not a globalSetup, because
+  Playwright starts the webServer *before* globalSetup. `globalSetup` checks the genuine first login
+  (one "German" en->de deck).
+- **Env isolation.** With `E2E=1`, `vite.config.ts` points the Cloudflare plugin at
+  `e2e/wrangler.e2e.jsonc` (vars: `AI_PROVIDER=fake`, `DEV_AUTH_EMAIL=e2e@example.com`, high AI limits),
+  sets the e2e persist dir, `hmr: false` and `inspectorPort: false`. wrangler reads `.dev.vars` from
+  the config's folder, and `e2e/` has none, so the user's `.dev.vars` is never read. That config
+  mirrors `wrangler.jsonc` by hand.
+- **One user, serial.** All tests share the dev-bypass user, so `workers: 1`. An auto fixture resets
+  decks and settings through the public API before each test (no backdoor). The AI cache is
+  global and lives for the whole run, so the post-AI duplicate test only runs in the `mobile`
+  project. Fake lexicon gained `source:pooch -> Hund` (for "added as a translation").
+- **Projects:** mobile (Pixel 7) only, per the scope cut. The desktop project was removed.
+
+### QA status / TODO
+- **Covered (4 specs, passing):** first run and empty states; import of the pasted acceptance list
+  (preview counts, in-file dupes, invalid rows, exact §10.8 summary, words list, card detail);
+  .tsv upload with the progress banner; English input resolved post-AI (dog/pooch -> Hund,
+  "added as a translation", Home duplicates banner, Words duplicate filter).
+- **Bugs fixed:**
+  1. The banner was missing until the first `/generate` returned (`bannerProgress`).
+  2. A stale stats response restarted the generation loop and wiped its duplicates list
+     (`shouldResume` and `startState`).
+  3. "Learn them now" showed when every added word turned out to be a duplicate.
+  4. Duplicate rows in Words showed the resolved lemma, not the input (`wordRowText`).
+  5. The active filter chip was cut off at phone width (chips now wrap).
+  6. Deep links and reloads on `/words/:id` broke in dev (`index.html` used a relative
+     `./main.tsx`).
+
+  Regression tests are in `test/client/generationState.test.ts` and `wordRow.test.ts`, plus the e2e
+  import spec.
+- **Not written (TODO):**
+  - Add new words, Learn, Train (directions, keys, empty state), and the offline outbox spec.
+  - Decks, Words search/filter/delete, and the rate-limit/AI-off banners (unit-tested only).
+  - axe smoke tests.
+  - A second consecutive e2e run.
+  - A visual pass with the 44 px tap-target fixes.
+- **Open visual issues spotted:**
+  - Tap targets under 44 px: `btnSmall` h-9, chips h-8, segmented controls, the "Done" text links.
+  - Home on an empty deck is a wall of zeros, with no "add words to start" guidance.

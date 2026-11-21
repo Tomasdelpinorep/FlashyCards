@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
-import { duplicateOfText, translationLine } from '../../shared/display'
 import type { CardDTO } from '../../shared/schemas'
 import { NoDecks } from '../components/NoDecks'
 import { btnSecondary, btnSmall, ErrorText, input, muted, Screen, Word } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
 import { useCards, useDeleteCard, type CardStatusFilter } from '../lib/queries'
+import { wordRowText } from '../lib/wordRow'
 
 const FILTERS: { value: CardStatusFilter | ''; label: string }[] = [
   { value: '', label: 'All' },
@@ -72,7 +72,7 @@ export function Words() {
           setParam('q', e.target.value.trim())
         }}
       />
-      <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1" role="group" aria-label="Filter by status">
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by status">
         {FILTERS.map((f) => (
           <button
             key={f.label}
@@ -133,16 +133,7 @@ function CardRow({
   deleting: boolean
   onDelete: () => void
 }) {
-  const subtitle =
-    card.status === 'pending'
-      ? 'Preparing…'
-      : card.status === 'duplicate'
-        ? duplicateOfText(card.duplicateOf)
-        : card.status === 'failed'
-          ? card.genError === 'not_a_word'
-            ? 'Not recognised as a word'
-            : 'Generation failed'
-          : translationLine(card.translation, card.extraTranslations) || card.inputHint || ''
+  const { title, hint, subtitle } = wordRowText(card)
   return (
     <li
       ref={highlighted ? (el) => el?.scrollIntoView({ block: 'center' }) : undefined}
@@ -150,8 +141,8 @@ function CardRow({
     >
       <Link to={`/words/${card.id}`} className="min-w-0 flex-1">
         <p className="truncate font-medium">
-          <Word text={card.display} lang={lang} />
-          {card.inputHint && card.status === 'pending' && <span className="font-normal text-zinc-500 dark:text-zinc-400"> · {card.inputHint}</span>}
+          <Word text={title} lang={lang} />
+          {hint && <span className="font-normal text-zinc-500 dark:text-zinc-400"> · {hint}</span>}
         </p>
         <p className={`truncate ${muted} ${card.status === 'failed' ? 'text-red-700 dark:text-red-400' : ''}`}>{subtitle}</p>
       </Link>

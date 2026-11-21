@@ -77,6 +77,8 @@ export const DEFAULT_LEXICON: Readonly<Record<string, FakeWord>> = {
   'target:bank|bench': bankBench,
   'target:bank|bank': bank,
   'source:dog': hund,
+  // A synonym that is not one of Hund's glosses: importing it adds "pooch" as a translation (e2e).
+  'source:pooch': hund,
   'source:cat': katze,
   'source:house': haus,
   'source:water': wasser,

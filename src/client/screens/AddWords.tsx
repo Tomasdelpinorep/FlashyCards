@@ -8,7 +8,7 @@ import {
   splitInFileDuplicates,
   type InputLang,
 } from '../../shared/parseImport'
-import type { ImportResponse, SuggestResponse } from '../../shared/schemas'
+import type { DeckStats, ImportResponse, SuggestResponse } from '../../shared/schemas'
 import { GenerationBanner } from '../components/GenerationBanner'
 import { ImportSummary } from '../components/ImportSummary'
 import { btnPrimary, btnSecondary, btnSmall, card, ErrorText, input, muted, Screen } from '../components/ui'
@@ -78,6 +78,14 @@ function GenerationDuplicates({ targetLang }: { targetLang: LanguageCode }) {
   )
 }
 
+/**
+ * "Learn them now" only makes sense while something is (or will be) ready to learn: words added
+ * by this request can all turn out to be duplicates once they are prepared.
+ */
+function canLearn(result: { added: number }, stats: DeckStats | undefined): boolean {
+  return result.added > 0 && (!stats || stats.new + stats.pending > 0)
+}
+
 const PRESETS = [5, 10, 20] as const
 
 /** "Add new words" (M7): the next words of the frequency list (or AI picks), then generation. */
@@ -98,7 +106,7 @@ function SuggestTab({ deckId, targetLang, tabs }: TabProps) {
     suggest.mutate(count, {
       onSuccess: (r) => {
         setResult(r)
-        if (r.pending > 0) generation.start()
+        if (r.pending > 0) generation.start({ fresh: true })
       },
     })
 
@@ -126,7 +134,7 @@ function SuggestTab({ deckId, targetLang, tabs }: TabProps) {
         )}
         <GenerationBanner deckId={deckId} stats={stats.data} />
         <GenerationDuplicates targetLang={targetLang} />
-        {result.added > 0 && (
+        {canLearn(result, stats.data) && (
           <Link to="/learn" className={btnPrimary}>
             Learn them now
           </Link>
@@ -227,7 +235,7 @@ function ImportTab({ deckId, sourceLang, targetLang, tabs }: TabProps) {
       {
         onSuccess: (r) => {
           setResult(r)
-          if (r.pending > 0) generation.start()
+          if (r.pending > 0) generation.start({ fresh: true })
         },
       },
     )
@@ -238,7 +246,7 @@ function ImportTab({ deckId, sourceLang, targetLang, tabs }: TabProps) {
         <ImportSummary result={result} targetLang={targetLang} />
         <GenerationBanner deckId={deckId} stats={stats.data} />
         <GenerationDuplicates targetLang={targetLang} />
-        {result.added > 0 ? (
+        {canLearn(result, stats.data) ? (
           <>
             <Link to="/learn" className={btnPrimary}>
               Learn them now
