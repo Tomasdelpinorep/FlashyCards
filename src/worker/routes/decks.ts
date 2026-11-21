@@ -7,9 +7,11 @@ import {
   DEFAULT_DECK_SETTINGS,
   DeckIdParamSchema,
   ImportSchema,
+  ReviewQueueQuerySchema,
+  StatsQuerySchema,
   UpdateDeckSchema,
 } from '../../shared/schemas'
-import { deckStats, listCards, retryFailed } from '../db/cards'
+import { deckStats, listCards, retryFailed, reviewQueue } from '../db/cards'
 import { createDeck, deckSettings, deleteDeck, getDeck, toDeckDTO, updateDeck } from '../db/decks'
 import type { AppEnv } from '../env'
 import { validate } from '../middleware/errors'
@@ -67,8 +69,11 @@ export const deckRoutes = new Hono<AppEnv>()
     const user = c.get('user')
     const deck = await getDeck(c.env.DB, user.id, c.req.valid('param').id)
     if (!deck) return c.json(notFound, 404)
+    // Fail closed before claiming anything: cards stay pending, no attempt is counted.
+    const generator = c.get('generator')()
+    if (!generator) return c.json({ error: 'ai_not_configured', message: "AI isn't configured on the server" }, 503)
     const result = await generateForDeck(c.env.DB, deck, {
-      generator: c.get('generator')(),
+      generator,
       limits: limitsFrom(c.env),
       userId: user.id,
     })
@@ -86,8 +91,16 @@ export const deckRoutes = new Hono<AppEnv>()
     if (!page) return c.json({ error: 'invalid_request', message: 'Invalid cursor' }, 400)
     return c.json(page, 200)
   })
-  .get('/:id/stats', validate('param', DeckIdParamSchema), async (c) => {
+  .get('/:id/stats', validate('param', DeckIdParamSchema), validate('query', StatsQuerySchema), async (c) => {
+    const userId = c.get('user').id
+    const deck = await getDeck(c.env.DB, userId, c.req.valid('param').id)
+    if (!deck) return c.json(notFound, 404)
+    const stats = await deckStats(c.env.DB, deck.id, { userId, tzOffset: c.req.valid('query').tzOffset })
+    return c.json({ stats }, 200)
+  })
+  .get('/:id/review', validate('param', DeckIdParamSchema), validate('query', ReviewQueueQuerySchema), async (c) => {
     const deck = await getDeck(c.env.DB, c.get('user').id, c.req.valid('param').id)
     if (!deck) return c.json(notFound, 404)
-    return c.json({ stats: await deckStats(c.env.DB, deck.id) }, 200)
+    const q = c.req.valid('query')
+    return c.json(await reviewQueue(c.env.DB, deck.id, { limit: q.limit, ahead: q.ahead === '1' }), 200)
   })

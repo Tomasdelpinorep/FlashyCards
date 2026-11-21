@@ -1,6 +1,6 @@
 /** Progress of example-sentence generation, the daily-limit message and "Retry failed". */
 import type { DeckStats } from '../../shared/schemas'
-import { useGeneration } from '../lib/generation'
+import { AI_NOT_CONFIGURED, useGeneration } from '../lib/generation'
 import { useRetryFailed } from '../lib/queries'
 import { ErrorText } from './ui'
 
@@ -41,7 +41,7 @@ export function GenerationBanner({ deckId, stats }: { deckId: string; stats: Dec
       )}
       {state.error && pending > 0 && (
         <div className="flex items-center justify-between gap-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200" role="alert">
-          <span>Couldn't prepare words: {state.error}</span>
+          <span>{state.error === AI_NOT_CONFIGURED ? `${AI_NOT_CONFIGURED}. ${words(pending)} will wait until it is.` : `Couldn't prepare words: ${state.error}`}</span>
           <button type="button" className="shrink-0 font-medium underline" onClick={start}>
             Try again
           </button>

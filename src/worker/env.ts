@@ -1,4 +1,5 @@
 import type { SentenceGenerator } from './ai/generator'
+import type { Srs } from '../shared/srs'
 import type { UserRow } from './db/users'
 
 /**
@@ -10,7 +11,8 @@ export type Bindings = {
   DB: D1Database
   ACCESS_TEAM_DOMAIN: string
   ACCESS_AUD: string
-  ALLOWED_EMAILS: string
+  /** Secret (`wrangler secret put`), never a wrangler.jsonc var. Missing or empty -> 403 for everyone. */
+  ALLOWED_EMAILS?: string
   AI_PROVIDER: string
   AI_MODEL: string
   AI_USER_DAILY_LIMIT: string
@@ -22,8 +24,10 @@ export type Bindings = {
 
 export type Variables = {
   user: UserRow
-  /** Lazily creates the sentence generator for this request (see createApp). */
-  generator: () => SentenceGenerator
+  /** Lazily creates the sentence generator for this request (see createApp); null = AI not configured. */
+  generator: () => SentenceGenerator | null
+  /** The FSRS scheduler (memoised per config; tests may inject a config, e.g. fuzz off). */
+  srs: () => Promise<Srs>
 }
 
 /** Hono env for every route. `user` is set by the auth middleware. */

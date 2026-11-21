@@ -8,10 +8,14 @@ import { cardRoutes } from './routes/cards'
 import { deckRoutes } from './routes/decks'
 import { languageRoutes } from './routes/languages'
 import { meRoutes } from './routes/me'
+import { reviewRoutes } from './routes/reviews'
+import { loadSrs, type SrsConfig } from '../shared/srs'
 
 export type AppOptions = AuthOptions & {
-  /** Picks the sentence generator per request (tests inject a FakeGenerator). Default: from AI_PROVIDER. */
-  generator?: (env: Bindings) => SentenceGenerator
+  /** Picks the sentence generator per request (tests inject a FakeGenerator). Default: from AI_PROVIDER (ai/create.ts). */
+  generator?: (env: Bindings, requestUrl: string) => SentenceGenerator | null
+  /** FSRS config overrides (tests: e.g. `{ enableFuzz: false }`). Default: shared/srs.ts DEFAULT_SRS_CONFIG. */
+  srs?: Partial<SrsConfig>
 }
 
 /** Builds the API app. Options exist for tests (e.g. a local JWKS); production uses the defaults. */
@@ -28,12 +32,14 @@ export function createApp(options: AppOptions = {}) {
       // Everything registered below requires authentication.
       .use('*', createAuthMiddleware(options))
       .use('*', async (c, next) => {
-        c.set('generator', () => pickGenerator(c.env))
+        c.set('generator', () => pickGenerator(c.env, c.req.url))
+        c.set('srs', () => loadSrs(options.srs))
         await next()
       })
       .route('/', languageRoutes)
       .route('/', meRoutes)
       .route('/decks', deckRoutes)
       .route('/cards', cardRoutes)
+      .route('/reviews', reviewRoutes)
   )
 }

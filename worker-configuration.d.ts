@@ -5,7 +5,6 @@ interface __BaseEnv_Env {
 	DB: D1Database;
 	ACCESS_TEAM_DOMAIN: "";
 	ACCESS_AUD: "";
-	ALLOWED_EMAILS: "";
 	AI_PROVIDER: "anthropic";
 	AI_MODEL: "claude-haiku-5-5";
 	AI_USER_DAILY_LIMIT: "200";
@@ -22,7 +21,7 @@ type StringifyValues<EnvType extends Record<string, unknown>> = {
 	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "ACCESS_TEAM_DOMAIN" | "ACCESS_AUD" | "ALLOWED_EMAILS" | "AI_PROVIDER" | "AI_MODEL" | "AI_USER_DAILY_LIMIT" | "AI_GLOBAL_DAILY_LIMIT">> {}
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "ACCESS_TEAM_DOMAIN" | "ACCESS_AUD" | "AI_PROVIDER" | "AI_MODEL" | "AI_USER_DAILY_LIMIT" | "AI_GLOBAL_DAILY_LIMIT">> {}
 }
 declare module "*.txt" {
 	const value: string;

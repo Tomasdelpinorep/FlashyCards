@@ -2,6 +2,7 @@
 import { z } from 'zod'
 import type { CardContent } from './display'
 import { LANGUAGE_CODES } from './languages'
+import type { SrsFields } from './srs'
 
 export const LanguageCodeSchema = z.enum(LANGUAGE_CODES)
 
@@ -132,6 +133,37 @@ export const CardListQuerySchema = z.object({
 })
 export type CardListQuery = z.infer<typeof CardListQuerySchema>
 
+/** The side shown on the front of a reviewed card (review_logs.direction). */
+export const ShownDirectionSchema = z.enum(['target-source', 'source-target'])
+export type ShownDirection = z.infer<typeof ShownDirectionSchema>
+
+/** Reviews may be posted up to 7 days late (offline outbox); reviewedAt is clamped to [now-7d, now]. */
+export const REVIEW_MAX_AGE_MS = 7 * 86_400_000
+
+/** POST /reviews (PLAN section 4). `id` is a client UUID and the idempotency key. */
+export const ReviewSchema = z
+  .object({
+    id: z.uuid(),
+    cardId: z.string().min(1).max(64),
+    rating: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]),
+    direction: ShownDirectionSchema,
+    reviewedAt: z.number().int().nonnegative(),
+    durationMs: z.number().int().min(0).max(86_400_000).optional(),
+  })
+  .strict()
+export type ReviewInput = z.infer<typeof ReviewSchema>
+
+/** Minutes to add to local time to get UTC, as returned by Date#getTimezoneOffset() (UTC+2 -> -120). */
+const TzOffsetSchema = z.coerce.number().int().min(-14 * 60).max(14 * 60)
+
+export const ReviewQueueQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+  ahead: z.enum(['0', '1']).optional(),
+})
+export type ReviewQueueQuery = z.infer<typeof ReviewQueueQuerySchema>
+
+export const StatsQuerySchema = z.object({ tzOffset: TzOffsetSchema.optional() })
+
 // ---------- response DTOs ----------
 
 export type UserDTO = {
@@ -176,6 +208,8 @@ export type CardDTO = {
   alsoInDeck?: CardRef[]
   state: number
   due: number
+  /** The FSRS columns (for interval previews and the in-session requeue). */
+  srs: SrsFields
   createdAt: number
 }
 
@@ -202,7 +236,7 @@ export type ImportResponse = {
   duplicates: DuplicateReport[]
 }
 
-/** Basic deck counts (M3). Duplicate and deleted cards are never counted. */
+/** Deck counts (M3, day-based counts M5). Duplicate and deleted cards are never counted. */
 export type DeckStats = {
   total: number
   ready: number
@@ -215,8 +249,14 @@ export type DeckStats = {
   learning: number
   /** Ready cards in Review. */
   review: number
-  /** Ready, already-studied cards due now. */
+  /** Ready, already-studied cards due now, including the 20-minute learn-ahead (what Train shows). */
   dueNow: number
+  /** Ready, already-studied cards due before the end of the user's local day. */
+  dueToday: number
+  /** Reviews of this deck's cards since the start of the user's local day. */
+  reviewedToday: number
+  /** New cards studied for the first time today (their first review was today). */
+  newToday: number
   /** Cards reported as duplicates (for the Home banner); not part of `total`. */
   duplicates: number
 }
@@ -243,5 +283,15 @@ export type GenerateResponse = {
 export type RetryFailedResponse = { retried: number }
 
 export type CardResponse = { card: CardDTO }
+
+/** GET /decks/:id/review. `nextDueAt`: when the next studied card is due (null if none). */
+export type ReviewQueueResponse = { cards: CardDTO[]; nextDueAt: number | null }
+
+/** POST /reviews: the card's schedule after the review (unchanged on a repeated id). */
+export type ReviewResponse = {
+  card: { id: string; status: CardStatus; srs: SrsFields }
+  /** False when this review id had already been applied (idempotent repeat). */
+  applied: boolean
+}
 
 export type ApiError = { error: string; message?: string; issues?: unknown }

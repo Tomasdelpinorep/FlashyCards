@@ -3,15 +3,20 @@ import { TabBar } from './components/TabBar'
 import { btnPrimary, ErrorText } from './components/ui'
 import { DeckProvider } from './lib/deck'
 import { GenerationProvider } from './lib/generation'
+import { getOutbox } from './lib/outbox'
 import { useMe } from './lib/queries'
+import { useEffect } from 'react'
 import { AddWords } from './screens/AddWords'
 import { CardDetail } from './screens/CardDetail'
 import { Home } from './screens/Home'
 import { Settings } from './screens/Settings'
+import { Train } from './screens/Train'
 import { Words } from './screens/Words'
 
 export default function App() {
   const me = useMe()
+  // Drain reviews left in the outbox by an earlier visit (also retries on `online`).
+  useEffect(() => void getOutbox(), [])
 
   return (
     <div className="min-h-dvh bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
@@ -34,6 +39,7 @@ export default function App() {
               <Route path="/words/:id" element={<CardDetail />} />
               <Route path="/add" element={<AddWords />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/train" element={<Train />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             </GenerationProvider>

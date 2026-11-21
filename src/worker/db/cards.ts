@@ -1,7 +1,8 @@
 import { mergeContent, withArticle } from '../../shared/display'
 import type { LanguageCode } from '../../shared/languages'
 import { collapseWhitespace, termKey } from '../../shared/normalize'
-import type { CardDTO, CardListQuery, CardListResponse, CardRef, CardStatus, DeckStats } from '../../shared/schemas'
+import type { CardDTO, CardListQuery, CardListResponse, CardRef, CardStatus, DeckStats, ReviewQueueResponse } from '../../shared/schemas'
+import { LEARN_AHEAD_MS, type SrsFields } from '../../shared/srs'
 import { parseJsonArray } from './util'
 
 export type CardRow = {
@@ -21,10 +22,9 @@ export type CardRow = {
   status: CardStatus
   gen_error: string | null
   override_json: string | null
-  state: number
-  due: number
   created_at: number
-}
+  updated_at: number
+} & SrsFields
 
 /** A card joined with its entry (and, for duplicates, the card it duplicates). */
 export type CardListRow = CardRow & {
@@ -54,6 +54,22 @@ export function lemmaDisplay(lemma: string, grammarJson: string | null | undefin
 
 export function cardDisplay(inputTerm: string, lemma: string | null | undefined, grammarJson?: string | null): string {
   return lemma ? lemmaDisplay(lemma, grammarJson) : inputTerm
+}
+
+/** The FSRS columns of a card row. */
+export function srsFields(row: SrsFields): SrsFields {
+  return {
+    due: row.due,
+    stability: row.stability,
+    difficulty: row.difficulty,
+    elapsed_days: row.elapsed_days,
+    scheduled_days: row.scheduled_days,
+    learning_steps: row.learning_steps,
+    reps: row.reps,
+    lapses: row.lapses,
+    state: row.state,
+    last_review: row.last_review,
+  }
 }
 
 export function toCardDTO(row: CardListRow): CardDTO {
@@ -89,6 +105,7 @@ export function toCardDTO(row: CardListRow): CardDTO {
     genError: row.gen_error,
     state: row.state,
     due: row.due,
+    srs: srsFields(row),
     createdAt: row.created_at,
   }
   if (row.duplicate_of && row.dup_input_term !== null) {
@@ -186,22 +203,99 @@ export async function getCard(db: D1Database, userId: string, cardId: string): P
     .first<CardListRow>()
   if (!row) return null
   const dto = toCardDTO(row)
-  const { results } = await db
-    .prepare(
-      `SELECT DISTINCT o.id, o.input_term, e.lemma, e.grammar_json
-       FROM card_glosses g
-       JOIN card_glosses og ON og.deck_id = g.deck_id AND og.gloss_key = g.gloss_key AND og.card_id <> g.card_id
-       JOIN cards o ON o.id = og.card_id AND o.status = 'ready'
-       LEFT JOIN entries e ON e.id = o.entry_id
-       WHERE g.card_id = ? ORDER BY o.created_at LIMIT 3`,
-    )
-    .bind(cardId)
-    .all<{ id: string; input_term: string; lemma: string | null; grammar_json: string | null }>()
-  dto.alsoInDeck = results.map((r): CardRef => ({ id: r.id, display: cardDisplay(r.input_term, r.lemma, r.grammar_json) }))
+  dto.alsoInDeck = (await alsoInDeck(db, [cardId])).get(cardId) ?? []
   return dto
 }
 
-export async function deckStats(db: D1Database, deckId: string, now = Date.now()): Promise<DeckStats> {
+export const ALSO_IN_DECK_MAX = 3
+
+/**
+ * "Also in your deck" (DUPLICATES.md 10.6) for a batch of cards: other `ready` cards of the same
+ * deck that share a card_glosses.gloss_key, at most 3 per card, oldest first. ONE self-join over
+ * card_glosses for the whole batch (the ids travel as one JSON parameter).
+ */
+export async function alsoInDeck(db: D1Database, cardIds: readonly string[]): Promise<Map<string, CardRef[]>> {
+  const out = new Map<string, CardRef[]>()
+  if (cardIds.length === 0) return out
+  const { results } = await db
+    .prepare(
+      `SELECT g.card_id AS for_id, o.id, o.input_term, e.lemma, e.grammar_json, o.created_at
+       FROM json_each(?1) j
+       JOIN card_glosses g ON g.card_id = j.value
+       JOIN card_glosses og ON og.deck_id = g.deck_id AND og.gloss_key = g.gloss_key AND og.card_id <> g.card_id
+       JOIN cards o ON o.id = og.card_id AND o.status = 'ready'
+       LEFT JOIN entries e ON e.id = o.entry_id
+       GROUP BY g.card_id, o.id
+       ORDER BY g.card_id, o.created_at, o.id`,
+    )
+    .bind(JSON.stringify([...new Set(cardIds)]))
+    .all<{ for_id: string; id: string; input_term: string; lemma: string | null; grammar_json: string | null }>()
+  for (const r of results) {
+    const list = out.get(r.for_id) ?? []
+    if (list.length < ALSO_IN_DECK_MAX) list.push({ id: r.id, display: cardDisplay(r.input_term, r.lemma, r.grammar_json) })
+    out.set(r.for_id, list)
+  }
+  return out
+}
+
+export const DEFAULT_REVIEW_LIMIT = 50
+
+/**
+ * GET /decks/:id/review: ready, already-studied cards (state <> New) due within the learn-ahead
+ * window, soonest first. `ahead` ("practice anyway") drops the due filter: the cards due soonest,
+ * due or not. Pending, failed, suspended, duplicate and deleted cards never appear
+ * (status = 'ready'). Each card carries `alsoInDeck`. 2 statements, +1 for `nextDueAt` when the
+ * queue is empty.
+ */
+export async function reviewQueue(
+  db: D1Database,
+  deckId: string,
+  opts: { limit?: number; ahead?: boolean; now?: number } = {},
+): Promise<ReviewQueueResponse> {
+  const now = opts.now ?? Date.now()
+  const limit = opts.limit ?? DEFAULT_REVIEW_LIMIT
+  // ahead=1: no upper bound on due (MAX_SAFE_INTEGER keeps one statement shape).
+  const dueLimit = opts.ahead ? Number.MAX_SAFE_INTEGER : now + LEARN_AHEAD_MS
+  const { results } = await db
+    .prepare(
+      `${LIST_SELECT} WHERE c.deck_id = ?1 AND c.status = 'ready' AND c.state IN (1, 2, 3) AND c.due <= ?3
+       ORDER BY c.due, c.id LIMIT ?2`,
+    )
+    .bind(deckId, limit, dueLimit)
+    .all<CardListRow>()
+  const cards = results.map(toCardDTO)
+  const also = await alsoInDeck(db, cards.map((c) => c.id))
+  for (const c of cards) c.alsoInDeck = also.get(c.id) ?? []
+  let nextDueAt: number | null = cards[0]?.due ?? null
+  if (cards.length === 0) {
+    const row = await db
+      .prepare(`SELECT MIN(due) AS next FROM cards WHERE deck_id = ? AND status = 'ready' AND state IN (1, 2, 3)`)
+      .bind(deckId)
+      .first<{ next: number | null }>()
+    nextDueAt = row?.next ?? null
+  }
+  return { cards, nextDueAt }
+}
+
+const DAY_MS = 86_400_000
+
+/**
+ * Start of the user's local day containing `now`. `tzOffset` is the client's
+ * Date#getTimezoneOffset() (minutes to add to local time to get UTC; UTC+2 -> -120); 0 = UTC.
+ */
+export function localDayStart(now: number, tzOffset = 0): number {
+  const shift = tzOffset * 60_000
+  return Math.floor((now - shift) / DAY_MS) * DAY_MS + shift
+}
+
+/** Deck counts in ONE statement. Day-based counts use the client's local day (`tzOffset`). */
+export async function deckStats(
+  db: D1Database,
+  deckId: string,
+  opts: { userId: string; tzOffset?: number; now?: number },
+): Promise<DeckStats> {
+  const now = opts.now ?? Date.now()
+  const dayStart = localDayStart(now, opts.tzOffset)
   const row = await db
     .prepare(
       `SELECT
@@ -213,11 +307,16 @@ export async function deckStats(db: D1Database, deckId: string, now = Date.now()
          COALESCE(SUM(status = 'ready' AND state = 0), 0) AS "new",
          COALESCE(SUM(status = 'ready' AND state IN (1, 3)), 0) AS learning,
          COALESCE(SUM(status = 'ready' AND state = 2), 0) AS review,
-         COALESCE(SUM(status = 'ready' AND state <> 0 AND due <= ?), 0) AS dueNow,
-         COALESCE(SUM(status = 'duplicate'), 0) AS duplicates
-       FROM cards WHERE deck_id = ?`,
+         COALESCE(SUM(status = 'ready' AND state <> 0 AND due <= ?1), 0) AS dueNow,
+         COALESCE(SUM(status = 'ready' AND state <> 0 AND due < ?2), 0) AS dueToday,
+         COALESCE(SUM(status = 'duplicate'), 0) AS duplicates,
+         (SELECT COUNT(*) FROM review_logs l JOIN cards lc ON lc.id = l.card_id
+            WHERE l.user_id = ?4 AND l.reviewed_at >= ?5 AND lc.deck_id = ?3) AS reviewedToday,
+         (SELECT COUNT(*) FROM review_logs l JOIN cards lc ON lc.id = l.card_id
+            WHERE l.user_id = ?4 AND l.reviewed_at >= ?5 AND lc.deck_id = ?3 AND l.state_before = 0) AS newToday
+       FROM cards WHERE deck_id = ?3`,
     )
-    .bind(now, deckId)
+    .bind(now + LEARN_AHEAD_MS, dayStart + DAY_MS, deckId, opts.userId, dayStart)
     .first<DeckStats>()
   return row!
 }

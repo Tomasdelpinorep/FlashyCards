@@ -143,14 +143,34 @@ describe('AnthropicGenerator', () => {
   })
 })
 
-describe('createGenerator (AI_PROVIDER)', () => {
-  const env = (over: Partial<Bindings>) => ({ AI_PROVIDER: 'fake', AI_MODEL: 'claude-haiku-5-5', ...over }) as Bindings
-  it('fake -> FakeGenerator; anthropic with a key -> AnthropicGenerator; anthropic without a key -> fake', () => {
-    expect(createGenerator(env({}))).toBeInstanceOf(FakeGenerator)
-    expect(createGenerator(env({ AI_PROVIDER: 'anthropic', ANTHROPIC_API_KEY: 'sk-test' }))).toBeInstanceOf(AnthropicGenerator)
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    expect(createGenerator(env({ AI_PROVIDER: 'anthropic', ANTHROPIC_API_KEY: '' }))).toBeInstanceOf(FakeGenerator)
-    expect(warn).toHaveBeenCalled()
-    warn.mockRestore()
+describe('createGenerator (AI_PROVIDER, fails closed)', () => {
+  const env = (over: Partial<Bindings>) => ({ AI_MODEL: 'claude-haiku-5-5', ...over }) as Bindings
+  const PROD = 'https://flashcards.example.workers.dev/api/decks/x/generate'
+  const LOCAL = 'http://localhost:5173/api/decks/x/generate'
+  const LOOPBACK = 'http://127.0.0.1:5173/api/decks/x/generate'
+
+  it('AI_PROVIDER=fake -> FakeGenerator on any host', () => {
+    expect(createGenerator(env({ AI_PROVIDER: 'fake' }), PROD)).toBeInstanceOf(FakeGenerator)
+  })
+
+  it('AI_PROVIDER=anthropic with a key -> AnthropicGenerator; without a key -> null, even on localhost', () => {
+    expect(createGenerator(env({ AI_PROVIDER: 'anthropic', ANTHROPIC_API_KEY: 'sk-test' }), PROD)).toBeInstanceOf(AnthropicGenerator)
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {})
+    expect(createGenerator(env({ AI_PROVIDER: 'anthropic', ANTHROPIC_API_KEY: '' }), PROD)).toBeNull()
+    expect(createGenerator(env({ AI_PROVIDER: 'anthropic', ANTHROPIC_API_KEY: '  ' }), LOCAL)).toBeNull()
+    expect(createGenerator(env({ AI_PROVIDER: 'anthropic' }), LOCAL)).toBeNull()
+    expect(err).toHaveBeenCalled()
+    err.mockRestore()
+  })
+
+  it('AI_PROVIDER unset: a key -> anthropic; no key -> fake only on localhost/127.0.0.1', () => {
+    expect(createGenerator(env({ ANTHROPIC_API_KEY: 'sk-test' }), PROD)).toBeInstanceOf(AnthropicGenerator)
+    expect(createGenerator(env({}), LOCAL)).toBeInstanceOf(FakeGenerator)
+    expect(createGenerator(env({ AI_PROVIDER: '' }), LOOPBACK)).toBeInstanceOf(FakeGenerator)
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {})
+    expect(createGenerator(env({}), PROD)).toBeNull()
+    expect(createGenerator(env({ AI_PROVIDER: '' }), 'https://localhost.evil.example/api')).toBeNull()
+    expect(createGenerator(env({ AI_PROVIDER: 'openai' }), LOCAL)).toBeNull()
+    err.mockRestore()
   })
 })

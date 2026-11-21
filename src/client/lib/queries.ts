@@ -12,6 +12,9 @@ import type {
   ImportResponse,
   MeResponse,
   RetryFailedResponse,
+  ReviewQueueResponse,
+  UpdateMeInput,
+  UserDTO,
 } from '../../shared/schemas'
 import { api, unwrap } from './api'
 
@@ -24,6 +27,7 @@ export const keys = {
   cards: (deckId: string, status?: string, q?: string) => ['decks', deckId, 'cards', status ?? 'all', q ?? ''] as const,
   deck: (deckId: string) => ['decks', deckId] as const,
   card: (cardId: string) => ['cards', cardId] as const,
+  review: (deckId: string, ahead: boolean) => ['decks', deckId, 'review', ahead ? 1 : 0] as const,
 }
 
 export function useMe() {
@@ -41,7 +45,11 @@ export function useLanguages() {
 export function useDeckStats(deckId: string | undefined) {
   return useQuery({
     queryKey: keys.stats(deckId ?? ''),
-    queryFn: () => unwrap<{ stats: DeckStats }>(api.decks[':id'].stats.$get({ param: { id: deckId! } })),
+    queryFn: () =>
+      unwrap<{ stats: DeckStats }>(
+        // The user's local day for dueToday / reviewedToday / newToday.
+        api.decks[':id'].stats.$get({ param: { id: deckId! }, query: { tzOffset: String(new Date().getTimezoneOffset()) } }),
+      ),
     enabled: !!deckId,
     select: (d) => d.stats,
   })
@@ -120,5 +128,31 @@ export function useRetryFailed(deckId: string) {
   return useMutation({
     mutationFn: () => unwrap<RetryFailedResponse>(api.decks[':id']['retry-failed'].$post({ param: { id: deckId } })),
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.deck(deckId) }),
+  })
+}
+
+export function useUpdateMe() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: UpdateMeInput) => unwrap<{ user: UserDTO }>(api.me.$patch({ json: body })),
+    onSuccess: ({ user }) => qc.setQueryData<MeResponse>(keys.me, (old) => (old ? { ...old, user } : old)),
+  })
+}
+
+/**
+ * The cards to review (GET /decks/:id/review). Fetched once per session: no refetch on focus,
+ * since the Train screen keeps its own in-memory queue.
+ */
+export function useReviewQueue(deckId: string | undefined, ahead: boolean) {
+  return useQuery({
+    queryKey: keys.review(deckId ?? '', ahead),
+    enabled: !!deckId,
+    staleTime: Infinity,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
+    queryFn: () =>
+      unwrap<ReviewQueueResponse>(
+        api.decks[':id'].review.$get({ param: { id: deckId! }, query: { limit: '50', ...(ahead ? { ahead: '1' as const } : {}) } }),
+      ),
   })
 }

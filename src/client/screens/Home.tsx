@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { GenerationBanner } from '../components/GenerationBanner'
 import { NoDecks } from '../components/NoDecks'
-import { btnPrimary, card, ErrorText, muted, Screen } from '../components/ui'
+import { btnPrimary, btnSecondary, card, ErrorText, muted, Screen } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
 import { useDeckStats } from '../lib/queries'
 
@@ -63,7 +63,15 @@ export function Home() {
         <Stat label="Failed" value={s?.failed} />
       </section>
 
-      <Link to="/add" className={btnPrimary}>
+      <Link to="/train" className={btnPrimary}>
+        Train · {s?.dueNow ?? '–'} due
+      </Link>
+      {s && (s.reviewedToday > 0 || s.dueToday > s.dueNow) && (
+        <p className={`${muted} text-center`}>
+          {s.reviewedToday} reviewed today{s.dueToday > s.dueNow ? ` · ${s.dueToday - s.dueNow} more due later today` : ''}
+        </p>
+      )}
+      <Link to="/add" className={btnSecondary}>
         Add words
       </Link>
     </Screen>

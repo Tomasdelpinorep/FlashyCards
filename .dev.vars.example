@@ -6,6 +6,10 @@
 # Ignored for any other host. Never set this in wrangler.jsonc or in production.
 DEV_AUTH_EMAIL=dev@example.com
 
+# Comma-separated allowlist for Cloudflare Access logins (not used by the localhost bypass).
+# Production sets it as a secret: npx wrangler secret put ALLOWED_EMAILS
+ALLOWED_EMAILS=
+
 # "fake" = deterministic offline generator, "anthropic" = real API calls.
 AI_PROVIDER=fake
 

@@ -50,7 +50,7 @@
 
 - **Auth details.** `/api/health` stays public; everything else under `/api` is authenticated
   (unknown routes give 401 before auth, JSON 404 after). Only RS256 is accepted. Fail-closed:
-  empty `ALLOWED_EMAILS` -> 403 for everyone; missing `ACCESS_TEAM_DOMAIN`/`ACCESS_AUD` -> 500.
+  empty or missing `ALLOWED_EMAILS` -> 403 for everyone (a secret since M5, see below); missing `ACCESS_TEAM_DOMAIN`/`ACCESS_AUD` -> 500.
   A valid token without an `email` claim (e.g. a service token) -> 403. Emails are stored
   lowercased. The dev bypass does **not** consult `ALLOWED_EMAILS` (it is local-only by design).
   Users are read first and inserted only if missing, so most requests cost no D1 write.
@@ -201,10 +201,9 @@
   - `anthropic.ts`, `fake.ts`, `prompts.ts`, `schema.ts`
 
   `createApp({ generator })` injects one for tests (routes call `c.get('generator')()`).
-  - **Risk:** the requested "fall back to fake when there is no key" also applies in production.
-    Fake entries (model `fake`) would then land in the global cache and be reused. Set the
-    secret before deploying with `AI_PROVIDER=anthropic`. Fake rows can be found with
-    `entries.model = 'fake'`.
+  - *(Superseded in M5 Part 0: a missing key now fails closed.)* The M4 fallback to fake when
+    there was no key also applied in production, which could have put fake entries in the
+    global cache. Any such rows can be found with `entries.model = 'fake'`.
 
 - **Anthropic request** (per the `claude-api` skill): `client.messages.parse` with
   `output_config.format = zodOutputFormat(BatchSchema)`.
@@ -298,3 +297,134 @@
   level, as in the PLAN schema. A B1 deck reuses an A1-A2 sentence that is already cached.
   `prompt_version` is stored so stale rows can be refreshed later.
 
+## M5 (SRS core and Training mode)
+
+- **Part 0: the generator fails closed** (orchestrator request). `createGenerator(env, requestUrl)`
+  in `ai/create.ts` returns `null` when AI isn't configured:
+  - `AI_PROVIDER=fake` -> fake on any host.
+  - `AI_PROVIDER=anthropic` -> Anthropic with a key; **no key -> null, even on localhost**.
+  - `AI_PROVIDER` unset -> Anthropic if a key is set; otherwise fake **only** on
+    `localhost`/`127.0.0.1` (the dev-bypass rule), else null.
+  - Any other value -> null.
+
+  On `null`, `POST /generate` answers `503 {error:'ai_not_configured', message:"AI isn't configured
+  on the server"}` **before claiming anything**: cards stay pending with no lease and no attempt,
+  and nothing is written to `entries`, `entry_aliases` or `ai_usage`. The client's generation loop
+  stops (no auto-retry) and the banner says "AI isn't configured on the server. N words will wait
+  until it is." with "Try again". Cache hits are not resolved while AI is off (simplest; the
+  next working call resolves them). Tests: `test/worker/aiConfig.test.ts` plus the
+  `createGenerator` unit tests. `setup(env, { generator: 'env' })` uses the real factory.
+
+- **`ALLOWED_EMAILS` is a secret, not a var** (orchestrator request: the repo will be public). It
+  was removed from `wrangler.jsonc` `vars` (a comment explains it), and from
+  `worker-configuration.d.ts` by hand, not by `cf-typegen`, so no `.dev.vars` keys leak into it.
+  `.dev.vars.example` lists it. `Bindings.ALLOWED_EMAILS` is now optional, and missing or empty
+  means 403 for every Access login (tested). Production: `npx wrangler secret put ALLOWED_EMAILS`
+  (PLAN §9). Two test fixtures on `x.com` were moved to `example.com`. No real addresses are in
+  tracked files.
+
+- **ts-fsrs 6.0.0** (the current stable major) **with `DefaultScheduler({ version: 'FSRS-6' })`.**
+  - v6 replaced the v4/v5 `fsrs()` API, which is still exported but deprecated, with an async
+    `DefaultScheduler` that defaults to FSRS-7. FSRS-7's memory state needs an extra
+    `stabilityFast` that migration 0001 does not store. FSRS-6 keeps exactly our columns, so no
+    migration is needed. Moving to FSRS-7 later means one column plus `toFsrsCard`/`fromFsrsCard`.
+  - The v6 card has camelCase fields (`dueAt`, `lastReviewAt`, `scheduledDays`, `learningStep`,
+    `scheduleStatus`, `cardId`) and no `elapsed_days`. `scheduleStatus` is derived from `state`
+    (0 new, 1/3 learning, 2 review). `cards.elapsed_days` is written with the whole days since the
+    previous review, for reference only.
+  - The scheduler is created asynchronously (the model loads lazily, so Vite emits small
+    per-model chunks). `loadSrs(overrides)` memoises one per config and resolves to a sync `Srs`
+    with `review`/`preview`. Tests inject `{ enableFuzz: false }` through `createApp({ srs })` /
+    `setup(env, { srs })`.
+  - Config as PLAN: retention 0.9, max interval 365 d, fuzz on, steps 1m/10m, relearning 10m.
+    v6 with FSRS-6 also implies `graduatingInterval: 1` and `allowModelOverride: false`.
+
+- **Fuzz is deterministic per card**: ts-fsrs v6 seeds it from the card id and review count. The
+  client preview (`previewIntervals`) therefore gives exactly what the server will compute for
+  the same rating at the same time. The labels are exact, apart from client/server clock skew and
+  the server's reviewedAt clamp. Tests still allow for fuzz (a band around the unfuzzed interval)
+  or turn it off.
+
+- **`POST /reviews` race safety without a log nonce.** Both statements of the batch
+  compare-and-swap on the card's pre-review `(reps, last_review)`, which every review changes.
+  The log is `INSERT OR IGNORE ... SELECT ... WHERE` the card is still at that state, and the card
+  `UPDATE ... WHERE` it is still at that state AND our log row exists, `RETURNING` the new state.
+  - A repeated id (sequential or concurrent) applies once. The loser re-reads, finds its own log
+    row, and returns the current card with `applied: false`.
+  - A *different* id racing on the same card makes the CAS fail with no log row. The server
+    recomputes from the fresh state, at most 3 rounds, then `503 review_conflict`, which the
+    outbox retries.
+  - `reviewedAt` is clamped to [now−7d, now], and also never earlier than the card's
+    `last_review`.
+  - The response is `{ card: { id, status, srs }, applied }` (the schedule only, not the full
+    DTO).
+  - Errors:
+    - 404: not owned, deleted or unknown card.
+    - 409 `card_not_ready`: pending, failed, suspended or duplicate.
+    - 409 `review_id_conflict`: an id reused for another card or user.
+    - 400: an invalid body (UUID, rating 1–4, direction `target-source|source-target`, strict).
+  - Measured: **4 statements** (auth 1 + read 1 + batch 2); a repeat costs 2. The tests assert
+    ≤ 6 and ≤ 4.
+  - The concurrency test uses a gated D1 proxy so both requests read before either batch runs.
+    Removing the reps CAS makes it fail, so the test is not vacuous.
+
+- **`GET /decks/:id/review`**: `status = 'ready' AND state IN (1,2,3) AND due <= now + 20 min`,
+  ordered by `due, id`, with `limit` 1–100 (default 50).
+  - `ahead=1` drops the due bound (it binds `MAX_SAFE_INTEGER`, so the statement shape is the
+    same).
+  - `alsoInDeck` for the whole page is ONE self-join over `card_glosses` driven by `json_each(ids)`,
+    capped at 3 per card in JS. `GET /cards/:id` uses the same helper.
+  - `nextDueAt` is the first card's due, or `MIN(due)` of studied ready cards when the queue is
+    empty (one extra statement only then).
+  - Measured: 4–5 statements; the test asserts ≤ 5.
+  - The Card DTO gained `srs` (all FSRS columns) for previews and the requeue.
+
+- **Stats.**
+  - **`dueNow` now includes the 20-minute learn-ahead**, so "Train · N due" matches what Train shows.
+    Before M5 it was `due <= now`.
+  - `dueToday` = studied ready cards with `due` before the end of the local day.
+  - `reviewedToday` = this user's review logs on this deck's cards since the start of the local
+    day.
+  - `newToday` = those logs with `state_before = 0`.
+  - The local day comes from `?tzOffset=` = the client's `Date#getTimezoneOffset()` (minutes,
+    −840..840; UTC+2 is −120), default UTC.
+  - Still ONE statement (two scalar subqueries).
+
+- **Train screen** (`/train`; Home's primary button is "Train · N due").
+  - Direction toggle (`DE→EN`/`EN→DE`/Mixed, labels built from the deck's codes), saved with
+    `PATCH /me` `studyDirection`. Mixed picks per card when it appears; switching mode re-picks
+    the card on screen unless it is flipped.
+  - Faces come from `shared/display.ts cardFaces()` (unit-tested):
+    - DE→EN front: the coloured word plus the sentence with `[[…]]` → `____`, unless
+      `hideSentenceOnFront`.
+    - EN→DE front: the translation line plus `example_source` with its highlight, always.
+    - Back: everything, with "Also in your deck" only when shown EN-first and non-empty.
+  - Space or tap flips; 1–4 grade; Listen uses `speechSynthesis` in the deck's `ttsLang` (word,
+    then sentence). `ttsAutoplay` speaks the word on flip.
+  - The queue logic is in `lib/session.ts` (unit-tested). A graded card that comes due within the
+    learn-ahead window (a learning or relearning step) is requeued with its locally computed
+    schedule. It is shown once due, or earlier when nothing else is left (Anki-style
+    learn-ahead).
+  - Empty or end state: "All done · Next card in 3h" (soonest of the server's `nextDueAt` and this
+    session's new due times), "N cards reviewed · X% correct" (Hard/Good/Easy count as correct),
+    and "Practice anyway" (`ahead=1`, a new session).
+  - `hideSentenceOnFront` and `ttsAutoplay` have no Settings toggles yet (M8). They are honoured
+    when set through `PATCH /me`.
+
+- **Outbox** (`lib/outbox.ts`): a pure core with injected storage and transport (unit-tested with
+  a fake storage) plus a browser binding.
+  - Entries are keyed by review UUID in insertion order under `flashcards.outbox.v1`.
+  - It sends **one at a time, in order**, so two reviews of one card arrive in the order they were
+    made.
+  - Results:
+    - 2xx: acknowledged and removed.
+    - 401/403/408/429/5xx/network error: retried, and the drain stops there to keep order.
+    - Any other 4xx: dropped (the card was deleted or suspended, or the id conflicts).
+  - Drains on app load, on `online`, on window `focus`, after each review, and every 30 s while
+    entries remain.
+  - All storage access is in try/catch; without storage it keeps the queue in memory.
+  - Concurrent flushes join one drain.
+
+- **Not in M5:** the Learn-new flow (M6), so a ready New card only becomes reviewable through
+  `POST /reviews` (the smoke test did exactly that). Train never shows New cards; a deck with only
+  New cards shows "Nothing to review yet". No test-only or unauthenticated path was added.

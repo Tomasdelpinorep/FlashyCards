@@ -5,6 +5,7 @@ import { FakeGenerator } from '../../src/worker/ai/fake'
 import { createApp } from '../../src/worker/app'
 import type { Bindings } from '../../src/worker/env'
 import { createTestD1 } from './d1'
+import type { SrsConfig } from '../../src/shared/srs'
 
 export const TEAM_DOMAIN = 'https://test-team.cloudflareaccess.com'
 export const AUD = 'test-aud-tag'
@@ -31,10 +32,18 @@ export async function signToken(
 
 type RequestOpts = { method?: string; token?: string; body?: unknown; host?: string }
 
-export function setup(envOverrides: Partial<Bindings> = {}, options: { generator?: SentenceGenerator } = {}) {
+/**
+ * `options.generator`: the generator every request uses (default: a fresh FakeGenerator), or
+ * `'env'` to use the production factory (ai/create.ts), which reads AI_PROVIDER and the host.
+ */
+export function setup(
+  envOverrides: Partial<Bindings> = {},
+  options: { generator?: SentenceGenerator | 'env'; srs?: Partial<SrsConfig> } = {},
+) {
   const { db, sqlite, counter } = createTestD1()
   /** The generator every request uses (a FakeGenerator unless the test passes its own). */
-  const generator = options.generator ?? new FakeGenerator()
+  const useEnv = options.generator === 'env'
+  const generator = options.generator === 'env' || options.generator === undefined ? new FakeGenerator() : options.generator
   const env: Bindings = {
     DB: db,
     ACCESS_TEAM_DOMAIN: TEAM_DOMAIN,
@@ -46,7 +55,9 @@ export function setup(envOverrides: Partial<Bindings> = {}, options: { generator
     AI_GLOBAL_DAILY_LIMIT: '2000',
     ...envOverrides,
   }
-  const app = createApp({ jwks: () => localJwks, generator: () => generator })
+  const app = createApp(
+    useEnv ? { jwks: () => localJwks, srs: options.srs } : { jwks: () => localJwks, generator: () => generator, srs: options.srs },
+  )
 
   /** Request against a non-local host (as in production) unless `host` says otherwise. */
   async function request(path: string, opts: RequestOpts = {}) {

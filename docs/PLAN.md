@@ -28,7 +28,7 @@ Requests flow: Browser SPA (PWA) → Cloudflare Access → Worker (Hono).
 - The Worker serves the static assets with SPA fallback.
 - `/api/*` goes through `authMiddleware`, then the routes: me, decks, import, suggest, generate, cards, learn, review.
 - Services: `importParser`, `normalize`, `generation` (cache, then AI), `suggest`, `srs`, `rateLimit`.
-- `ai/` defines a `SentenceGenerator` interface with two implementations: `AnthropicGenerator` and `FakeGenerator` (deterministic, used when `AI_PROVIDER=fake` or no key is set).
+- `ai/` defines a `SentenceGenerator` interface with two implementations: `AnthropicGenerator` and `FakeGenerator` (deterministic, used when `AI_PROVIDER=fake`, or locally when `AI_PROVIDER` is unset and there is no key; otherwise a missing key fails closed, see DECISIONS.md M5).
 - D1 holds `users`, `decks`, `cards`, `review_logs`, `entries` (a global AI cache), `entry_aliases`, `wordlist`, and `ai_usage`.
 
 **Adding words:**
@@ -207,15 +207,17 @@ public/manifest.webmanifest icons/   test/{worker,shared}/*.test.ts
 - **Local setup:**
   1. `npm install`
   2. `npx wrangler d1 create flashcards`, then put the id into `wrangler.jsonc`
-  3. Copy `.dev.vars.example` to `.dev.vars` and set `DEV_AUTH_EMAIL` and `AI_PROVIDER=fake|anthropic`
+  3. Copy `.dev.vars.example` to `.dev.vars` and set `DEV_AUTH_EMAIL` and `AI_PROVIDER=fake|anthropic` (and `ALLOWED_EMAILS` only if you test real Access tokens locally)
   4. `npm run db:migrate:local`
   5. `npm run dev`
   6. `npm test`
 - **Deploy:**
   1. `npm run db:migrate:remote`
   2. `npx wrangler secret put ANTHROPIC_API_KEY`
-  3. `npm run deploy`
-- **Vars:** `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `ALLOWED_EMAILS`, `AI_PROVIDER`, `AI_MODEL=claude-haiku-5-5`, `AI_USER_DAILY_LIMIT=200`, `AI_GLOBAL_DAILY_LIMIT=2000`. `DEV_AUTH_EMAIL` is never set in production.
+  3. `npx wrangler secret put ALLOWED_EMAILS` (comma-separated). The repo is public, so the allowlist is never a `wrangler.jsonc` var. Until it is set, every login gets 403.
+  4. `npm run deploy`
+- **Secrets:** `ANTHROPIC_API_KEY`, `ALLOWED_EMAILS`.
+- **Vars:** `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `AI_PROVIDER`, `AI_MODEL=claude-haiku-5-5`, `AI_USER_DAILY_LIMIT=200`, `AI_GLOBAL_DAILY_LIMIT=2000`. `DEV_AUTH_EMAIL` is never set in production.
 - **Access setup:**
   1. Enable Cloudflare Access on the worker's workers.dev route.
   2. Add an Allow policy for the user emails.

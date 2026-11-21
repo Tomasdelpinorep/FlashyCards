@@ -208,3 +208,78 @@ export function highlightSegments(s: string | null | undefined): Segment[] {
 export function duplicateOfText(duplicateOf: { display: string } | undefined): string {
   return duplicateOf ? `Already in your deck as ${duplicateOf.display}` : 'Already in your deck'
 }
+
+// ---------- study card faces (Train, M5; DUPLICATES.md 10.8) ----------
+
+/** The direction shown for one card: which language is on the front. */
+export type FaceDirection = 'target-source' | 'source-target'
+
+/** A sentence with every [[...]] replaced by "____" (the word hidden). Unmarked sentences are shown as they are. */
+export function blankMarkers(s: string | null | undefined): string | null {
+  if (!s) return null
+  if (!hasValidMarkers(s)) return stripMarkers(s)
+  return s.replace(MARKER, '____')
+}
+
+export type StudyCardInput = {
+  display: string
+  translation: string | null
+  extraTranslations: readonly string[]
+  content: Pick<CardContent, 'pos' | 'grammar' | 'exampleTarget' | 'exampleSource'> | null
+  alsoInDeck?: readonly { id: string; display: string }[]
+}
+
+export type CardFaces = {
+  direction: FaceDirection
+  front:
+    | { kind: 'target'; word: string; sentence: string | null }
+    | { kind: 'source'; translation: string; sentence: string | null }
+  back: {
+    word: string
+    forms: string | null
+    translation: string
+    /** Raw sentences with [[ ]] markers (rendered highlighted). */
+    exampleTarget: string | null
+    exampleSource: string | null
+    /** "Also in your deck": only when the card was shown source-language first, never DE->EN. */
+    alsoInDeck: { id: string; display: string }[]
+  }
+  /** What TTS reads on the back: the target-language word, then its sentence. */
+  speech: { word: string; sentence: string | null }
+}
+
+/**
+ * The front and back of a study card.
+ * - target-source (DE->EN): the word with its article; the sentence with the word blanked,
+ *   unless `hideSentenceOnFront`.
+ * - source-target (EN->DE): the translation line and ALWAYS `example_source` with the
+ *   translated word highlighted (`hideSentenceOnFront` applies to DE->EN only).
+ * The back is the full card; "Also in your deck" only for source-target and when non-empty.
+ */
+export function cardFaces(card: StudyCardInput, direction: FaceDirection, opts: { hideSentenceOnFront?: boolean } = {}): CardFaces {
+  const c = card.content
+  const translation = translationLine(card.translation, card.extraTranslations)
+  const front: CardFaces['front'] =
+    direction === 'target-source'
+      ? { kind: 'target', word: card.display, sentence: opts.hideSentenceOnFront ? null : blankMarkers(c?.exampleTarget) }
+      : { kind: 'source', translation, sentence: c?.exampleSource ?? null }
+  return {
+    direction,
+    front,
+    back: {
+      word: card.display,
+      forms: formsLine(c),
+      translation,
+      exampleTarget: c?.exampleTarget ?? null,
+      exampleSource: c?.exampleSource ?? null,
+      alsoInDeck: direction === 'source-target' ? [...(card.alsoInDeck ?? [])] : [],
+    },
+    speech: { word: card.display, sentence: c?.exampleTarget ? stripMarkers(c.exampleTarget) : null },
+  }
+}
+
+/** Resolve a session mode to the direction of one card ('mixed' -> random, 50/50). */
+export function pickDirection(mode: FaceDirection | 'mixed', random: () => number = Math.random): FaceDirection {
+  if (mode !== 'mixed') return mode
+  return random() < 0.5 ? 'target-source' : 'source-target'
+}

@@ -4,7 +4,7 @@ import { createTestD1 } from '../helpers/d1'
 // Sanity checks for migrations/0001_init.sql (docs/DUPLICATES.md section 10.2). No duplicate logic here.
 function seed() {
   const { sqlite } = createTestD1()
-  sqlite.exec(`INSERT INTO users (id, email, created_at) VALUES ('u1', 'a@x.com', 0);
+  sqlite.exec(`INSERT INTO users (id, email, created_at) VALUES ('u1', 'a@example.com', 0);
                INSERT INTO decks (id, user_id, name, source_lang, target_lang, created_at) VALUES ('d1', 'u1', 'G', 'en', 'de', 0);`)
   const insert = sqlite.prepare(`INSERT INTO cards (id, deck_id, input_term, term_key, input_lang, hint_key, lemma_key, sense_key,
       origin, status, due, created_at, updated_at) VALUES (?, 'd1', ?, ?, ?, ?, ?, ?, 'import', ?, 0, 0, 0)`)

@@ -65,6 +65,13 @@ describe('auth middleware', () => {
     expect(res.status).toBe(403)
   })
 
+  it('returns 403 for everyone when ALLOWED_EMAILS is missing (a secret that was never set)', async () => {
+    const { request, sqlite } = setup({ ALLOWED_EMAILS: undefined })
+    const res = await request('/api/me', { token: await signToken('alice@example.com') })
+    expect(res.status).toBe(403)
+    expect(sqlite.prepare('SELECT COUNT(*) AS n FROM users').get()).toMatchObject({ n: 0 })
+  })
+
   it('returns 403 for a valid token without an email claim', async () => {
     const { request } = setup()
     const res = await request('/api/me', { token: await signToken(undefined) })
@@ -98,7 +105,7 @@ describe('auth middleware', () => {
   })
 
   it('parses ALLOWED_EMAILS', () => {
-    expect([...parseAllowedEmails(' A@x.com, ,b@Y.com ')]).toEqual(['a@x.com', 'b@y.com'])
+    expect([...parseAllowedEmails(' A@example.com, ,b@Example.COM ')]).toEqual(['a@example.com', 'b@example.com'])
     expect(parseAllowedEmails(undefined).size).toBe(0)
   })
 })

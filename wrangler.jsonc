@@ -31,7 +31,9 @@
   "vars": {
     "ACCESS_TEAM_DOMAIN": "", // TODO(user): e.g. "https://<team>.cloudflareaccess.com"
     "ACCESS_AUD": "",         // TODO(user): AUD tag of the Access application
-    "ALLOWED_EMAILS": "",     // TODO(user): comma-separated email allowlist
+    // ALLOWED_EMAILS (comma-separated email allowlist) is deliberately NOT a var: the repo is
+    // public. Production: `npx wrangler secret put ALLOWED_EMAILS`. Locally: `.dev.vars`.
+    // When it is missing or empty, every Access-authenticated request gets 403 (fail closed).
     "AI_PROVIDER": "anthropic",
     "AI_MODEL": "claude-haiku-5-5",
     "AI_USER_DAILY_LIMIT": "200",

@@ -7,6 +7,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { DuplicateReport } from '../../shared/schemas'
+import { ApiError } from './api'
 import { useCurrentDeck } from './deck'
 import { generateOnce, keys, useDeckStats } from './queries'
 
@@ -77,7 +78,7 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
           if (idle > 0) await sleep(NO_PROGRESS_DELAY_MS)
         }
       } catch (err) {
-        if (!me.cancelled) setState((s) => ({ ...s, error: err instanceof Error ? err.message : String(err) }))
+        if (!me.cancelled) setState((s) => ({ ...s, error: generationErrorText(err) }))
       } finally {
         if (run.current === me) {
           run.current = null
@@ -96,6 +97,14 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
 
   return <GenerationContext.Provider value={{ state, start }}>{children}</GenerationContext.Provider>
 }
+
+/** The banner text for a failed /generate call (503 ai_not_configured has its own copy). */
+export function generationErrorText(err: unknown): string {
+  if (err instanceof ApiError && err.body?.error === 'ai_not_configured') return AI_NOT_CONFIGURED
+  return err instanceof Error ? err.message : String(err)
+}
+
+export const AI_NOT_CONFIGURED = "AI isn't configured on the server"
 
 export function useGeneration() {
   return useContext(GenerationContext)
