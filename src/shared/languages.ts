@@ -31,8 +31,21 @@ export interface LanguageConfig {
   genderArticles?: Readonly<Partial<Record<'masculine' | 'feminine' | 'neuter', string>>>
   /** Extra grammar instructions for the AI prompt when this is the target language. */
   grammarPromptHints: string
-  /** Whether a bundled frequency word list exists (wordlist table). */
+  /** Whether a bundled frequency word list exists (wordlist table). Without one, /suggest asks the AI. */
   hasWordlist: boolean
+  /** Source and licence of the bundled word list, for the About screen (attribution required). */
+  wordlist?: WordlistSource
+}
+
+export type WordlistSource = {
+  /** Short credit line. */
+  name: string
+  url: string
+  /** SPDX licence id. */
+  license: string
+  licenseUrl: string
+  /** Full attribution text (also in data/wordlists/<code>.json). */
+  attribution: string
 }
 
 export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
@@ -63,7 +76,15 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
       'Prepositions: governs_case ("accusative", "dative", "genitive", or "accusative/dative" for two-way prepositions).',
       'Separable verbs in example_target: wrap both parts, e.g. "Ich [[stehe]] um sieben Uhr [[auf]]."',
     ].join('\n'),
-    hasWordlist: false, // becomes true in M7 (migrations/0002_wordlist_de.sql)
+    hasWordlist: true, // migrations/0002_wordlist_de.sql, from data/wordlists/de.json
+    wordlist: {
+      name: 'FrequencyWords by Hermit Dave (OpenSubtitles 2018)',
+      url: 'https://github.com/hermitdave/FrequencyWords',
+      license: 'CC-BY-SA-4.0',
+      licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+      attribution:
+        'German word list derived from FrequencyWords by Hermit Dave (https://github.com/hermitdave/FrequencyWords), built from OpenSubtitles 2018 (http://opus.nlpl.eu/OpenSubtitles2018.php); licensed CC BY-SA 4.0. Lemmatized and filtered for this app; the derived list is shared under the same license.',
+    },
   },
   es: {
     code: 'es',

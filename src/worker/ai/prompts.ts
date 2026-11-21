@@ -7,9 +7,10 @@
  */
 import { LANGUAGES } from '../../shared/languages'
 import type { SentenceLevel } from '../../shared/schemas'
-import type { GenerationRequest } from './generator'
+import type { GenerationRequest, SuggestWordsRequest } from './generator'
 
-export const PROMPT_VERSION = 1
+// 2 (M7): optional per-input "pos" (the expected part of speech of a suggested word).
+export const PROMPT_VERSION = 2
 
 /** How the example sentence should read at each deck level (the user chose A1-A2 by default). */
 export const LEVEL_GUIDANCE: Readonly<Record<SentenceLevel, string>> = {
@@ -38,6 +39,7 @@ For each input:
   - translation: the most common short ${source.name} translation of the lemma (1-3 words; verbs as "to ...").
   - alt_translations: up to 3 other common ${source.name} translations of the same meaning, most common first; [] if none.
   - cefr: the CEFR level of the word, or null if unsure.
+  - expected_pos, when given, is the expected part of speech of the input: choose the reading of the word with that part of speech.
   - A hint, when given, is the meaning the learner wants (a ${source.name} gloss). Choose the lemma and translation for that meaning.
   - grammar: fill the fields that apply to this part of speech and use null for the rest and whenever you are unsure. ${target.name} specifics:
 ${indent(target.grammarPromptHints, '    ')}
@@ -52,8 +54,27 @@ export function userPrompt(req: GenerationRequest): string {
     input: it.input,
     hint: it.hint,
     input_language: it.inputLang === 'auto' ? 'unknown' : it.inputLang,
+    ...(it.pos ? { expected_pos: it.pos } : {}),
   }))
   return `Inputs:\n${JSON.stringify(inputs, null, 1)}`
+}
+
+/** AI fallback for /suggest: pick common target-language words the learner doesn't have yet. */
+export function suggestSystemPrompt(req: Pick<SuggestWordsRequest, 'sourceLang' | 'targetLang' | 'level'>): string {
+  const target = LANGUAGES[req.targetLang]
+  const source = LANGUAGES[req.sourceLang]
+  return `You choose vocabulary for a ${source.name} speaker learning ${target.name} (level ${req.level}).
+
+Return the requested number of ${target.name} words that a learner should know, most frequent and most useful first, as in a frequency dictionary of everyday ${target.name}.
+- Each word is one dictionary form (lemma): infinitive for verbs, singular for nouns, base form for adjectives. Nouns without an article, capitalised as ${target.name} writes them.
+- Never return a word from the exclude list (it lists lowercased dictionary forms the learner already has), and never return the same word twice.
+- Leave out names of people and places, brands, abbreviations, interjections and fillers, profanity, and words that are not ${target.name}.
+- Function words (articles, pronouns, prepositions, conjunctions) are fine.
+- pos: the part of speech of the lemma.`
+}
+
+export function suggestUserPrompt(req: Pick<SuggestWordsRequest, 'count' | 'exclude'>): string {
+  return `Number of words: ${req.count}\nExclude:\n${JSON.stringify(req.exclude)}`
 }
 
 function indent(text: string, prefix: string): string {

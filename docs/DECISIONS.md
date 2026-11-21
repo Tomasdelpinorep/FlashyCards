@@ -493,3 +493,82 @@
   `alsoInDeck`, 404 and the statement budget. `test/client/learnSession.test.ts` covers
   intro→check→requeue, interleaving, all-known groups and resume. `introFaces` is in
   `test/shared/cardFaces.test.ts`.
+
+## M7 ("Add X new words")
+
+- **The German word list was lemmatized by hand, not by `scripts/build-wordlist.ts`** (no API key
+  yet; orchestrator request). Source: hermitdave/FrequencyWords `content/2018/de/de_50k.txt`
+  (OpenSubtitles 2018; repo code is MIT, the lists are CC-BY-SA-4.0). The top **10,300** tokens
+  (PLAN said ~8k; 8k gave ~4,200 lemmas, so it went further to reach 5k) were decided one by one,
+  in rank order, exactly as the script would ask Haiku to: keep/drop, dictionary lemma, POS
+  (`ai/schema.ts` enum), gender for nouns. First rank wins; ranks renumbered 1..N.
+  Result: **5,057 lemmas** in `data/wordlists/de.json` (2,725 nouns, 1,141 verbs, 675
+  adjectives, 359 adverbs, 51 prepositions, 49 pronouns, 26 conjunctions, 26 numerals, 3
+  interjections, 2 articles). The script exists for a future run or a new language and was not
+  run. `scripts/wordlist-to-sql.ts` generates `migrations/0002_wordlist_de.sql` (100-row literal
+  INSERTs, 52 statements + a DELETE) and refuses non-unique keys, gaps in ranks or invalid POS; a
+  test checks the committed SQL matches the JSON.
+  - Drop rules (PLAN section 5): people and city names, brands, abbreviations, single letters,
+    English words (okay, sorry, cool, sir...), fillers and interjections (oh, äh, hm, hey, na,
+    tja...), profanity and slurs, subtitle stage directions (stöhnt, seufzt, räuspert...) and
+    bare separable prefixes (dar, überein). Kept on purpose: function words; the greetings
+    `hallo`, `danke`, `tschüss` (as interjections); country and continent names (Deutschland,
+    Amerika, Europa...: learner vocabulary, unlike city names); established loanwords (Job, Team,
+    Party, Handy, Café).
+  - Lemmas follow the dictionary: inflected forms map to the infinitive / nominative singular /
+    base form ("ging" -> gehen, "besser" -> gut, "mir" -> ich, "den" -> der, "zum" -> zu,
+    "Hause" -> Haus); plural-only nouns stay plural (Leute, Eltern). `der` stands for
+    der/die/das/den/dem/des and `ein` for its forms.
+  - **One lemma per lemma_key.** `lemma_key = termKey(lemma)` is lowercase, so homographs share a
+    key and the more frequent reading wins: `sein` (verb; the possessive is lost), `Leben`
+    (noun; the verb leben is lost), `essen` (verb), `weg` (adverb), `morgen` (adverb). This
+    matches the app's card identity rule (cards are keyed the same way).
+  - `gender` is in the JSON (2,706 nouns) for information only; the `wordlist` table has no
+    gender column (the AI generates grammar per card).
+- **Tests do not load the full list.** `createTestD1()` skips `migrations/*_wordlist_*.sql`
+  (~13 ms per test DB, and fixtures need a known, small list); `setup(env, { wordlists: true })`
+  applies it. Suggest tests seed a 25-word list; one test runs against the real migration, and
+  `test/shared/wordlist.test.ts` checks the data (>= 4,000 items, unique keys, valid POS,
+  contiguous ranks, capitalisation, a denylist of names/fillers/inflected forms, SQL in sync).
+- **The POS is NOT the hint.** Storing it in `input_hint` would make `hint_key` non-empty and
+  turn every suggested word into a sense-specific card (section 10.1). Suggested cards are plain
+  words (`input_hint` NULL, `hint_key` ''). `/generate` reads the POS at claim time: the claim's
+  `RETURNING` has a subquery on `wordlist` (same `term_key`, `origin = 'suggested'`, no extra
+  statement) and passes it as `GenerationInput.pos`, which the prompt sends as `expected_pos`
+  ("choose the reading with that part of speech"). `PROMPT_VERSION` is now 2. A cached entry
+  still wins over the POS (the cache is keyed by lemma and sense only). AI-fallback suggestions
+  carry no POS to `/generate` (no word list to read it from).
+- **`/suggest` reuses the import path.** `importCards` was split: `insertRows(db, deck, rows,
+  inFile, origin)` is steps 2-5 of section 10.3, and `/suggest` calls it with
+  `origin='suggested'`, `input_lang='target'`, no hint (so alias hits are `ready` at once and
+  reports have no `line`). The word-list query is section 10.7 verbatim: `GROUP BY lemma_key`,
+  `MIN(rank)`, `rank > skipTopN`, excluding the deck's `lemma_key`s in any status and the
+  `term_key`s of non-source cards, `LIMIT count + 1`.
+  - `exhausted` = nothing left in the list after this request (so asking for exactly the
+    remaining number says `exhausted: true`). The response also has `ready`
+    (`added = ready + pending`), like `/import`. No top-up when duplicates appear later.
+  - Measured: **6 statements** on the word-list path, **9** on the AI path (tests assert <= 8 and
+    <= 11).
+  - The word-list path needs no AI: a German deck can add words with AI off; `/generate` then
+    fails closed as before.
+- **AI fallback** (`hasWordlist: false`, e.g. Spanish): `SentenceGenerator.suggestWords` (fake +
+  Anthropic: same model, structured output, thinking disabled at effort low, `max_tokens` 4000).
+  It excludes up to 500 deck keys (lemma_key or non-source term_key, most recent first), asks for
+  `ceil(count x 1.2)`, strips leading articles, dedupes by key and applies the same deck filter
+  in SQL. `skipTopN` does not apply there. Errors: 503 `ai_not_configured` (before anything is
+  read or written), 429 `rate_limited` + `limitResetsAt`, 503 `ai_unavailable` when the call fails.
+  - **Budget: one suggestion call costs 1 word + 1 call** in `ai_usage` (both scopes, the same
+    guarded upsert). Its output is a short list, much cheaper than a generated card; the words it
+    suggests are counted again as cache misses when `/generate` prepares them. Not refunded if the
+    call fails.
+- **Attribution** lives in `LanguageConfig.wordlist` (`{name, url, license, licenseUrl,
+  attribution}`, served by `GET /languages`) and in the JSON header, for M8's About screen.
+  `de.hasWordlist` is now `true`.
+- **Client.** Add words has two tabs, "Add new words" (default) and Import. The stepper is
+  5/10/20/Custom (1-50), then "Add N words", then the existing generation banner and the section
+  10.8 summary (`summaryText` now takes any `{added, duplicates, invalid?}`), "Learn them now" ->
+  `/learn`. An exhausted list says "That was the end of the German word list", or "No new words
+  left" when nothing was added. Settings gained a current-deck section with "Skip the N most
+  common words" (`PATCH /decks/:id`, 0-50,000); M8 adds the other deck settings.
+- **Tooling.** `tsx` was added as a dev dependency to run the scripts (`npm run wordlist:sql`,
+  `npm run wordlist:build`); `scripts/` is type-checked with the node project.

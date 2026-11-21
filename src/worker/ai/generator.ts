@@ -17,7 +17,25 @@ export type GenerationInput = {
   hint: string | null
   /** Which language the input is in; 'auto' = unknown, the model decides. */
   inputLang: InputLang
+  /**
+   * Expected part of speech (suggested words: the word list's POS). Sent to the model only; it is
+   * never stored as the card's hint, so it cannot change hint_key / duplicate semantics.
+   */
+  pos?: string | null
 }
+
+/** One call asking the model for new words when the target language has no bundled word list. */
+export type SuggestWordsRequest = {
+  sourceLang: LanguageCode
+  targetLang: LanguageCode
+  level: SentenceLevel
+  /** How many words to ask for (the caller asks for count x 1.2 and filters). */
+  count: number
+  /** lemma keys (lowercased dictionary forms) already in the deck; at most 500. */
+  exclude: string[]
+}
+
+export type SuggestedWord = { lemma: string; pos: string | null }
 
 export type GenerationRequest = {
   sourceLang: LanguageCode
@@ -30,6 +48,8 @@ export interface SentenceGenerator {
   /** Stored in entries.model. */
   readonly model: string
   generate(request: GenerationRequest): Promise<GeneratedItem[]>
+  /** Common target-language words not in `exclude`, most frequent first (AI fallback for /suggest). */
+  suggestWords(request: SuggestWordsRequest): Promise<SuggestedWord[]>
 }
 
 /**

@@ -16,6 +16,7 @@ import {
   keyRows,
   parseImport,
   splitInFileDuplicates,
+  type InFileDuplicate,
   type KeyedRow,
   type LanguagePair,
 } from '../../shared/parseImport'
@@ -50,16 +51,33 @@ type PendingReport = Omit<DuplicateReport, 'existing'> & { target: Candidate }
 export class TooManyRowsError extends Error {}
 
 export async function importCards(db: D1Database, deck: DeckRow, body: ImportInput): Promise<ImportResponse> {
-  const pair: LanguagePair = {
-    sourceLang: deck.source_lang as LanguageCode,
-    targetLang: deck.target_lang as LanguageCode,
-  }
-  const src = pair.sourceLang
   const parsed = parseImport(body.text, { filename: body.filename })
   if (parsed.tooMany) throw new TooManyRowsError()
-
   // 1. In-file duplicates.
-  const { unique, duplicates: inFile } = splitInFileDuplicates(keyRows(parsed.rows, pair, body.inputLang))
+  const { unique, duplicates: inFile } = splitInFileDuplicates(keyRows(parsed.rows, deckPair(deck), body.inputLang))
+  return { ...(await insertRows(db, deck, unique, inFile, 'import')), invalid: parsed.invalid }
+}
+
+export function deckPair(deck: DeckRow): LanguagePair {
+  return { sourceLang: deck.source_lang as LanguageCode, targetLang: deck.target_lang as LanguageCode }
+}
+
+export type InsertResult = Omit<ImportResponse, 'invalid'>
+
+/**
+ * Steps 2-5 of section 10.3 for keyed rows without in-file duplicates. Shared by /import and
+ * /suggest (DUPLICATES.md 10.7: suggested words take the same insert path, so a word already in
+ * the shared cache is ready at once). Reports of 'suggested' rows carry no line numbers.
+ */
+export async function insertRows(
+  db: D1Database,
+  deck: DeckRow,
+  unique: KeyedRow[],
+  inFile: readonly InFileDuplicate[],
+  origin: 'import' | 'suggested',
+): Promise<InsertResult> {
+  const pair = deckPair(deck)
+  const src = pair.sourceLang
 
   // 2. Alias lookup (one query).
   const hits = await lookupAliases(db, pair, unique)
@@ -129,7 +147,7 @@ export async function importCards(db: D1Database, deck: DeckRow, body: ImportInp
   const mergeStmts = mergeStatements(db, merges, now)
   const statements: D1PreparedStatement[] = [...mergeStmts]
   const insertIndex = statements.length
-  if (planned.length > 0) statements.push(insertStatement(db, deck.id, now, planned))
+  if (planned.length > 0) statements.push(insertStatement(db, deck.id, now, planned, origin))
   const glossPairs = planned.flatMap((p) => (p.entry ? [...p.candidate.glosses].map((g): [string, string] => [p.candidate.id, g]) : []))
   if (glossPairs.length > 0) statements.push(glossInsertStatement(db, glossPairs))
   const results = statements.length > 0 ? await db.batch<{ id: string }>(statements) : []
@@ -192,8 +210,7 @@ export async function importCards(db: D1Database, deck: DeckRow, body: ImportInp
     added: insertedPlanned.length,
     ready,
     pending: insertedPlanned.length - ready,
-    invalid: parsed.invalid,
-    duplicates,
+    duplicates: origin === 'import' ? duplicates : duplicates.map(({ line: _line, ...d }) => d),
   }
 }
 
@@ -205,18 +222,18 @@ const INSERT_COLUMNS =
  * Rows are inserted in array (= file) order; a row that conflicts with a live card (or an
  * earlier row of the same statement) is skipped and simply not returned.
  */
-function insertStatement(db: D1Database, deckId: string, now: number, rows: readonly Planned[]): D1PreparedStatement {
+function insertStatement(db: D1Database, deckId: string, now: number, rows: readonly Planned[], origin: 'import' | 'suggested'): D1PreparedStatement {
   const data = rows.map((p) => {
     const c = p.candidate
     return [c.id, p.entry?.id ?? null, p.row.term, p.row.hint ?? null, c.termKey, c.inputLang, p.side, c.hintKey, c.lemmaKey, c.senseKey, c.status, JSON.stringify(c.extras)]
   })
   const col = (i: number) => `json_extract(j.value, '$[${i}]')`
-  const values = [col(0), '?2', ...Array.from({ length: 11 }, (_, i) => col(i + 1)), "'import'", '?3', '?3', '?3']
+  const values = [col(0), '?2', ...Array.from({ length: 11 }, (_, i) => col(i + 1)), '?4', '?3', '?3', '?3']
   return db
     .prepare(
       `INSERT OR IGNORE INTO cards (${INSERT_COLUMNS})
        SELECT ${values.join(', ')} FROM json_each(?1) j ORDER BY j.key
        RETURNING id`,
     )
-    .bind(JSON.stringify(data), deckId, now)
+    .bind(JSON.stringify(data), deckId, now, origin)
 }

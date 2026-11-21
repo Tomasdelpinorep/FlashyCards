@@ -74,4 +74,10 @@ export const ItemSchema = z.object({
 export type GeneratedItem = z.infer<typeof ItemSchema>
 
 export const BatchSchema = z.object({ items: z.array(ItemSchema) })
+
+/** AI fallback for /suggest (target languages without a word list). */
+export const SuggestBatchSchema = z.object({
+  words: z.array(z.object({ lemma: z.string(), pos: z.enum(POS_VALUES).nullable() })),
+})
+export type SuggestBatch = z.infer<typeof SuggestBatchSchema>
 export type GeneratedBatch = z.infer<typeof BatchSchema>

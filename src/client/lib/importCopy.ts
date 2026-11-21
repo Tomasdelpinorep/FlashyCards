@@ -6,11 +6,11 @@ import type { DuplicateReport, ImportResponse, InvalidImportRow } from '../../sh
 const words = (n: number) => `${n} word${n === 1 ? '' : 's'}`
 
 /** "Added 18 words · 3 already in your deck · 1 couldn't be read" (zero parts left out). */
-export function summaryText(r: ImportResponse): string {
+export function summaryText(r: Pick<ImportResponse, 'added' | 'duplicates'> & { invalid?: ImportResponse['invalid'] }): string {
   const parts: string[] = []
   if (r.added > 0) parts.push(`Added ${words(r.added)}`)
   if (r.duplicates.length > 0) parts.push(`${r.duplicates.length} already in your deck`)
-  if (r.invalid.length > 0) parts.push(`${r.invalid.length} couldn't be read`)
+  if (r.invalid && r.invalid.length > 0) parts.push(`${r.invalid.length} couldn't be read`)
   return parts.length > 0 ? parts.join(' · ') : 'Nothing to import'
 }
 

@@ -10,6 +10,7 @@ import {
   LearnQuerySchema,
   ReviewQueueQuerySchema,
   StatsQuerySchema,
+  SuggestSchema,
   UpdateDeckSchema,
 } from '../../shared/schemas'
 import { deckStats, learnQueue, listCards, retryFailed, reviewQueue } from '../db/cards'
@@ -19,6 +20,7 @@ import { validate } from '../middleware/errors'
 import { generateForDeck } from '../services/generation'
 import { importCards, TooManyRowsError } from '../services/importer'
 import { limitsFrom } from '../services/rateLimit'
+import { AiNotConfiguredError, SuggestAiError, SuggestRateLimitedError, suggestForDeck } from '../services/suggest'
 
 // Decks owned by another user are reported as 404 (never 403) so their existence is not revealed.
 const notFound = { error: 'not_found', message: 'Deck not found' } as const
@@ -63,6 +65,26 @@ export const deckRoutes = new Hono<AppEnv>()
       if (err instanceof TooManyRowsError) {
         return c.json({ error: 'too_many_rows', message: `At most ${MAX_IMPORT_ROWS} rows per import` }, 400)
       }
+      throw err
+    }
+  })
+  .post('/:id/suggest', validate('param', DeckIdParamSchema), validate('json', SuggestSchema), async (c) => {
+    const user = c.get('user')
+    const deck = await getDeck(c.env.DB, user.id, c.req.valid('param').id)
+    if (!deck) return c.json(notFound, 404)
+    try {
+      const result = await suggestForDeck(c.env.DB, deck, c.req.valid('json').count, {
+        generator: c.get('generator'),
+        limits: limitsFrom(c.env),
+        userId: user.id,
+      })
+      return c.json(result, 200)
+    } catch (err) {
+      if (err instanceof AiNotConfiguredError) return c.json({ error: 'ai_not_configured', message: "AI isn't configured on the server" }, 503)
+      if (err instanceof SuggestRateLimitedError) {
+        return c.json({ error: 'rate_limited', message: 'Daily limit for new words reached', limitResetsAt: err.resetsAt }, 429)
+      }
+      if (err instanceof SuggestAiError) return c.json({ error: 'ai_unavailable', message: "Couldn't get word suggestions right now" }, 503)
       throw err
     }
   })

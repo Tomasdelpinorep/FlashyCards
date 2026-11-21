@@ -15,6 +15,8 @@ import type {
   RetryFailedResponse,
   ReviewInput,
   ReviewQueueResponse,
+  SuggestResponse,
+  UpdateDeckInput,
   UpdateMeInput,
   UserDTO,
 } from '../../shared/schemas'
@@ -86,6 +88,25 @@ export function useImport(deckId: string) {
     mutationFn: (body: ImportInput) =>
       unwrap<ImportResponse>(api.decks[':id'].import.$post({ param: { id: deckId }, json: body })),
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.deck(deckId) }),
+  })
+}
+
+/** POST /decks/:id/suggest ("Add new words", M7). */
+export function useSuggest(deckId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (count: number) =>
+      unwrap<SuggestResponse>(api.decks[':id'].suggest.$post({ param: { id: deckId }, json: { count } })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.deck(deckId) }),
+  })
+}
+
+/** PATCH /decks/:id (name and/or partial settings); refreshes /me, which holds the decks. */
+export function useUpdateDeck(deckId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: UpdateDeckInput) => unwrap<{ deck: DeckDTO }>(api.decks[':id'].$patch({ param: { id: deckId }, json: body })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.me }),
   })
 }
 

@@ -139,11 +139,15 @@ class Database {
 
 export type TestD1 = { db: D1Database; sqlite: DatabaseSync; counter: QueryCounter }
 
-/** Fresh in-memory database with every migration applied. */
-export function createTestD1(): TestD1 {
+/**
+ * Fresh in-memory database with every migration applied, except the bundled word lists
+ * (migrations/*_wordlist_*.sql: ~5k rows, ~13 ms each) unless `options.wordlists` is set. Tests
+ * seed small lists of their own (docs/DECISIONS.md M7).
+ */
+export function createTestD1(options: { wordlists?: boolean } = {}): TestD1 {
   const sqlite = new DatabaseSync(':memory:')
   sqlite.exec('PRAGMA foreign_keys = ON') // D1 enforces foreign keys
-  for (const file of readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith('.sql')).sort()) {
+  for (const file of readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith('.sql') && (options.wordlists || !/_wordlist_/.test(f))).sort()) {
     sqlite.exec(readFileSync(join(MIGRATIONS_DIR, file), 'utf8'))
   }
   const counter = new QueryCounter()

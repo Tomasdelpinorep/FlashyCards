@@ -11,7 +11,7 @@
  */
 import { LANGUAGES, type LanguageCode } from '../../shared/languages'
 import { glossKey, termKey } from '../../shared/normalize'
-import type { GenerationInput, GenerationRequest, SentenceGenerator } from './generator'
+import type { GenerationInput, GenerationRequest, SentenceGenerator, SuggestedWord, SuggestWordsRequest } from './generator'
 import type { Gender, GeneratedItem, Grammar } from './schema'
 
 export type FakeWord = {
@@ -98,11 +98,18 @@ export type FakeGeneratorOptions = {
   notAWords?: string[]
   /** Awaited before each call returns: lets a test hold a call open. */
   gate?: (request: GenerationRequest, callIndex: number) => Promise<void>
+  /** Words suggestWords() draws from, in order (default: the lexicon's lemmas, then fakewordaa...). */
+  suggestPool?: SuggestedWord[]
+  /** Return pool words even when they are in `exclude` (to test the server-side filter). */
+  suggestIgnoresExclude?: boolean
 }
 
 export class FakeGenerator implements SentenceGenerator {
   readonly model = FAKE_MODEL
   readonly calls: GenerationRequest[] = []
+  readonly suggestCalls: SuggestWordsRequest[] = []
+  private readonly suggestPool: SuggestedWord[]
+  private readonly suggestIgnoresExclude: boolean
   private readonly lexicon: Record<string, FakeWord>
   private readonly notAWords: Set<string>
   private readonly errors: Error[] = []
@@ -112,6 +119,20 @@ export class FakeGenerator implements SentenceGenerator {
     this.lexicon = { ...DEFAULT_LEXICON, ...options.lexicon }
     this.notAWords = new Set((options.notAWords ?? []).map((w) => w.toLowerCase()))
     this.gate = options.gate
+    this.suggestPool = options.suggestPool ?? defaultSuggestPool(this.lexicon)
+    this.suggestIgnoresExclude = options.suggestIgnoresExclude ?? false
+  }
+
+  /** Deterministic: the first `count` pool words not in `exclude` (a well-behaved model). */
+  async suggestWords(request: SuggestWordsRequest): Promise<SuggestedWord[]> {
+    this.suggestCalls.push(request)
+    await Promise.resolve()
+    const err = this.errors.shift()
+    if (err) throw err
+    const exclude = new Set(request.exclude)
+    return this.suggestPool
+      .filter((w) => this.suggestIgnoresExclude || !exclude.has(termKey(request.targetLang, w.lemma)))
+      .slice(0, request.count)
   }
 
   /** The next call throws `err` (queue several to fail several calls). */
@@ -142,6 +163,20 @@ export class FakeGenerator implements SentenceGenerator {
     if (isJunk(it.input) || this.notAWords.has(it.input.trim().toLowerCase())) return notAWord(it.input, side)
     return toItem(req.targetLang, it.input, side, genericWord(it, side))
   }
+}
+
+function defaultSuggestPool(lexicon: Record<string, FakeWord>): SuggestedWord[] {
+  const seen = new Set<string>()
+  const out: SuggestedWord[] = []
+  for (const [key, w] of Object.entries(lexicon)) {
+    if (!key.startsWith('target:') || key.includes('|') || seen.has(w.lemma)) continue
+    seen.add(w.lemma)
+    out.push({ lemma: w.lemma, pos: w.pos })
+  }
+  // Letters only: inputs with digits are "junk" for the fake generator (isJunk).
+  const letters = (n: number) => String.fromCharCode(97 + Math.floor(n / 26) % 26, 97 + (n % 26))
+  for (let i = 0; i < 500; i++) out.push({ lemma: `fakeword${letters(i)}`, pos: 'noun' })
+  return out
 }
 
 function isJunk(input: string): boolean {

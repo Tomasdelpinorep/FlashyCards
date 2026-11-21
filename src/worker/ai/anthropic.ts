@@ -10,14 +10,16 @@
  */
 import Anthropic from '@anthropic-ai/sdk'
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
-import { GeneratorError, type GenerationRequest, type SentenceGenerator } from './generator'
-import { systemPrompt, userPrompt } from './prompts'
-import { BatchSchema, type GeneratedItem } from './schema'
+import { GeneratorError, type GenerationRequest, type SentenceGenerator, type SuggestedWord, type SuggestWordsRequest } from './generator'
+import { suggestSystemPrompt, suggestUserPrompt, systemPrompt, userPrompt } from './prompts'
+import { BatchSchema, SuggestBatchSchema, type GeneratedItem } from './schema'
 
 export const DEFAULT_MODEL = 'claude-haiku-5-5'
 
 /** ~250 output tokens per item; a batch is at most 10 items. Generous so a batch never truncates. */
 const MAX_TOKENS = 8000
+/** /suggest fallback: ~15 output tokens per word, at most 60 words. */
+const SUGGEST_MAX_TOKENS = 4000
 
 /** The part of the SDK client this class uses; tests pass a mock. */
 export type MessagesClient = Pick<Anthropic, 'messages'>
@@ -55,6 +57,31 @@ export class AnthropicGenerator implements SentenceGenerator {
     if (response.stop_reason === 'max_tokens') throw new GeneratorError('The response was cut off (max_tokens)', true)
     if (!response.parsed_output) throw new GeneratorError('The response did not match the output schema', true)
     return response.parsed_output.items
+  }
+
+  /** The /suggest fallback request: same model and settings, a small word-list schema. */
+  buildSuggestRequest(req: SuggestWordsRequest) {
+    return {
+      model: this.model,
+      max_tokens: SUGGEST_MAX_TOKENS,
+      thinking: { type: 'disabled' as const },
+      output_config: { effort: 'low' as const, format: zodOutputFormat(SuggestBatchSchema) },
+      system: suggestSystemPrompt(req),
+      messages: [{ role: 'user' as const, content: suggestUserPrompt(req) }],
+    }
+  }
+
+  async suggestWords(req: SuggestWordsRequest): Promise<SuggestedWord[]> {
+    let response
+    try {
+      response = await this.client.messages.parse(this.buildSuggestRequest(req))
+    } catch (err) {
+      throw toGeneratorError(err)
+    }
+    if (response.stop_reason === 'refusal') throw new GeneratorError('The model declined the request', false)
+    if (response.stop_reason === 'max_tokens') throw new GeneratorError('The response was cut off (max_tokens)', true)
+    if (!response.parsed_output) throw new GeneratorError('The response did not match the output schema', true)
+    return response.parsed_output.words
   }
 }
 

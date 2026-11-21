@@ -38,9 +38,9 @@ type RequestOpts = { method?: string; token?: string; body?: unknown; host?: str
  */
 export function setup(
   envOverrides: Partial<Bindings> = {},
-  options: { generator?: SentenceGenerator | 'env'; srs?: Partial<SrsConfig> } = {},
+  options: { generator?: SentenceGenerator | 'env'; srs?: Partial<SrsConfig>; wordlists?: boolean } = {},
 ) {
-  const { db, sqlite, counter } = createTestD1()
+  const { db, sqlite, counter } = createTestD1({ wordlists: options.wordlists })
   /** The generator every request uses (a FakeGenerator unless the test passes its own). */
   const useEnv = options.generator === 'env'
   const generator = options.generator === 'env' || options.generator === undefined ? new FakeGenerator() : options.generator

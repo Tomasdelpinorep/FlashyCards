@@ -118,6 +118,10 @@ export const ImportSchema = z
   .strict()
 export type ImportInput = z.infer<typeof ImportSchema>
 
+/** POST /decks/:id/suggest ("Add X new words", M7). */
+export const SuggestSchema = z.object({ count: z.number().int().min(1).max(50) }).strict()
+export type SuggestInput = z.infer<typeof SuggestSchema>
+
 export const CARD_STATUSES = ['pending', 'ready', 'failed', 'suspended', 'deleted', 'duplicate'] as const
 export const CardStatusSchema = z.enum(CARD_STATUSES)
 export type CardStatus = z.infer<typeof CardStatusSchema>
@@ -247,6 +251,18 @@ export type ImportResponse = {
   ready: number
   pending: number
   invalid: InvalidImportRow[]
+  duplicates: DuplicateReport[]
+}
+
+/**
+ * POST /decks/:id/suggest (DUPLICATES.md 10.6). `added = ready + pending`; `exhausted` = the word
+ * list has nothing left for this deck after this request (never set on the AI fallback path).
+ */
+export type SuggestResponse = {
+  added: number
+  ready: number
+  pending: number
+  exhausted: boolean
   duplicates: DuplicateReport[]
 }
 

@@ -57,6 +57,8 @@ type ClaimedRow = {
   hint_key: string
   created_at: number
   seq: number
+  /** Word-list POS of a suggested card (null otherwise). */
+  pos_hint: string | null
 }
 
 /** A claimed card, usable as an alias query. */
@@ -91,15 +93,19 @@ export async function generateForDeck(db: D1Database, deck: DeckRow, opts: Gener
   const response: GenerateResponse = { processed: 0, fromCache: 0, generated: 0, failed: 0, remaining: 0, rateLimited: false, duplicates: [] }
 
   // 1. Claim (one statement). Cards whose lease expired (a Worker died) are claimable again.
+  // Suggested cards also return their word-list POS, which goes to the model as `pos` only
+  // (never stored as input_hint, so hint_key and duplicate semantics are untouched; M7).
   const { results: claimedRows } = await db
     .prepare(
       `UPDATE cards SET gen_claimed_at = ?1
        WHERE id IN (SELECT id FROM cards WHERE deck_id = ?2 AND status = 'pending'
                     AND (gen_claimed_at IS NULL OR gen_claimed_at < ?3)
                     ORDER BY created_at, rowid LIMIT ?4)
-       RETURNING id, input_term, input_hint, term_key, input_lang, hint_key, created_at, rowid AS seq`,
+       RETURNING id, input_term, input_hint, term_key, input_lang, hint_key, created_at, rowid AS seq,
+         CASE WHEN origin = 'suggested' THEN (SELECT w.pos FROM wordlist w WHERE w.lang = ?5 AND w.lemma_key = cards.term_key
+                                              ORDER BY w.rank LIMIT 1) END AS pos_hint`,
     )
-    .bind(now, deck.id, now - LEASE_MS, GENERATE_BATCH)
+    .bind(now, deck.id, now - LEASE_MS, GENERATE_BATCH, deck.target_lang)
     .all<ClaimedRow>()
   if (claimedRows.length === 0) {
     response.remaining = await countPending(db, deck.id)
@@ -121,7 +127,7 @@ export async function generateForDeck(db: D1Database, deck: DeckRow, opts: Gener
     const key = `${c.lang}\u0000${c.termKey}\u0000${c.hintKey}`
     const g = groups.get(key)
     if (g) g.cards.push(c)
-    else groups.set(key, { key, cards: [c], input: { input: c.term, hint: c.row.input_hint, inputLang: c.lang } })
+    else groups.set(key, { key, cards: [c], input: { input: c.term, hint: c.row.input_hint, inputLang: c.lang, ...(c.row.pos_hint ? { pos: c.row.pos_hint } : {}) } })
   }
 
   // 3. Budget (two queries when there are misses): only cache misses count.
