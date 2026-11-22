@@ -38,6 +38,22 @@ test.describe('settings', () => {
     await shot('about')
   })
 
+  test('Home links to the how-to guide, also linked from Settings', async ({ page, shot }) => {
+    await page.goto('/')
+    await expect(page.getByTestId('empty-deck')).toBeVisible()
+    await page.getByRole('link', { name: 'How to use the app' }).click()
+    await expect(page).toHaveURL(/\/how-to$/)
+    await expect(page.getByRole('heading', { level: 1, name: 'How to use the app' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 2, name: 'Train' })).toBeVisible()
+    await expectAccessible(page, 'how-to')
+    const small = (await tapTargetSize(page, 'main a')).filter((b) => b.h < 44)
+    expect(small).toEqual([])
+    await shot('how-to')
+
+    await page.goto('/settings')
+    await expect(page.getByRole('link', { name: 'How to use the app' })).toHaveAttribute('href', '/how-to')
+  })
+
   test('the web app manifest is served', async ({ request }) => {
     const res = await request.get('/manifest.webmanifest')
     expect(res.ok()).toBe(true)

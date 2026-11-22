@@ -14,6 +14,7 @@ export function Home() {
     return (
       <Screen title="Flashcards">
         <NoDecks />
+        <HowToLink />
       </Screen>
     )
   }
@@ -102,7 +103,17 @@ export function Home() {
           </Link>
         </>
       )}
+      <HowToLink />
     </Screen>
+  )
+}
+
+/** Shown on every Home state (no deck, empty deck, normal). */
+function HowToLink() {
+  return (
+    <Link to="/how-to" className="mx-auto inline-flex min-h-11 items-center px-3 text-sm font-medium text-zinc-600 underline underline-offset-2 dark:text-zinc-300">
+      How to use the app
+    </Link>
   )
 }
 

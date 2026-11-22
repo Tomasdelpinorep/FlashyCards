@@ -10,6 +10,7 @@ import { About } from './screens/About'
 import { AddWords } from './screens/AddWords'
 import { CardDetail } from './screens/CardDetail'
 import { Home } from './screens/Home'
+import { HowTo } from './screens/HowTo'
 import { Learn } from './screens/Learn'
 import { Settings } from './screens/Settings'
 import { Train } from './screens/Train'
@@ -42,6 +43,7 @@ export default function App() {
               <Route path="/add" element={<AddWords />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/about" element={<About />} />
+              <Route path="/how-to" element={<HowTo />} />
               <Route path="/train" element={<Train />} />
               <Route path="/learn" element={<Learn />} />
               <Route path="*" element={<Navigate to="/" replace />} />

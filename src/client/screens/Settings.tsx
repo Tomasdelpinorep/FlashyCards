@@ -59,6 +59,9 @@ export function Settings() {
         )}
       </section>
 
+      <Link to="/how-to" className={btnSecondary}>
+        How to use the app
+      </Link>
       <Link to="/about" className={btnSecondary}>
         About and licences
       </Link>
