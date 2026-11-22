@@ -26,8 +26,8 @@
   // locally and `wrangler secret put` in production.
   // DEV_AUTH_EMAIL must NEVER be set here; it belongs in .dev.vars only.
   "vars": {
-    "ACCESS_TEAM_DOMAIN": "", // TODO(user): e.g. "https://<team>.cloudflareaccess.com"
-    "ACCESS_AUD": "",         // TODO(user): AUD tag of the Access application
+    "ACCESS_TEAM_DOMAIN": "https://tomas-flash-cards-german.cloudflareaccess.com",
+    "ACCESS_AUD": "aca3cb802c435e5dd90050fc6d1c532a1bfca5424a88118f9cec3d53fca3e312",
     // ALLOWED_EMAILS (comma-separated email allowlist) is deliberately NOT a var: the repo is
     // public. Production: `npx wrangler secret put ALLOWED_EMAILS`. Locally: `.dev.vars`.
     // When it is missing or empty, every Access-authenticated request gets 403 (fail closed).
