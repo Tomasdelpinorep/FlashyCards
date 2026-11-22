@@ -17,10 +17,7 @@
     {
       "binding": "DB",
       "database_name": "flashcards",
-      // TODO(user): run `npx wrangler d1 create flashcards` once you have a
-      // Cloudflare account and paste the returned database_id here.
-      // Local dev (`npm run dev`, `db:migrate:local`) works with this placeholder.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "7b2cfc4b-7dab-4206-bb85-e4b7f35cf2cc",
       "migrations_dir": "migrations"
     }
   ],
