@@ -5,7 +5,7 @@ import { NoDecks } from '../components/NoDecks'
 import { btnSecondary, btnSmall, ErrorText, input, muted, Screen, Word } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
 import { useCards, useDeleteCard, type CardStatusFilter } from '../lib/queries'
-import { wordRowText } from '../lib/wordRow'
+import { badgeBase, STATUS_BADGE, wordRowText } from '../lib/wordRow'
 
 const FILTERS: { value: CardStatusFilter | ''; label: string }[] = [
   { value: '', label: 'All' },
@@ -134,18 +134,22 @@ function CardRow({
   onDelete: () => void
 }) {
   const { title, hint, subtitle } = wordRowText(card)
+  const badge = STATUS_BADGE[card.status]
   return (
     <li
       ref={highlighted ? (el) => el?.scrollIntoView({ block: 'center' }) : undefined}
       className={`flex items-center gap-3 py-3 ${highlighted ? '-mx-2 rounded-xl bg-amber-50 px-2 dark:bg-amber-950' : ''}`}
     >
       <Link to={`/words/${card.id}`} className="min-w-0 flex-1">
-        <p className="truncate font-medium">
+        <p className="font-medium break-words">
           <Word text={title} lang={lang} />
           {hint && <span className="font-normal text-zinc-500 dark:text-zinc-400"> · {hint}</span>}
         </p>
         <p className={`truncate ${muted} ${card.status === 'failed' ? 'text-red-700 dark:text-red-400' : ''}`}>{subtitle}</p>
       </Link>
+      <span className={`${badgeBase} shrink-0 whitespace-nowrap ${badge.className}`} data-testid="status-badge">
+        {badge.label}
+      </span>
       {card.status !== 'duplicate' && (
         <button type="button" className={`${btnSmall} shrink-0`} onClick={onDelete} disabled={deleting} aria-label={`Delete ${card.display}`}>
           {deleting ? '…' : 'Delete'}

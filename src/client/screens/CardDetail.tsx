@@ -6,7 +6,7 @@ import { btnPrimary, btnSecondary, btnSmall, card as cardClass, ErrorText, input
 import { useCurrentDeck } from '../lib/deck'
 import { useCard, useDeleteCard, useRetryFailed, useUpdateCard } from '../lib/queries'
 import { useGeneration } from '../lib/generation'
-import { failedText } from '../lib/wordRow'
+import { badgeBase, failedText, STATUS_BADGE } from '../lib/wordRow'
 
 /** A single word: the generated content, editing and suspending (M8). */
 export function CardDetail() {
@@ -52,7 +52,7 @@ export function CardDetail() {
               </p>
               {formsLine(c.content) && <p className={muted}>{formsLine(c.content)}</p>}
               {c.status === 'suspended' && (
-                <p className="mt-1 inline-block rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium dark:bg-zinc-800" data-testid="suspended-badge">
+                <p className={`mt-1 ${badgeBase} ${STATUS_BADGE.suspended.className}`} data-testid="suspended-badge">
                   Suspended · not shown in Learn or Train
                 </p>
               )}

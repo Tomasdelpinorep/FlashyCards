@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { wordRowText } from '../../src/client/lib/wordRow'
+import { STATUS_BADGE, wordRowText } from '../../src/client/lib/wordRow'
 
 const base = {
   status: 'ready' as const,
@@ -26,5 +26,24 @@ describe('wordRowText', () => {
     })
     expect(wordRowText({ ...base, status: 'failed', genError: 'not_a_word' }).subtitle).toBe('Not recognised as a word')
     expect(wordRowText({ ...base, status: 'failed', genError: 'boom' }).subtitle).toBe("Couldn't be prepared · try Retry later")
+  })
+})
+
+describe('STATUS_BADGE', () => {
+  it('labels match the Words filter wording and each status has its own colour', () => {
+    expect(Object.fromEntries(Object.entries(STATUS_BADGE).map(([k, v]) => [k, v.label]))).toEqual({
+      pending: 'Preparing',
+      ready: 'Ready',
+      failed: 'Failed',
+      suspended: 'Suspended',
+      duplicate: 'Duplicate',
+      deleted: 'Deleted',
+    })
+    expect(STATUS_BADGE.pending.className).toContain('amber')
+    expect(STATUS_BADGE.ready.className).toContain('green')
+    expect(STATUS_BADGE.failed.className).toContain('red')
+    expect(STATUS_BADGE.suspended.className).toContain('rose')
+    expect(STATUS_BADGE.duplicate.className).toContain('orange')
+    expect(new Set(Object.values(STATUS_BADGE).map((b) => b.className)).size).toBe(6)
   })
 })

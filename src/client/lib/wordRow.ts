@@ -29,3 +29,16 @@ export function wordRowText(card: RowCard): { title: string; hint: string | null
 export function failedText(genError: string | null): string {
   return genError === 'not_a_word' ? 'Not recognised as a word' : "Couldn't be prepared · try Retry later"
 }
+
+/** Short label + pill colours for a card status (one place; used by Words rows and CardDetail). */
+export const STATUS_BADGE: Record<RowCard['status'], { label: string; className: string }> = {
+  pending: { label: 'Preparing', className: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200' },
+  ready: { label: 'Ready', className: 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200' },
+  failed: { label: 'Failed', className: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200' },
+  suspended: { label: 'Suspended', className: 'bg-rose-200 text-rose-950 dark:bg-rose-900 dark:text-rose-100' },
+  duplicate: { label: 'Duplicate', className: 'bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-200' },
+  // Never listed (deleted cards are filtered out server-side); here only to keep the map total.
+  deleted: { label: 'Deleted', className: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300' },
+}
+
+export const badgeBase = 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium'

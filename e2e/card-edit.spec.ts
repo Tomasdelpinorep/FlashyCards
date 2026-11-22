@@ -6,6 +6,10 @@ test.describe('card detail', () => {
     await api.review(hund!.id, 1)
     expect((await api.stats(deck.id)).dueNow).toBe(1)
 
+    await page.goto('/words')
+    await expect(page.getByRole('listitem').filter({ hasText: 'der Hund' }).getByTestId('status-badge')).toHaveText('Ready')
+    await expectAccessible(page, 'words list with status badges')
+
     await page.goto(`/words/${hund!.id}`)
     await page.getByRole('button', { name: 'Edit' }).click()
     const form = page.getByRole('form', { name: 'Edit word' })
@@ -31,6 +35,8 @@ test.describe('card detail', () => {
 
     await page.goto('/words?status=suspended')
     await expect(page.getByRole('listitem').filter({ hasText: 'der Hund' })).toContainText('Suspended · doggo')
+    await page.goto('/words')
+    await expect(page.getByRole('listitem').filter({ hasText: 'der Hund' }).getByTestId('status-badge')).toHaveText('Suspended')
 
     await page.goto('/train')
     await expect(page.getByText('All done', { exact: true })).toBeVisible()
