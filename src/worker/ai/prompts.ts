@@ -10,7 +10,8 @@ import type { SentenceLevel } from '../../shared/schemas'
 import type { GenerationRequest, SuggestWordsRequest } from './generator'
 
 // 2 (M7): optional per-input "pos" (the expected part of speech of a suggested word).
-export const PROMPT_VERSION = 2
+// 3: full present and past verb tables (grammar.verb.present / grammar.verb.past).
+export const PROMPT_VERSION = 3
 
 /** How the example sentence should read at each deck level (the user chose A1-A2 by default). */
 export const LEVEL_GUIDANCE: Readonly<Record<SentenceLevel, string>> = {
@@ -41,7 +42,7 @@ For each input:
   - cefr: the CEFR level of the word, or null if unsure.
   - expected_pos, when given, is the expected part of speech of the input: choose the reading of the word with that part of speech.
   - A hint, when given, is the meaning the learner wants (a ${source.name} gloss). Choose the lemma and translation for that meaning.
-  - grammar: fill the fields that apply to this part of speech and use null for the rest and whenever you are unsure. ${target.name} specifics:
+  - grammar: fill the fields that apply to this part of speech and use null for the rest and whenever you are unsure. For verbs, grammar.verb.present and grammar.verb.past are tables with one form per person (p1s, p2s, p3s = 1st/2nd/3rd singular; p1p, p2p, p3p = 1st/2nd/3rd plural), without the pronoun; fill every slot or set the whole table to null. ${target.name} specifics:
 ${indent(target.grammarPromptHints, '    ')}
   - example_target: ONE ${target.name} sentence that uses the word. ${LEVEL_GUIDANCE[req.level]} Wrap the exact form of the word as it appears in the sentence in double square brackets, e.g. [[word]].
   - example_source: a natural ${source.name} translation of that sentence, with the word that translates the lemma wrapped in [[ ]].

@@ -8,8 +8,30 @@ import {
   mergeContent,
   stripMarkers,
   translationLine,
+  verbTable,
   withArticle,
 } from '../../src/shared/display'
+
+describe('verbTable', () => {
+  const verb = (present: unknown, past: unknown) => ({
+    pos: 'verb',
+    grammar: { verb: { present, past, present_3sg: 'geht', past_3sg: 'ging', perfect_3sg: 'ist gegangen' } } as never,
+  })
+  const t = { p1s: 'gehe', p2s: 'gehst', p3s: 'geht', p1p: 'gehen', p2p: 'geht', p3p: 'gehen' }
+  it('rows with the language person labels', () => {
+    const rows = verbTable(verb(t, { ...t, p1s: 'ging' }), 'de')
+    expect(rows).toHaveLength(6)
+    expect(rows![0]).toEqual({ person: 'ich', present: 'gehe', past: 'ging' })
+    expect(rows![5]!.person).toBe('sie/Sie')
+    expect(verbTable(verb(t, null), 'es')![0]).toEqual({ person: 'yo', present: 'gehe', past: null })
+  })
+  it('null for old entries, partial tables and non-verbs', () => {
+    expect(verbTable(verb(undefined, undefined), 'de')).toBeNull()
+    expect(verbTable(verb({ ...t, p3p: '' }, null), 'de')).toBeNull()
+    expect(verbTable({ pos: 'noun', grammar: null }, 'de')).toBeNull()
+    expect(verbTable(null, 'de')).toBeNull()
+  })
+})
 
 describe('[[ ]] markers', () => {
   it('splits a sentence into highlighted parts', () => {

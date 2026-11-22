@@ -12,6 +12,9 @@ export type GrammarView = {
   plural: string | null
   genitive: string | null
   verb: {
+    /** Full tables (PROMPT_VERSION 3); absent on older cached entries. */
+    present?: VerbTableView | null
+    past?: VerbTableView | null
     present_3sg: string | null
     past_3sg: string | null
     perfect_3sg: string | null
@@ -25,6 +28,11 @@ export type GrammarView = {
   superlative: string | null
   note: string | null
 }
+
+/** One tense, by person: 1st/2nd/3rd singular, 1st/2nd/3rd plural. */
+export type VerbTableView = { p1s: string | null; p2s: string | null; p3s: string | null; p1p: string | null; p2p: string | null; p3p: string | null }
+
+const PERSONS = ['p1s', 'p2s', 'p3s', 'p1p', 'p2p', 'p3p'] as const
 
 /** The generated content of a card, after applying the card's override. */
 export type CardContent = {
@@ -164,6 +172,25 @@ export function formsLine(content: Pick<CardContent, 'pos' | 'grammar'> | null):
   if (content.pos === 'adjective' || content.pos === 'adverb') return join([g.comparative, g.superlative])
   if (g.governs_case) return `+ ${g.governs_case}`
   return null
+}
+
+/** One row of the verb table: the person label, its present form and its past form. */
+export type VerbTableRow = { person: string; present: string | null; past: string | null }
+
+/**
+ * The verb's present/past table with the language's person labels, or null when the entry has
+ * no complete table (older cached entries: fall back to formsLine()).
+ */
+export function verbTable(content: Pick<CardContent, 'pos' | 'grammar'> | null, lang: string): VerbTableRow[] | null {
+  const v = content?.pos === 'verb' ? content.grammar?.verb : null
+  if (!v || !isLanguageCode(lang)) return null
+  const full = (t: VerbTableView | null | undefined) =>
+    t && typeof t === 'object' && PERSONS.every((k) => typeof t[k] === 'string' && t[k]!.trim() !== '') ? t : null
+  const present = full(v.present)
+  const past = full(v.past)
+  if (!present && !past) return null
+  const labels = LANGUAGES[lang].personLabels
+  return PERSONS.map((k, i) => ({ person: labels[i]!, present: present?.[k] ?? null, past: past?.[k] ?? null }))
 }
 
 // ---------- [[ ]] highlight markers ----------

@@ -665,3 +665,35 @@
   - Home shows guidance on an empty deck, and a note when no word is ready yet.
   - Long invalid import terms wrap instead of widening the page.
   - Inactive tab labels and the deck language label now pass axe colour contrast.
+
+## Learn/Train redesign: typed answers, two-step intro, verb tables
+- **Answer check** (`src/shared/answerCheck.ts`, pure and unit-tested):
+  - Train and the Learn quick check take a typed (or spoken) answer, auto-graded with an override.
+  - Both sides are normalized the same way: NFC, lowercase, collapsed spaces, trailing `.!?` dropped,
+    and the language's `answerFolds` (de: ae/oe/ue/ss = ä/ö/ü/ß; es: accents and ñ). English ignores
+    `to`/`a`/`the` (`answerStripPrefixes`).
+  - Accepted answers: the main answer, alt translations and the card's extra translations, each split
+    on `,`/`;`, with `(...)` notes dropped.
+  - German and Spanish nouns need the article (`requireArticleForNouns`). "Hund" is
+    `missing-article` and "die Hund" is `wrong-article`, both graded Again. The article is checked
+    before the typo distance, so a wrong article is never a "typo".
+  - Live check while typing: only an exact match counts. It flips at once (no Enter) and grades
+    Good. The card moves on by itself after 1.2 s unless the learner touches anything.
+  - Final check, on Enter: one typo (Damerau distance 1) on a term of 5+ letters (counted without
+    the article) is "Almost — check the spelling", graded **Hard**, with "I was right" (Good) as an
+    override. Anything else is Again.
+  - A 1.5 s pause, leaving the box or the end of speech only shows a hint when the answer is not
+    right yet. Flipping on a wrong answer needs Enter or "Show answer".
+  - The review is sent when leaving the card, not on the flip, so an override never sends twice.
+- **Mic:** spoken answers use the browser's Web Speech API (`SpeechRecognition`), in the
+  `ttsLang` language, with 3 alternatives checked. In Chrome the audio goes to Google's speech
+  service. It is free and needs no key. The mic button is hidden when the browser has no recognizer,
+  and turned off for the session once the microphone is blocked. The e2e suite stubs it out.
+- **Verb tables:** `grammar.verb.present` and `grammar.verb.past` hold six persons each
+  (`PROMPT_VERSION` 3). Post-validation drops a whole table if any slot is empty. Older cached
+  entries have no tables, and the intro falls back to `formsLine`.
+- **Learn intro** has two steps: the source word, then the target word with its grammar. Arrow
+  keys, swipe and the ←/→ buttons move through the steps. Going back only replays local state (a
+  "got it" writes nothing), and back is cleared once a review is written.
+- **Deviation:** Enter on an empty answer does nothing (use "Show answer"), to avoid an accidental
+  Again.

@@ -1,9 +1,11 @@
 /**
  * Learn new (PLAN.md section 6, DUPLICATES.md 10.8/10.9 M6): ready New cards in groups of 5.
- * Each card first gets an intro (both sides, "Also in your deck", Listen). "Got it" sends it to
- * the quick check; "I already know this" rates it Easy and it leaves the session. The quick check
- * works like Train (flip, 4 grades with interval labels, Space / 1-4) in the user's saved
- * direction, and requeues learning steps until they graduate (lib/learnSession.ts on top of
+ * Each card first gets a two-step intro (components/LearnIntroCard.tsx): the source word, then
+ * the target word with its grammar. Right arrow / Space / swipe left / the arrow button step
+ * forward (past the last step = "got it": the card goes to the quick check); Left / swipe right
+ * go back a step or to the previous intro card (no SRS writes). "I already know this" rates it
+ * Easy and it leaves the session. The quick check works like Train (a typed answer,
+ * components/AnswerCard.tsx) in the user's saved direction, and requeues learning steps until they graduate (lib/learnSession.ts on top of
  * lib/session.ts). Reviews go through the outbox; a reload resumes from the server's state.
  */
 import { useQueryClient } from '@tanstack/react-query'
@@ -14,7 +16,8 @@ import { isLanguageCode, LANGUAGES } from '../../shared/languages'
 import { LEARN_EXTRA_MAX, type LearnQueueResponse, type ReviewInput } from '../../shared/schemas'
 import { loadSrs, previewIntervals, type Grade, type Srs } from '../../shared/srs'
 import { NoDecks } from '../components/NoDecks'
-import { CardBack, CardFront, GradeButtons } from '../components/StudyCard'
+import { AnswerCard } from '../components/AnswerCard'
+import { LearnIntroCard } from '../components/LearnIntroCard'
 import { btnPrimary, btnSecondary, card as cardClass, ErrorText, muted, Screen } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
 import {
@@ -63,7 +66,11 @@ export function Learn() {
   const [srsError, setSrsError] = useState<unknown>(null)
   const [session, setSession] = useState<LearnSession | null>(null)
   const [now, setNow] = useState(() => Date.now())
-  const [flipped, setFlipped] = useState(false)
+  // The intro step of the card on screen (0: source word, 1: target word), and the sessions
+  // before each "got it" of this group, so Left can go back to the previous intro card.
+  const [introStep, setIntroStep] = useState<0 | 1>(0)
+  const [history, setHistory] = useState<LearnSession[]>([])
+  const swipe = useRef<{ x: number; y: number } | null>(null)
   // Direction and start time of the card on screen, fixed when it appears (Mixed picks at random).
   const shown = useRef<{ key: string; direction: FaceDirection; at: number } | null>(null)
 
@@ -92,7 +99,8 @@ export function Learn() {
     const start = (reviewCards: LearnQueueResponse['cards']) => {
       if (!alive) return
       setSession(resumeLearn(learnCards, reviewCards, resume, pendingIds, Date.now()))
-      setFlipped(false)
+      setIntroStep(0)
+      setHistory([])
       setNow(Date.now())
     }
     if (resume && resume.touched.length > 0) {
@@ -149,13 +157,13 @@ export function Learn() {
   )
   const labels = useMemo(() => (checkCard && srs ? previewIntervals(srs, checkCard.id, checkCard.srs, Date.now()) : null), [checkCard, srs])
 
-  // Autoplay the word when an intro card appears (once per card).
+  // Autoplay the word when the intro reveals it (once per card).
   const autoplayed = useRef<string | null>(null)
   useEffect(() => {
-    if (!introCard || !intro || autoplayed.current === introCard.id) return
+    if (!introCard || !intro || introStep !== 1 || autoplayed.current === introCard.id) return
     autoplayed.current = introCard.id
     if (settings?.ttsAutoplay) speak([intro.speech.word], ttsLang)
-  }, [introCard, intro, settings?.ttsAutoplay, ttsLang])
+  }, [introCard, intro, introStep, settings?.ttsAutoplay, ttsLang])
 
   const record = useCallback(
     (cardId: string, rating: Grade, dir: FaceDirection) => {
@@ -179,9 +187,28 @@ export function Learn() {
     if (!session || step?.kind !== 'intro') return
     stopSpeaking()
     const t = Date.now()
-    setSession(gotIt(session, step.card.id, t))
+    const next = gotIt(session, step.card.id, t)
+    // Back stays possible only while the next screen is another intro card of this group.
+    setHistory((h) => (learnStep(next, t).kind === 'intro' ? [...h, session] : []))
+    setSession(next)
+    setIntroStep(0)
     setNow(t)
   }, [session, step])
+
+  const introNext = useCallback(() => {
+    if (introStep === 0) setIntroStep(1)
+    else onGotIt()
+  }, [introStep, onGotIt])
+
+  const introBack = useCallback(() => {
+    stopSpeaking()
+    if (introStep === 1) return setIntroStep(0)
+    const prev = history[history.length - 1]
+    if (!prev) return
+    setHistory((h) => h.slice(0, -1))
+    setSession(prev)
+    setIntroStep(1)
+  }, [introStep, history])
 
   const onAlreadyKnow = useCallback(() => {
     if (!session || step?.kind !== 'intro') return
@@ -189,41 +216,43 @@ export function Learn() {
     // Easy, as if the German side had been shown (target -> source).
     const t = record(step.card.id, 4, 'target-source')
     setSession(alreadyKnow(session, step.card.id, t))
+    setHistory([])
+    setIntroStep(0)
     setNow(t)
   }, [session, step, record])
 
-  const flip = useCallback(() => {
-    if (!faces || flipped) return
-    setFlipped(true)
-    if (settings?.ttsAutoplay) speak([faces.speech.word], ttsLang)
-  }, [faces, flipped, settings?.ttsAutoplay, ttsLang])
-
   const grade = useCallback(
     (g: Grade) => {
-      if (!checkCard || !session || !srs || !flipped) return
+      if (!checkCard || !session || !srs) return
       const t = record(checkCard.id, g, direction)
       const { after } = srs.review(checkCard.id, checkCard.srs, g, t)
       stopSpeaking()
       setSession(gradeCheck(session, checkCard, g, after, t))
-      setFlipped(false)
+      setHistory([])
+      setIntroStep(0)
       setNow(t)
     },
-    [checkCard, session, srs, flipped, record, direction],
+    [checkCard, session, srs, record, direction],
   )
 
+  // Intro keys (the quick check's keys live in AnswerCard): Right / Space forward, Left back.
   useEffect(() => {
+    if (step?.kind !== 'intro') return
     const onKey = (e: KeyboardEvent) => {
-      // Shortcuts are for the quick check only; the intro has two plain buttons.
-      if (step?.kind !== 'check') return
-      if (e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return
-      if (e.key === ' ' || e.code === 'Space') {
+      if (e.defaultPrevented || e.repeat) return
+      const el = document.activeElement
+      if (el instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return
+      if (e.key === 'ArrowRight' || ((e.key === ' ' || e.code === 'Space') && !(el instanceof HTMLButtonElement))) {
         e.preventDefault()
-        flip()
-      } else if (/^[1-4]$/.test(e.key)) grade(Number(e.key) as Grade)
+        introNext()
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        introBack()
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [step?.kind, flip, grade])
+  }, [step?.kind, introNext, introBack])
 
   const learnMore = () => {
     clearResume(sessionStore())
@@ -257,13 +286,54 @@ export function Learn() {
 
       {session && step?.kind === 'intro' && intro && (
         <>
-          <p className={`${muted} text-center`}>New word</p>
-          <section className={`${cardClass} flex min-h-72 flex-col justify-center gap-4 text-center`} aria-live="polite">
-            <CardBack back={intro} lang={targetLang} onSpeak={() => speak([intro.speech.word, intro.speech.sentence], ttsLang)} />
+          <div className="flex items-center justify-between">
+            <p className={muted}>New word</p>
+            <p className={muted} data-testid="intro-step">
+              Step {introStep + 1} of 2
+            </p>
+          </div>
+          <section
+            data-testid="intro-card"
+            className={`${cardClass} flex min-h-72 touch-pan-y flex-col justify-center gap-4 text-center`}
+            aria-live="polite"
+            onPointerDown={(e) => {
+              swipe.current = { x: e.clientX, y: e.clientY }
+            }}
+            onPointerUp={(e) => {
+              const s = swipe.current
+              swipe.current = null
+              if (!s) return
+              const dx = e.clientX - s.x
+              if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(e.clientY - s.y)) return
+              if (dx < 0) introNext()
+              else introBack()
+            }}
+            onPointerCancel={() => {
+              swipe.current = null
+            }}
+          >
+            <LearnIntroCard
+              card={introCard!}
+              intro={intro}
+              step={introStep}
+              targetLang={targetLang}
+              onSpeak={() => speak([intro.speech.word, intro.speech.sentence], ttsLang)}
+            />
           </section>
-          <button type="button" className={btnPrimary} onClick={onGotIt}>
-            Got it
-          </button>
+          <div className="grid grid-cols-[auto_1fr] gap-2">
+            <button
+              type="button"
+              aria-label="Back"
+              className="inline-flex h-12 min-w-12 items-center justify-center rounded-xl border border-zinc-300 px-4 font-medium disabled:opacity-40 dark:border-zinc-700"
+              disabled={introStep === 0 && history.length === 0}
+              onClick={introBack}
+            >
+              <span aria-hidden="true">←</span>
+            </button>
+            <button type="button" className={btnPrimary} onClick={introNext}>
+              {introStep === 0 ? 'Show the word' : 'Got it'} <span aria-hidden="true" className="ml-2">→</span>
+            </button>
+          </div>
           <button type="button" className={btnSecondary} onClick={onAlreadyKnow}>
             I already know this
           </button>
@@ -273,24 +343,18 @@ export function Learn() {
       {session && step?.kind === 'check' && faces && (
         <>
           <p className={`${muted} text-center`}>Quick check</p>
-          <section
-            className={`${cardClass} flex min-h-72 cursor-pointer flex-col justify-center gap-4 text-center select-none`}
-            onClick={flip}
-            aria-live="polite"
-          >
-            {!flipped ? (
-              <CardFront faces={faces} lang={targetLang} />
-            ) : (
-              <CardBack back={faces.back} lang={targetLang} onSpeak={() => speak([faces.speech.word, faces.speech.sentence], ttsLang)} />
-            )}
-          </section>
-          {!flipped ? (
-            <button type="button" className={btnPrimary} onClick={flip}>
-              Show answer <span className="ml-2 text-xs opacity-60">Space</span>
-            </button>
-          ) : (
-            <GradeButtons labels={labels} disabled={!srs} onGrade={grade} />
-          )}
+          <AnswerCard
+            key={`${stepKey}:${direction}`}
+            card={checkCard!}
+            faces={faces}
+            direction={direction}
+            sourceLang={deck.sourceLang}
+            targetLang={targetLang}
+            labels={labels}
+            canGrade={!!srs}
+            autoplay={!!settings?.ttsAutoplay}
+            onDone={grade}
+          />
         </>
       )}
 

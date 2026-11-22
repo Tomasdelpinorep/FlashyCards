@@ -9,6 +9,7 @@
  * - `shot(name)`: full-page screenshot to $E2E_SCREENSHOTS_DIR (default test-results/screens) as
  *   `<project>-<name>.png`; `shot(name, { dark: true })` re-renders with prefers-color-scheme: dark.
  * - page errors and console errors fail the test (allow known noise with `allowConsole`).
+ * - speech recognition is stubbed out (undefined), so the answer box shows no mic button.
  */
 import AxeBuilder from '@axe-core/playwright'
 import { test as base, expect, type APIRequestContext, type APIResponse, type Page } from '@playwright/test'
@@ -171,6 +172,10 @@ export const test = base.extend<Fixtures>({
     })
   },
   page: async ({ page, allowConsole }, use) => {
+    // No speech recognition in e2e: the mic button stays hidden (typed answers only).
+    await page.addInitScript(() => {
+      for (const k of ['SpeechRecognition', 'webkitSpeechRecognition']) Object.defineProperty(window, k, { value: undefined, configurable: true })
+    })
     const problems: string[] = []
     page.on('pageerror', (e) => problems.push(`pageerror: ${e.message}`))
     page.on('console', (m) => {

@@ -1,0 +1,96 @@
+/**
+ * Spoken answers through the browser's Web Speech API (SpeechRecognition). In Chrome the audio
+ * is sent to Google's speech service (free, no key); see docs/DECISIONS.md. Hidden when the
+ * browser has no recognizer (Firefox, some iOS versions).
+ */
+
+type RecognitionAlternative = { transcript: string }
+type RecognitionResult = { isFinal: boolean; length: number; [i: number]: RecognitionAlternative }
+type RecognitionEvent = { results: { length: number; [i: number]: RecognitionResult } }
+type Recognition = {
+  lang: string
+  interimResults: boolean
+  continuous: boolean
+  maxAlternatives: number
+  onresult: ((e: RecognitionEvent) => void) | null
+  onerror: ((e: { error: string }) => void) | null
+  onend: (() => void) | null
+  start(): void
+  stop(): void
+  abort(): void
+}
+type RecognitionCtor = new () => Recognition
+
+function ctor(): RecognitionCtor | null {
+  if (typeof window === 'undefined') return null
+  const w = window as unknown as { SpeechRecognition?: RecognitionCtor; webkitSpeechRecognition?: RecognitionCtor }
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null
+}
+
+/** Checked on render and again on click (iOS exposes the constructor late or not at all). */
+export function isSpeechSupported(): boolean {
+  return ctor() !== null
+}
+
+export type SpeechError = 'blocked' | 'no-speech' | 'other'
+
+export type ListenOptions = {
+  lang: string
+  /** The best transcript so far, while speaking. */
+  onInterim: (transcript: string) => void
+  /** All alternatives of the final result (best first); empty when nothing was heard. */
+  onFinal: (transcripts: string[]) => void
+  onError: (error: SpeechError) => void
+  /** Recognition stopped (after a final result, an error or stop()). */
+  onEnd?: () => void
+}
+
+/** Start one utterance of recognition. Returns a function that stops it. */
+export function startListening(opts: ListenOptions): () => void {
+  const C = ctor()
+  if (!C) {
+    opts.onError('other')
+    opts.onEnd?.()
+    return () => {}
+  }
+  const r = new C()
+  r.lang = opts.lang
+  r.interimResults = true
+  r.continuous = false
+  r.maxAlternatives = 3
+  let finished = false
+  r.onresult = (e) => {
+    const last = e.results[e.results.length - 1]
+    if (!last) return
+    if (last.isFinal) {
+      finished = true
+      const all: string[] = []
+      for (let i = 0; i < last.length; i++) {
+        const t = last[i]?.transcript.trim()
+        if (t && !all.includes(t)) all.push(t)
+      }
+      opts.onFinal(all)
+    } else opts.onInterim(last[0]?.transcript ?? '')
+  }
+  r.onerror = (e) => {
+    finished = true
+    opts.onError(e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'blocked' : e.error === 'no-speech' ? 'no-speech' : 'other')
+  }
+  r.onend = () => {
+    if (!finished) opts.onFinal([])
+    opts.onEnd?.()
+  }
+  try {
+    r.start()
+  } catch {
+    opts.onError('other')
+    opts.onEnd?.()
+  }
+  return () => {
+    try {
+      r.stop()
+    } catch {
+      // already stopped
+    }
+  }
+}

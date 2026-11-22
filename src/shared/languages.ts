@@ -11,8 +11,19 @@ export interface LanguageConfig {
   code: LanguageCode
   /** English name, used in UI and AI prompts. */
   name: string
-  /** BCP 47 tag for speechSynthesis. */
+  /** BCP 47 tag for speechSynthesis; also the speech-recognition language for spoken answers. */
   ttsLang: string
+  /** The six persons of a verb table: 1st/2nd/3rd singular, then 1st/2nd/3rd plural. */
+  personLabels: readonly [string, string, string, string, string, string]
+  /**
+   * Character folds applied to BOTH sides when checking a typed answer (src/shared/answerCheck.ts),
+   * so "muede" matches "müde" and "arbol" matches "árbol".
+   */
+  answerFolds: readonly (readonly [from: string, to: string])[]
+  /** Whether a typed noun in this language must include its article ("der Hund", not "Hund"). */
+  requireArticleForNouns: boolean
+  /** Lowercase prefixes ignored on both sides of a typed answer in this language ("to go" = "go"). */
+  answerStripPrefixes: readonly string[]
   /** Definite/indefinite articles that may prefix a noun (lowercase). */
   articles: readonly string[]
   /**
@@ -57,6 +68,10 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     code: 'en',
     name: 'English',
     ttsLang: 'en-US',
+    personLabels: ['I', 'you', 'he/she', 'we', 'you', 'they'],
+    answerFolds: [],
+    requireArticleForNouns: false,
+    answerStripPrefixes: ['to ', 'a ', 'an ', 'the '],
     articles: ['the', 'a', 'an'],
     glossStripPrefixes: ['to ', 'a ', 'an ', 'the '],
     importHeaderWords: ['english', 'word', 'words', 'term', 'terms', 'translation', 'meaning', 'hint', 'front', 'back'],
@@ -69,6 +84,15 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     code: 'de',
     name: 'German',
     ttsLang: 'de-DE',
+    personLabels: ['ich', 'du', 'er/sie/es', 'wir', 'ihr', 'sie/Sie'],
+    answerFolds: [
+      ['ä', 'ae'],
+      ['ö', 'oe'],
+      ['ü', 'ue'],
+      ['ß', 'ss'],
+    ],
+    requireArticleForNouns: true,
+    answerStripPrefixes: [],
     articles: ['der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einen', 'einem', 'einer', 'eines'],
     glossStripPrefixes: ['der ', 'die ', 'das ', 'ein ', 'eine '],
     importHeaderWords: ['deutsch', 'german', 'wort', 'wörter', 'begriff', 'übersetzung', 'bedeutung', 'vokabel', 'vokabeln'],
@@ -77,7 +101,7 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     genderArticles: { masculine: 'der', feminine: 'die', neuter: 'das' },
     grammarPromptHints: [
       'Nouns: gender; article (der/die/das); plural with its article ("die Hunde"), null if the noun has no plural; genitive only if irregular ("des Namens"). Nouns are capitalised.',
-      'Verbs: verb.present_3sg ("geht"), verb.past_3sg (Präteritum, "ging"), verb.perfect_3sg ("ist gegangen"), verb.participle ("gegangen"), verb.auxiliary ("haben" or "sein"), verb.separable, verb.reflexive (reflexive lemmas look like "sich freuen"); governs_case when the object is dative or genitive.',
+      'Verbs: verb.present is the full Präsens table (p1s ich, p2s du, p3s er/sie/es, p1p wir, p2p ihr, p3p sie/Sie), the verb form only, without the pronoun ("gehe", "gehst", "geht", "gehen", "geht", "gehen"); separable verbs with the particle at the end ("stehe auf"); reflexive verbs with the pronoun ("freue mich"). verb.past is the same table in the Präteritum ("ging", "gingst", ...). Also verb.present_3sg ("geht"), verb.past_3sg (Präteritum, "ging"), verb.perfect_3sg ("ist gegangen"), verb.participle ("gegangen"), verb.auxiliary ("haben" or "sein"), verb.separable, verb.reflexive (reflexive lemmas look like "sich freuen"); governs_case when the object is dative or genitive.',
       'Adjectives: comparative and superlative only if irregular ("größer", "am größten").',
       'Prepositions: governs_case ("accusative", "dative", "genitive", or "accusative/dative" for two-way prepositions).',
       'Separable verbs in example_target: wrap both parts, e.g. "Ich [[stehe]] um sieben Uhr [[auf]]."',
@@ -96,6 +120,18 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     code: 'es',
     name: 'Spanish',
     ttsLang: 'es-ES',
+    personLabels: ['yo', 'tú', 'él/ella', 'nosotros', 'vosotros', 'ellos/ustedes'],
+    answerFolds: [
+      ['á', 'a'],
+      ['é', 'e'],
+      ['í', 'i'],
+      ['ó', 'o'],
+      ['ú', 'u'],
+      ['ñ', 'n'],
+      ['ü', 'u'],
+    ],
+    requireArticleForNouns: true,
+    answerStripPrefixes: [],
     articles: ['el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas'],
     glossStripPrefixes: ['el ', 'la ', 'los ', 'las ', 'un ', 'una '],
     importHeaderWords: ['español', 'spanish', 'palabra', 'palabras', 'término', 'traducción', 'significado'],
@@ -104,7 +140,7 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     genderArticles: { masculine: 'el', feminine: 'la' },
     grammarPromptHints: [
       'Nouns: gender; article (el/la); plural with its article ("los perros").',
-      'Verbs: verb.present_3sg, verb.past_3sg (pretérito indefinido), verb.perfect_3sg ("ha comido"), verb.participle, verb.reflexive; irregular stem changes in grammar.note.',
+      'Verbs: verb.present is the full presente table (p1s yo, p2s tú, p3s él/ella, p1p nosotros, p2p vosotros, p3p ellos/ustedes), the verb form only, without the pronoun ("como", "comes", "come", "comemos", "coméis", "comen"); reflexive verbs with the pronoun ("me levanto"). verb.past is the same table in the pretérito indefinido ("comí", "comiste", ...). Also verb.present_3sg, verb.past_3sg (pretérito indefinido), verb.perfect_3sg ("ha comido"), verb.participle, verb.reflexive; irregular stem changes in grammar.note.',
       'Adjectives: feminine form if irregular.',
     ].join('\n'),
     hasWordlist: false,

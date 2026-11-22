@@ -12,7 +12,9 @@
 import { LANGUAGES, type LanguageCode } from '../../shared/languages'
 import { glossKey, termKey } from '../../shared/normalize'
 import type { GenerationInput, GenerationRequest, SentenceGenerator, SuggestedWord, SuggestWordsRequest } from './generator'
-import type { Gender, GeneratedItem, Grammar } from './schema'
+import type { Gender, GeneratedItem, Grammar, VerbTable } from './schema'
+
+type Six = [string, string, string, string, string, string]
 
 export type FakeWord = {
   lemma: string
@@ -21,7 +23,16 @@ export type FakeWord = {
   alts?: string[]
   gender?: Gender
   plural?: string
-  verb?: { present: string; past: string; perfect: string; participle: string; auxiliary: string }
+  verb?: {
+    present: string
+    past: string
+    perfect: string
+    participle: string
+    auxiliary: string
+    /** Full tables, 6 persons (ich, du, er, wir, ihr, sie); absent -> null tables. */
+    presentTable?: Six
+    pastTable?: Six
+  }
   comparative?: string
   superlative?: string
   cefr?: GeneratedItem['cefr']
@@ -37,7 +48,15 @@ const gehen: FakeWord = {
   pos: 'verb',
   translation: 'to go',
   alts: ['to walk'],
-  verb: { present: 'geht', past: 'ging', perfect: 'ist gegangen', participle: 'gegangen', auxiliary: 'sein' },
+  verb: {
+    present: 'geht',
+    past: 'ging',
+    perfect: 'ist gegangen',
+    participle: 'gegangen',
+    auxiliary: 'sein',
+    presentTable: ['gehe', 'gehst', 'geht', 'gehen', 'geht', 'gehen'],
+    pastTable: ['ging', 'gingst', 'ging', 'gingen', 'gingt', 'gingen'],
+  },
   cefr: 'A1',
   example: ['Wir [[gehen]] heute ins Kino.', 'We are [[going]] to the cinema today.'],
 }
@@ -45,7 +64,15 @@ const essen: FakeWord = {
   lemma: 'essen',
   pos: 'verb',
   translation: 'to eat',
-  verb: { present: 'isst', past: 'aß', perfect: 'hat gegessen', participle: 'gegessen', auxiliary: 'haben' },
+  verb: {
+    present: 'isst',
+    past: 'aß',
+    perfect: 'hat gegessen',
+    participle: 'gegessen',
+    auxiliary: 'haben',
+    presentTable: ['esse', 'isst', 'isst', 'essen', 'esst', 'essen'],
+    pastTable: ['aß', 'aßt', 'aß', 'aßen', 'aßt', 'aßen'],
+  },
   cefr: 'A1',
   example: ['Wir [[essen]] um sieben Uhr zu Abend.', 'We [[eat]] dinner at seven o’clock.'],
 }
@@ -98,7 +125,15 @@ const comer: FakeWord = {
   lemma: 'comer',
   pos: 'verb',
   translation: 'to eat',
-  verb: { present: 'come', past: 'comió', perfect: 'ha comido', participle: 'comido', auxiliary: 'haber' },
+  verb: {
+    present: 'come',
+    past: 'comió',
+    perfect: 'ha comido',
+    participle: 'comido',
+    auxiliary: 'haber',
+    presentTable: ['como', 'comes', 'come', 'comemos', 'coméis', 'comen'],
+    pastTable: ['comí', 'comiste', 'comió', 'comimos', 'comisteis', 'comieron'],
+  },
   cefr: 'A1',
   example: ['Nosotros [[comemos]] a las siete.', 'We [[eat]] at seven.'],
 }
@@ -255,6 +290,10 @@ function notAWord(input: string, side: 'target' | 'source'): GeneratedItem {
   }
 }
 
+function table(t: Six | undefined): VerbTable | null {
+  return t ? { p1s: t[0], p2s: t[1], p3s: t[2], p1p: t[3], p2p: t[4], p3p: t[5] } : null
+}
+
 function toItem(targetLang: LanguageCode, input: string, side: 'target' | 'source', w: FakeWord): GeneratedItem {
   const article = w.gender ? (LANGUAGES[targetLang].genderArticles?.[w.gender] ?? null) : null
   const grammar: Grammar = {
@@ -264,6 +303,8 @@ function toItem(targetLang: LanguageCode, input: string, side: 'target' | 'sourc
     genitive: null,
     verb: w.verb
       ? {
+          present: table(w.verb.presentTable),
+          past: table(w.verb.pastTable),
           present_3sg: w.verb.present,
           past_3sg: w.verb.past,
           perfect_3sg: w.verb.perfect,

@@ -28,7 +28,23 @@ export type Gender = (typeof GENDER_VALUES)[number]
 
 export const CEFR_VALUES = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const
 
+/** A tense of a verb, one form per person (1st/2nd/3rd singular, 1st/2nd/3rd plural), without pronouns. */
+export const VerbTableSchema = z.object({
+  p1s: z.string().nullable(),
+  p2s: z.string().nullable(),
+  p3s: z.string().nullable(),
+  p1p: z.string().nullable(),
+  p2p: z.string().nullable(),
+  p3p: z.string().nullable(),
+})
+export type VerbTable = z.infer<typeof VerbTableSchema>
+export const PERSON_KEYS = ['p1s', 'p2s', 'p3s', 'p1p', 'p2p', 'p3p'] as const
+
 export const VerbFormsSchema = z.object({
+  /** Present tense table (null when unknown; a table with any empty slot is dropped). */
+  present: VerbTableSchema.nullable(),
+  /** Simple past table (Präteritum / pretérito indefinido). */
+  past: VerbTableSchema.nullable(),
   present_3sg: z.string().nullable(),
   past_3sg: z.string().nullable(),
   /** Perfect / compound past, 3rd person singular, as one string ("ist gegangen"). */

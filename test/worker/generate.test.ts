@@ -70,7 +70,7 @@ describe('POST /api/decks/:id/generate', () => {
 
     expect(row(ctx, "input_term = 'ging'")).toMatchObject({ lemma_key: 'gehen', sense_key: '', input_side: 'target', gen_claimed_at: null })
     expect(scalar(ctx, 'SELECT COUNT(*) FROM entries')).toBe(3)
-    expect(ctx.sqlite.prepare("SELECT model, prompt_version FROM entries WHERE lemma = 'gehen'").get()).toEqual({ model: 'fake', prompt_version: 2 })
+    expect(ctx.sqlite.prepare("SELECT model, prompt_version FROM entries WHERE lemma = 'gehen'").get()).toEqual({ model: 'fake', prompt_version: 3 })
     const aliases = ctx.sqlite.prepare("SELECT input_side, alias_key FROM entry_aliases ORDER BY alias_key").all()
     expect(aliases).toEqual([
       { input_side: 'target', alias_key: 'gehen' },

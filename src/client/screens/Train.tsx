@@ -1,6 +1,7 @@
 /**
  * Train (PLAN.md section 6, DUPLICATES.md 10.8): review due cards in the chosen direction.
- * Space / tap flips, 1-4 grade. Grading is optimistic: the next card shows at once, the review
+ * The learner types (or says) the answer; components/AnswerCard.tsx checks it, flips and picks
+ * the grade (overridable, keys 1-4). Grading is optimistic: the next card shows at once, the review
  * goes to the outbox (lib/outbox.ts), and learning steps due again soon return to the session
  * queue (lib/session.ts).
  */
@@ -8,16 +9,15 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { cardFaces, pickDirection, type FaceDirection } from '../../shared/display'
-import { isLanguageCode, LANGUAGES } from '../../shared/languages'
 import type { StudyDirection } from '../../shared/schemas'
 import { formatInterval, loadSrs, previewIntervals, type Grade, type Srs } from '../../shared/srs'
 import { NoDecks } from '../components/NoDecks'
-import { CardBack, CardFront, GradeButtons } from '../components/StudyCard'
-import { btnPrimary, btnSecondary, card as cardClass, ErrorText, muted, Screen } from '../components/ui'
+import { AnswerCard } from '../components/AnswerCard'
+import { btnSecondary, card as cardClass, ErrorText, muted, Screen } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
 import { enqueueReview, useMe, useReviewQueue, useUpdateMe } from '../lib/queries'
 import { currentCard, gradeCard, startSession, type Session } from '../lib/session'
-import { speak, stopSpeaking } from '../lib/tts'
+import { stopSpeaking } from '../lib/tts'
 
 const TICK_MS = 15_000
 
@@ -82,17 +82,11 @@ export function Train() {
 
   const targetLang = deck?.targetLang ?? ''
   const sourceLang = deck?.sourceLang ?? ''
-  const ttsLang = isLanguageCode(targetLang) ? LANGUAGES[targetLang].ttsLang : targetLang
-
-  const flip = useCallback(() => {
-    if (!faces || flipped) return
-    setFlipped(true)
-    if (settings?.ttsAutoplay) speak([faces.speech.word], ttsLang)
-  }, [faces, flipped, settings?.ttsAutoplay, ttsLang])
+  const onReveal = useCallback(() => setFlipped(true), [])
 
   const grade = useCallback(
     (g: Grade) => {
-      if (!current || !session || !srs || !flipped || !deck) return
+      if (!current || !session || !srs || !deck) return
       const reviewedAt = Date.now()
       const { after } = srs.review(current.id, current.srs, g, reviewedAt)
       enqueueReview(qc, deck.id, {
@@ -109,20 +103,8 @@ export function Train() {
       setFlipped(false)
       setNow(reviewedAt)
     },
-    [current, session, srs, flipped, deck, direction, qc],
+    [current, session, srs, deck, direction, qc],
   )
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLElement && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return
-      if (e.key === ' ' || e.code === 'Space') {
-        e.preventDefault()
-        flip()
-      } else if (/^[1-4]$/.test(e.key)) grade(Number(e.key) as Grade)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [flip, grade])
 
   const changeMode = (m: StudyDirection) => {
     setMode(m)
@@ -165,7 +147,7 @@ export function Train() {
             role="radio"
             aria-checked={mode === m}
             onClick={() => changeMode(m)}
-            className={`min-h-11 rounded-lg px-2 text-sm font-medium ${mode === m ? 'bg-white shadow-sm dark:bg-zinc-700' : 'text-zinc-500 dark:text-zinc-400'}`}
+            className={`min-h-11 rounded-lg px-2 text-sm font-medium ${mode === m ? 'bg-white shadow-sm dark:bg-zinc-700' : 'text-zinc-600 dark:text-zinc-300'}`}
           >
             {label}
           </button>
@@ -177,25 +159,19 @@ export function Train() {
 
       {session && current && faces && (
         <>
-          <section
-            className={`${cardClass} flex min-h-72 cursor-pointer flex-col justify-center gap-4 text-center select-none`}
-            onClick={flip}
-            aria-live="polite"
-          >
-            {!flipped ? (
-              <CardFront faces={faces} lang={targetLang} />
-            ) : (
-              <CardBack back={faces.back} lang={targetLang} onSpeak={() => speak([faces.speech.word, faces.speech.sentence], ttsLang)} />
-            )}
-          </section>
-
-          {!flipped ? (
-            <button type="button" className={btnPrimary} onClick={flip}>
-              Show answer <span className="ml-2 text-xs opacity-60">Space</span>
-            </button>
-          ) : (
-            <GradeButtons labels={labels} disabled={!srs} onGrade={grade} />
-          )}
+          <AnswerCard
+            key={`${cardKey}:${direction}`}
+            card={current}
+            faces={faces}
+            direction={direction}
+            sourceLang={sourceLang}
+            targetLang={targetLang}
+            labels={labels}
+            canGrade={!!srs}
+            autoplay={!!settings?.ttsAutoplay}
+            onReveal={onReveal}
+            onDone={grade}
+          />
           <p className={`${muted} text-center`}>
             {session.queue.length + session.again.length} left{session.reviewed > 0 ? ` · ${session.reviewed} reviewed` : ''}
           </p>

@@ -60,7 +60,7 @@ export function Sentence({ text, className = '' }: { text: string | null | undef
     <p className={className}>
       {segments.map((s, i) =>
         s.mark ? (
-          <mark key={i} className="rounded bg-amber-100 px-0.5 font-semibold text-inherit dark:bg-amber-900/60">
+          <mark key={i} className="rounded bg-amber-100 px-0.5 font-semibold text-zinc-900 dark:bg-amber-900/60 dark:text-zinc-50">
             {s.text}
           </mark>
         ) : (

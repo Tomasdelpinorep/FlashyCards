@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { GeneratedItem } from '../../src/worker/ai/schema'
-import { fixGender, matchItems, validateItem } from '../../src/worker/services/generation'
+import { FakeGenerator } from '../../src/worker/ai/fake'
+import { PROMPT_VERSION } from '../../src/worker/ai/prompts'
+import { BatchSchema, type GeneratedItem } from '../../src/worker/ai/schema'
+import { fixGender, fixVerbTables, matchItems, validateItem } from '../../src/worker/services/generation'
 import { checkBudget, consumeBudget, nextUtcMidnight, utcDay } from '../../src/worker/services/rateLimit'
 import { createTestD1 } from '../helpers/d1'
 
@@ -40,6 +42,32 @@ describe('post-validation', () => {
     expect(validateItem({ ...base, input_side: 'source' }, group('target'), pair)).toMatchObject({ side: 'target' })
     expect(validateItem({ ...base, status: 'not_a_word' }, group('target'), pair)).toEqual({ kind: 'not_a_word' })
     expect(validateItem({ ...base, lemma: '  ' }, group('target'), pair)).toMatchObject({ kind: 'invalid' })
+  })
+
+  it('drops a verb table with any empty slot, keeps a full one', () => {
+    const full = { p1s: 'gehe', p2s: 'gehst', p3s: 'geht', p1p: 'gehen', p2p: 'geht', p3p: ' gehen ' }
+    const verb = { present_3sg: 'geht', past_3sg: 'ging', perfect_3sg: 'ist gegangen', participle: 'gegangen', auxiliary: 'sein', separable: false, reflexive: false }
+    const g = fixVerbTables({ ...g0, verb: { ...verb, present: full, past: { ...full, p2p: '' } } })
+    expect(g.verb?.present).toEqual({ ...full, p3p: 'gehen' })
+    expect(g.verb?.past).toBeNull()
+    expect(fixVerbTables({ ...g0, verb: { ...verb, present: { ...full, p1s: null }, past: null } }).verb?.present).toBeNull()
+    const item = validateItem({ ...base, lemma: 'gehen', pos: 'verb', grammar: { ...g0, verb: { ...verb, present: full, past: { ...full, p1s: null } } } }, group('target'), pair)
+    expect(item).toMatchObject({ kind: 'ok', entry: { grammar: { verb: { past: null, present: { p1s: 'gehe' } } } } })
+  })
+
+  it('the fake generator returns schema-valid items with verb tables (prompt v3)', async () => {
+    expect(PROMPT_VERSION).toBe(3)
+    const fake = new FakeGenerator()
+    const items = await fake.generate({
+      sourceLang: 'en',
+      targetLang: 'de',
+      level: 'A1-A2',
+      items: ['gehen', 'Hund', 'laufenzz'].map((input) => ({ input, hint: null, inputLang: 'target' as const })),
+    } as never)
+    expect(BatchSchema.safeParse({ items }).success).toBe(true)
+    expect(items[0]!.grammar?.verb?.present).toEqual({ p1s: 'gehe', p2s: 'gehst', p3s: 'geht', p1p: 'gehen', p2p: 'geht', p3p: 'gehen' })
+    expect(items[0]!.grammar?.verb?.past?.p2s).toBe('gingst')
+    expect(items[1]!.grammar?.verb).toBeNull()
   })
 
   it('matches outputs to inputs by input, then case-insensitively, then by position', () => {

@@ -67,10 +67,16 @@ export function GradeButtons({
   labels,
   disabled,
   onGrade,
+  names,
+  selected,
 }: {
   labels: Record<Grade, string> | null
   disabled: boolean
   onGrade: (g: Grade) => void
+  /** Button names replacing GRADE_LABELS (e.g. Good -> "I was right"). */
+  names?: Partial<Record<Grade, string>>
+  /** The grade "Next" will use, marked on its button. */
+  selected?: Grade
 }) {
   return (
     <div className="grid grid-cols-4 gap-2" role="group" aria-label="How well did you know it?">
@@ -80,10 +86,11 @@ export function GradeButtons({
           type="button"
           disabled={disabled}
           onClick={() => onGrade(g)}
-          className={`flex h-16 flex-col items-center justify-center rounded-xl border text-sm font-medium disabled:opacity-40 ${GRADE_STYLES[g]}`}
+          aria-current={selected === g ? 'true' : undefined}
+          className={`flex h-16 flex-col items-center justify-center rounded-xl border text-sm font-medium disabled:opacity-40 ${GRADE_STYLES[g]} ${selected === g ? 'border-2 ring-2 ring-current/20' : ''}`}
         >
-          <span>{GRADE_LABELS[g]}</span>
-          <span className="text-xs tabular-nums opacity-70">{labels?.[g] ?? '…'}</span>
+          <span>{names?.[g] ?? GRADE_LABELS[g]}</span>
+          <span className="text-xs tabular-nums">{labels?.[g] ?? '…'}</span>
         </button>
       ))}
     </div>

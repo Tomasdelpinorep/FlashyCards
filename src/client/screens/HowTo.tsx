@@ -70,9 +70,10 @@ export function HowTo() {
 
       <Section title="Learn new words">
         <p>
-          Tap <B>Learn new</B> on Home. New words come in groups of {LEARN_GROUP_SIZE}. First you see each word with its translation and
-          example; tap <B>Got it</B>, or <B>I already know this</B> to skip it. Then a <B>Quick check</B> tests the group: try to
-          remember the answer, tap <B>Show answer</B> and grade yourself.
+          Tap <B>Learn new</B> on Home. New words come in groups of {LEARN_GROUP_SIZE}. Each word starts with its meaning in your
+          language; tap <B>Show the word</B> (or swipe, or press →) to see it with its article, forms and example, then{' '}
+          <B>Got it</B>. Go back with ← or a swipe the other way, or tap <B>I already know this</B> to skip a word. Then a{' '}
+          <B>Quick check</B> tests the group, the same way as Train.
         </p>
         <p>
           There's a daily limit for new words so reviews don't pile up. When you reach it, Home says <B>Daily limit reached</B>; you can
@@ -82,8 +83,10 @@ export function HowTo() {
 
       <Section title="Train">
         <p>
-          Tap <B>Train</B> on Home to review the words that are due. Look at the card, try to remember the answer, then tap the card or{' '}
-          <B>Show answer</B>. Then tell the app how it went:
+          Tap <B>Train</B> on Home to review the words that are due. Type the answer (or tap the microphone and say it). A right
+          answer turns the card over by itself; otherwise press Enter, or tap <B>Show answer</B> if you don't know. Nouns need their
+          article (<B>der Hund</B>, not just Hund). Capitals don't matter, and you can write ae, oe, ue and ss for ä, ö, ü and ß. One
+          small typo in a longer word counts as <B>{GRADE_LABELS[2]}</B>. The app picks the grade, and you can change it:
         </p>
         <ul className="list-disc space-y-1 pl-5">
           <li>
@@ -99,13 +102,16 @@ export function HowTo() {
             <B>{GRADE_LABELS[4]}</B>: you knew it instantly. It waits longer before coming back.
           </li>
         </ul>
-        <p>Each button shows when you'll see the word again. Be honest: it keeps your reviews well timed.</p>
+        <p>
+          Each button shows when you'll see the word again. If the app marked you wrong but you were right, tap <B>I was right</B>.
+          Be honest: it keeps your reviews well timed.
+        </p>
         <p>
           The switch at the top sets the direction: the language you're learning first, your own language first, or Mixed. On the
           back of a card, <B>Listen</B> reads the word and sentence aloud. When nothing is due you'll see <B>All done</B>, and{' '}
           <B>Practice anyway</B> lets you review early.
         </p>
-        <p className={muted}>With a keyboard: Space shows the answer, and 1 to 4 pick {Object.values(GRADE_LABELS).join(', ')}.</p>
+        <p className={muted}>With a keyboard: Enter checks the answer and moves on, and 1 to 4 pick {Object.values(GRADE_LABELS).join(', ')}.</p>
       </Section>
 
       <Section title="How reviews are scheduled">

@@ -12,6 +12,10 @@ Last updated: 2026-11-22
   - the learn-new flow
   - "Add X new words" with a 5,057-lemma German list
 - **M8+M9 (lean)** is done: edit/suspend, About, Settings toggles, PWA manifest and icons, QA fixes, en→es check.
+- **Learn/Train redesign** (not pushed):
+  - Train and the Learn quick check use typed or spoken answers, auto-graded with an override.
+  - Learn has a two-step intro with verb tables (prompt v3).
+  - Details are in `DECISIONS.md` under "Learn/Train redesign".
 - **QA pass:** commit `5b0a07e`.
   - Playwright e2e covers first run and import. The tests run on mobile only, against an isolated state in `.wrangler/e2e-state`.
   - The pass found 6 bugs, all fixed. Details are in `DECISIONS.md` under "M8-QA".

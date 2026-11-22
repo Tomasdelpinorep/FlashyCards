@@ -22,7 +22,7 @@ import type { DuplicateReport, GenerateResponse } from '../../shared/schemas'
 import { GeneratorError, type GenerationInput, type SentenceGenerator } from '../ai/generator'
 import { toGeneratorError } from '../ai/anthropic'
 import { PROMPT_VERSION } from '../ai/prompts'
-import type { GeneratedItem, Grammar } from '../ai/schema'
+import { PERSON_KEYS, type GeneratedItem, type Grammar, type VerbTable } from '../ai/schema'
 import { lemmaDisplay } from '../db/cards'
 import { deckSettings, type DeckRow } from '../db/decks'
 import { checkBudget, consumeBudget, type Limits } from './rateLimit'
@@ -518,7 +518,7 @@ export function validateItem(item: GeneratedItem, group: Pick<MissGroup, 'input'
   let lemma = item.lemma?.normalize('NFC').trim() ?? ''
   if (!lemma || !translation) return { kind: 'invalid', reason: 'incomplete item' }
 
-  const grammar = item.grammar ? fixGender(item.grammar, target.genderArticles) : null
+  const grammar = item.grammar ? fixVerbTables(fixGender(item.grammar, target.genderArticles)) : null
   // "der Hund" -> "Hund": the article lives in grammar.article.
   for (const a of target.articles) {
     if (lemma.toLowerCase().startsWith(`${a} `) && lemma.length > a.length + 1) {
@@ -558,6 +558,22 @@ export function validateItem(item: GeneratedItem, group: Pick<MissGroup, 'input'
       example_source: cleanSentence(item.example_source),
     },
   }
+}
+
+/** A verb table with any empty slot is dropped as a whole (null): never show a half table. */
+export function fixVerbTables(g: Grammar): Grammar {
+  if (!g.verb) return g
+  const clean = (t: VerbTable | null | undefined): VerbTable | null => {
+    if (!t) return null
+    const out = {} as VerbTable
+    for (const k of PERSON_KEYS) {
+      const v = t[k]?.normalize('NFC').trim()
+      if (!v) return null
+      out[k] = v
+    }
+    return out
+  }
+  return { ...g, verb: { ...g.verb, present: clean(g.verb.present), past: clean(g.verb.past) } }
 }
 
 function cleanSentence(s: string | null): string | null {
