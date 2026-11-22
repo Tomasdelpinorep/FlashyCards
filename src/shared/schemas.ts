@@ -137,6 +137,30 @@ export const CardListQuerySchema = z.object({
 })
 export type CardListQuery = z.infer<typeof CardListQuerySchema>
 
+/** Most extra translations a card can hold (also the cap for merges, services/resolve.ts). */
+export const MAX_EXTRA_TRANSLATIONS = 10
+export const NOTE_MAX = 500
+
+/** An edited text field: trimmed; '' or null removes the override (falls back to the entry). */
+const OverrideTextSchema = (max: number) => z.string().trim().max(max).nullable().optional()
+
+/**
+ * PATCH /cards/:id (M8): edit what the card shows and/or suspend it. The lemma never changes.
+ * Extra translations are trimmed and de-duplicated by gloss key on the server.
+ */
+export const UpdateCardSchema = z
+  .object({
+    translation: OverrideTextSchema(100),
+    exampleTarget: OverrideTextSchema(300),
+    exampleSource: OverrideTextSchema(300),
+    note: z.string().trim().max(NOTE_MAX).nullable().optional(),
+    extraTranslations: z.array(z.string().trim().max(100)).max(MAX_EXTRA_TRANSLATIONS).optional(),
+    status: z.enum(['ready', 'suspended']).optional(),
+  })
+  .strict()
+  .refine((d) => Object.values(d).some((v) => v !== undefined), { message: 'Nothing to update' })
+export type UpdateCardInput = z.infer<typeof UpdateCardSchema>
+
 /** The side shown on the front of a reviewed card (review_logs.direction). */
 export const ShownDirectionSchema = z.enum(['target-source', 'source-target'])
 export type ShownDirection = z.infer<typeof ShownDirectionSchema>
@@ -219,6 +243,8 @@ export type CardDTO = {
   extraTranslations: string[]
   /** Generated content (entry merged with the card's override); null while pending/failed. */
   content: CardContent | null
+  /** The learner's own note (M8). */
+  note: string | null
   /** Why generation failed ('not_a_word', or the last error), for failed cards. */
   genError: string | null
   duplicateOf?: CardRef

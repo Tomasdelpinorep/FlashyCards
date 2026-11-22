@@ -50,7 +50,7 @@ export function CardBack({ back, lang, onSpeak }: { back: CardFaces['back']; lan
       {ttsSupported() && (
         <button
           type="button"
-          className="mx-auto inline-flex h-9 items-center rounded-lg border border-zinc-300 px-3 text-sm font-medium dark:border-zinc-700"
+          className="mx-auto inline-flex h-11 items-center rounded-lg border border-zinc-300 px-3 text-sm font-medium dark:border-zinc-700"
           onClick={(e) => {
             e.stopPropagation()
             onSpeak()

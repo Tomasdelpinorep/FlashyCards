@@ -43,8 +43,8 @@ export function GenerationBanner({ deckId, stats }: { deckId: string; stats: Dec
       )}
       {state.error && pending > 0 && (
         <div className="flex items-center justify-between gap-3 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200" role="alert">
-          <span>{state.error === AI_NOT_CONFIGURED ? `${AI_NOT_CONFIGURED}. ${words(pending)} will wait until it is.` : `Couldn't prepare words: ${state.error}`}</span>
-          <button type="button" className="shrink-0 font-medium underline" onClick={() => start()}>
+          <span>{state.error === AI_NOT_CONFIGURED ? `${AI_NOT_CONFIGURED} (${words(pending)} waiting.)` : `Couldn't prepare words: ${state.error}`}</span>
+          <button type="button" className="-my-2 min-h-11 shrink-0 px-2 font-medium underline" onClick={() => start()}>
             Try again
           </button>
         </div>
@@ -54,7 +54,7 @@ export function GenerationBanner({ deckId, stats }: { deckId: string; stats: Dec
           <span>{words(failed)} couldn't be prepared.</span>
           <button
             type="button"
-            className="shrink-0 font-medium underline disabled:opacity-40"
+            className="-my-2 min-h-11 shrink-0 px-2 font-medium underline disabled:opacity-40"
             disabled={retry.isPending}
             onClick={() => retry.mutate(undefined, { onSuccess: () => start() })}
           >

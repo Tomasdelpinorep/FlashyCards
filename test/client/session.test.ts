@@ -18,6 +18,7 @@ function card(id: string, srs: SrsFields): CardDTO {
     translation: null,
     extraTranslations: [],
     content: null,
+    note: null,
     genError: null,
     state: srs.state,
     due: srs.due,

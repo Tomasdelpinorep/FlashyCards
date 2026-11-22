@@ -16,6 +16,7 @@ import type {
   ReviewInput,
   ReviewQueueResponse,
   SuggestResponse,
+  UpdateCardInput,
   UpdateDeckInput,
   UpdateMeInput,
   UserDTO,
@@ -140,6 +141,19 @@ export function useCard(cardId: string | undefined) {
     enabled: !!cardId,
     queryFn: () => unwrap<CardResponse>(api.cards[':id'].$get({ param: { id: cardId! } })),
     select: (d) => d.card,
+  })
+}
+
+/** PATCH /cards/:id (edit / suspend, M8): refreshes the card, the deck's lists and its stats. */
+export function useUpdateCard(deckId: string, cardId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: UpdateCardInput) => unwrap<CardResponse>(api.cards[':id'].$patch({ param: { id: cardId }, json: body })),
+    onSuccess: ({ card }) => {
+      qc.setQueryData<CardResponse>(keys.card(cardId), { card })
+      void qc.invalidateQueries({ queryKey: keys.card(cardId) })
+      void qc.invalidateQueries({ queryKey: keys.deck(deckId) })
+    },
   })
 }
 

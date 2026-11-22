@@ -15,9 +15,17 @@ export function wordRowText(card: RowCard): { title: string; hint: string | null
       : card.status === 'duplicate'
         ? duplicateOfText(card.duplicateOf)
         : card.status === 'failed'
-          ? card.genError === 'not_a_word'
-            ? 'Not recognised as a word'
-            : 'Generation failed'
-          : translationLine(card.translation, card.extraTranslations) || card.inputHint || ''
+          ? failedText(card.genError)
+          : card.status === 'suspended'
+            ? ['Suspended', translationLine(card.translation, card.extraTranslations)].filter(Boolean).join(' · ')
+            : translationLine(card.translation, card.extraTranslations) || card.inputHint || ''
   return { title, hint, subtitle }
+}
+
+/**
+ * Friendly text for a failed card. `genError` holds either 'not_a_word' or a raw technical error
+ * (an AI/validation message), which is never shown as such.
+ */
+export function failedText(genError: string | null): string {
+  return genError === 'not_a_word' ? 'Not recognised as a word' : "Couldn't be prepared · try Retry later"
 }

@@ -25,6 +25,6 @@ describe('wordRowText', () => {
       subtitle: 'Preparing…',
     })
     expect(wordRowText({ ...base, status: 'failed', genError: 'not_a_word' }).subtitle).toBe('Not recognised as a word')
-    expect(wordRowText({ ...base, status: 'failed', genError: 'boom' }).subtitle).toBe('Generation failed')
+    expect(wordRowText({ ...base, status: 'failed', genError: 'boom' }).subtitle).toBe("Couldn't be prepared · try Retry later")
   })
 })

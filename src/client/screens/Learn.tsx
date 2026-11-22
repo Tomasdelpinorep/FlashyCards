@@ -247,7 +247,7 @@ export function Learn() {
     <Screen
       title="Learn"
       action={
-        <Link to="/" className="text-sm font-medium text-zinc-500 underline dark:text-zinc-400">
+        <Link to="/" className="-mr-2 inline-flex min-h-11 items-center px-2 text-sm font-medium text-zinc-500 underline dark:text-zinc-400">
           Done
         </Link>
       }

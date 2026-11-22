@@ -30,7 +30,7 @@ export function ImportSummary({ result, targetLang }: { result: ImportResponse; 
           <summary className="cursor-pointer font-medium">{result.invalid.length} couldn't be read</summary>
           <ul className="mt-2 flex flex-col gap-1.5 text-sm">
             {result.invalid.map((r) => (
-              <li key={r.line}>
+              <li key={r.line} className="[overflow-wrap:anywhere]">
                 Line {r.line}: {r.term ? `“${r.term}” ` : ''}({invalidReason(r)})
               </li>
             ))}

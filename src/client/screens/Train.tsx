@@ -152,7 +152,7 @@ export function Train() {
     <Screen
       title="Train"
       action={
-        <Link to="/" className="text-sm font-medium text-zinc-500 underline dark:text-zinc-400">
+        <Link to="/" className="-mr-2 inline-flex min-h-11 items-center px-2 text-sm font-medium text-zinc-500 underline dark:text-zinc-400">
           Done
         </Link>
       }
@@ -165,7 +165,7 @@ export function Train() {
             role="radio"
             aria-checked={mode === m}
             onClick={() => changeMode(m)}
-            className={`h-9 rounded-lg text-sm font-medium ${mode === m ? 'bg-white shadow-sm dark:bg-zinc-700' : 'text-zinc-500 dark:text-zinc-400'}`}
+            className={`min-h-11 rounded-lg px-2 text-sm font-medium ${mode === m ? 'bg-white shadow-sm dark:bg-zinc-700' : 'text-zinc-500 dark:text-zinc-400'}`}
           >
             {label}
           </button>

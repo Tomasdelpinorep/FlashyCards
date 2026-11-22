@@ -1,4 +1,4 @@
-import type { LanguageCode } from '../../shared/languages'
+import { DEFAULT_SOURCE, DEFAULT_TARGET, type LanguageCode } from '../../shared/languages'
 import { useState, type FormEvent } from 'react'
 import { useCurrentDeck } from '../lib/deck'
 import { useCreateDeck, useLanguages } from '../lib/queries'
@@ -10,8 +10,8 @@ export function CreateDeckForm({ onCreated }: { onCreated?: () => void }) {
   const create = useCreateDeck()
   const { selectDeck } = useCurrentDeck()
   const [name, setName] = useState('')
-  const [sourceLang, setSourceLang] = useState('en')
-  const [targetLang, setTargetLang] = useState('de')
+  const [sourceLang, setSourceLang] = useState<string>(DEFAULT_SOURCE)
+  const [targetLang, setTargetLang] = useState<string>(DEFAULT_TARGET)
   const same = sourceLang === targetLang
 
   const submit = (e: FormEvent) => {
@@ -34,7 +34,7 @@ export function CreateDeckForm({ onCreated }: { onCreated?: () => void }) {
     <form onSubmit={submit} className="flex flex-col gap-3">
       <label className="flex flex-col gap-1">
         <span className="text-sm font-medium">Name</span>
-        <input className={input} value={name} maxLength={60} onChange={(e) => setName(e.target.value)} placeholder="German" required />
+        <input className={input} value={name} maxLength={60} onChange={(e) => setName(e.target.value)} placeholder="Deck name" required />
       </label>
       <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col gap-1">

@@ -36,7 +36,7 @@ For each input:
 - Otherwise status "ok", and:
   - lemma: the ${target.name} dictionary form, without an article. For ${source.name} input, pick the most common ${target.name} equivalent. For an inflected form (a conjugated verb, a plural noun), give the dictionary form.
   - pos: the part of speech of the lemma.
-  - translation: the most common short ${source.name} translation of the lemma (1-3 words; verbs as "to ...").
+  - translation: the most common short ${source.name} translation of the lemma (1-3 words${source.glossStyleHint ? `; ${source.glossStyleHint}` : ''}).
   - alt_translations: up to 3 other common ${source.name} translations of the same meaning, most common first; [] if none.
   - cefr: the CEFR level of the word, or null if unsure.
   - expected_pos, when given, is the expected part of speech of the input: choose the reading of the word with that part of speech.

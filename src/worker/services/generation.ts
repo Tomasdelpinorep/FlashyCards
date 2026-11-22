@@ -27,13 +27,13 @@ import { lemmaDisplay } from '../db/cards'
 import { deckSettings, type DeckRow } from '../db/decks'
 import { checkBudget, consumeBudget, type Limits } from './rateLimit'
 import {
-  entryGlosses,
   findDuplicate,
   glossInsertStatement,
   loadCandidates,
   lookupAliases,
   mergeStatements,
   planMerge,
+  resolvedCardGlosses,
   sideKey,
   sourceWord,
   type AliasQuery,
@@ -331,10 +331,7 @@ function report(c: Claimed, target: Candidate, merge: Merge | null): DuplicateRe
 
 /** A resolved card's glosses: entry translation + alternatives + hint, plus the input for source-side input. */
 function cardGlosses(src: LanguageCode, res: Resolution, c: Claimed): Set<string> {
-  const set = entryGlosses(src, res.entry, c.hintKey)
-  if (res.side === 'source') set.add(glossKey(src, c.term))
-  set.delete('')
-  return set
+  return resolvedCardGlosses(src, res.entry, { hintKey: c.hintKey, inputTerm: c.term, side: res.side })
 }
 
 async function countPending(db: D1Database, deckId: string): Promise<number> {

@@ -91,10 +91,45 @@ export const DEFAULT_LEXICON: Readonly<Record<string, FakeWord>> = {
   'source:bench': bankBench,
 }
 
+const perro: FakeWord = { lemma: 'perro', pos: 'noun', translation: 'dog', gender: 'masculine', plural: 'los perros', cefr: 'A1', example: ['El [[perro]] juega en el jardín.', 'The [[dog]] is playing in the garden.'] }
+const gato: FakeWord = { lemma: 'gato', pos: 'noun', translation: 'cat', gender: 'masculine', plural: 'los gatos', cefr: 'A1', example: ['El [[gato]] duerme en el sofá.', 'The [[cat]] is sleeping on the sofa.'] }
+const casa: FakeWord = { lemma: 'casa', pos: 'noun', translation: 'house', alts: ['home'], gender: 'feminine', plural: 'las casas', cefr: 'A1', example: ['Nuestra [[casa]] es muy vieja.', 'Our [[house]] is very old.'] }
+const comer: FakeWord = {
+  lemma: 'comer',
+  pos: 'verb',
+  translation: 'to eat',
+  verb: { present: 'come', past: 'comió', perfect: 'ha comido', participle: 'comido', auxiliary: 'haber' },
+  cefr: 'A1',
+  example: ['Nosotros [[comemos]] a las siete.', 'We [[eat]] at seven.'],
+}
+
+/** Lexicon for an en -> es deck. */
+export const ES_LEXICON: Readonly<Record<string, FakeWord>> = {
+  'target:perro': perro,
+  'target:gato': gato,
+  'target:casa': casa,
+  'target:comer': comer,
+  'source:dog': perro,
+  'source:cat': gato,
+  'source:house': casa,
+  'source:to eat': comer,
+  'source:eat': comer,
+}
+
+/** The built-in lexicon per target language (others get generic entries only). */
+const LEXICONS: Partial<Record<LanguageCode, Readonly<Record<string, FakeWord>>>> = { de: DEFAULT_LEXICON, es: ES_LEXICON }
+
+/** "The word [[x]] is new." in each language, for generic entries. */
+const GENERIC_SENTENCE: Record<LanguageCode, (w: string) => string> = {
+  de: (w) => `Das Wort [[${w}]] ist neu.`,
+  en: (w) => `The word [[${w}]] is new.`,
+  es: (w) => `La palabra [[${w}]] es nueva.`,
+}
+
 export const FAKE_MODEL = 'fake'
 
 export type FakeGeneratorOptions = {
-  /** Entries added to (or overriding) DEFAULT_LEXICON. */
+  /** Entries added to (or overriding) the target language's built-in lexicon (DEFAULT_LEXICON for de). */
   lexicon?: Record<string, FakeWord>
   /** Inputs (any side, compared lowercased) to report as not_a_word. */
   notAWords?: string[]
@@ -110,18 +145,18 @@ export class FakeGenerator implements SentenceGenerator {
   readonly model = FAKE_MODEL
   readonly calls: GenerationRequest[] = []
   readonly suggestCalls: SuggestWordsRequest[] = []
-  private readonly suggestPool: SuggestedWord[]
+  private readonly suggestPool: SuggestedWord[] | undefined
   private readonly suggestIgnoresExclude: boolean
-  private readonly lexicon: Record<string, FakeWord>
+  private readonly extraLexicon: Record<string, FakeWord>
   private readonly notAWords: Set<string>
   private readonly errors: Error[] = []
   gate: FakeGeneratorOptions['gate']
 
   constructor(options: FakeGeneratorOptions = {}) {
-    this.lexicon = { ...DEFAULT_LEXICON, ...options.lexicon }
+    this.extraLexicon = { ...options.lexicon }
     this.notAWords = new Set((options.notAWords ?? []).map((w) => w.toLowerCase()))
     this.gate = options.gate
-    this.suggestPool = options.suggestPool ?? defaultSuggestPool(this.lexicon)
+    this.suggestPool = options.suggestPool
     this.suggestIgnoresExclude = options.suggestIgnoresExclude ?? false
   }
 
@@ -132,7 +167,7 @@ export class FakeGenerator implements SentenceGenerator {
     const err = this.errors.shift()
     if (err) throw err
     const exclude = new Set(request.exclude)
-    return this.suggestPool
+    return (this.suggestPool ?? defaultSuggestPool(this.lexiconFor(request.targetLang)))
       .filter((w) => this.suggestIgnoresExclude || !exclude.has(termKey(request.targetLang, w.lemma)))
       .slice(0, request.count)
   }
@@ -153,17 +188,22 @@ export class FakeGenerator implements SentenceGenerator {
     return request.items.map((it) => this.item(request, it))
   }
 
+  private lexiconFor(targetLang: LanguageCode): Record<string, FakeWord> {
+    return { ...LEXICONS[targetLang], ...this.extraLexicon }
+  }
+
   private item(req: GenerationRequest, it: GenerationInput): GeneratedItem {
+    const lexicon = this.lexiconFor(req.targetLang)
     const sides: ('target' | 'source')[] = it.inputLang === 'auto' ? ['target', 'source'] : [it.inputLang]
     const hintKey = it.hint ? glossKey(req.sourceLang, it.hint) : ''
     for (const side of sides) {
       const key = termKey(side === 'target' ? req.targetLang : req.sourceLang, it.input)
-      const word = (hintKey && this.lexicon[`${side}:${key}|${hintKey}`]) || this.lexicon[`${side}:${key}`]
+      const word = (hintKey && lexicon[`${side}:${key}|${hintKey}`]) || lexicon[`${side}:${key}`]
       if (word) return toItem(req.targetLang, it.input, side, word)
     }
     const side = sides[0]!
     if (isJunk(it.input) || this.notAWords.has(it.input.trim().toLowerCase())) return notAWord(it.input, side)
-    return toItem(req.targetLang, it.input, side, genericWord(it, side))
+    return toItem(req.targetLang, it.input, side, genericWord(req, it, side))
   }
 }
 
@@ -187,19 +227,16 @@ function isJunk(input: string): boolean {
 }
 
 /** A plausible entry for a word the lexicon does not know (deterministic). */
-function genericWord(it: GenerationInput, side: 'target' | 'source'): FakeWord {
+function genericWord(req: GenerationRequest, it: GenerationInput, side: 'target' | 'source'): FakeWord {
   const word = it.input.trim()
+  const t = GENERIC_SENTENCE[req.targetLang]
+  const s = GENERIC_SENTENCE[req.sourceLang]
   if (side === 'target') {
     const translation = it.hint?.trim() || `${word} (meaning)`
-    return { lemma: word, pos: 'other', translation, example: [`Das Wort [[${word}]] ist neu.`, `The word [[${translation}]] is new.`] }
+    return { lemma: word, pos: 'other', translation, example: [t(word), s(translation)] }
   }
-  const lemma = `${word} (de)`
-  return {
-    lemma,
-    pos: 'other',
-    translation: word,
-    example: [`Das Wort [[${lemma}]] ist neu.`, `The word [[${word}]] is new.`],
-  }
+  const lemma = `${word} (${req.targetLang})`
+  return { lemma, pos: 'other', translation: word, example: [t(lemma), s(word)] }
 }
 
 function notAWord(input: string, side: 'target' | 'source'): GeneratedItem {

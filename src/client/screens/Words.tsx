@@ -79,7 +79,7 @@ export function Words() {
             type="button"
             aria-pressed={(status ?? '') === f.value}
             onClick={() => setParam('status', f.value)}
-            className={`h-8 shrink-0 rounded-full px-3 text-sm font-medium ${
+            className={`min-h-11 shrink-0 rounded-full px-4 text-sm font-medium ${
               (status ?? '') === f.value
                 ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
                 : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400'

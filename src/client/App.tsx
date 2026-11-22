@@ -6,6 +6,7 @@ import { GenerationProvider } from './lib/generation'
 import { getOutbox } from './lib/outbox'
 import { useMe } from './lib/queries'
 import { useEffect } from 'react'
+import { About } from './screens/About'
 import { AddWords } from './screens/AddWords'
 import { CardDetail } from './screens/CardDetail'
 import { Home } from './screens/Home'
@@ -40,6 +41,7 @@ export default function App() {
               <Route path="/words/:id" element={<CardDetail />} />
               <Route path="/add" element={<AddWords />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/about" element={<About />} />
               <Route path="/train" element={<Train />} />
               <Route path="/learn" element={<Learn />} />
               <Route path="*" element={<Navigate to="/" replace />} />

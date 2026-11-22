@@ -1,3 +1,4 @@
+import { DEFAULT_SOURCE, DEFAULT_TARGET, LANGUAGES } from '../../shared/languages'
 import { DEFAULT_DECK_SETTINGS, DeckSettingsSchema, parseSettings, type DeckDTO, type DeckSettings } from '../../shared/schemas'
 
 export type DeckRow = {
@@ -14,9 +15,9 @@ export type NewDeck = { name: string; sourceLang: string; targetLang: string; se
 
 /** The deck every user gets when their user row is created (first login): English speaker learning German. */
 export const DEFAULT_DECK: NewDeck = {
-  name: 'German',
-  sourceLang: 'en',
-  targetLang: 'de',
+  name: LANGUAGES[DEFAULT_TARGET].name,
+  sourceLang: DEFAULT_SOURCE,
+  targetLang: DEFAULT_TARGET,
   settings: DEFAULT_DECK_SETTINGS,
 }
 

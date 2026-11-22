@@ -29,6 +29,10 @@ export interface LanguageConfig {
    * article agrees with the gender (post-validation). Absent for languages without gender.
    */
   genderArticles?: Readonly<Partial<Record<'masculine' | 'feminine' | 'neuter', string>>>
+  /** How translations into this language are written, for the AI prompt when this is the source language. */
+  glossStyleHint?: string
+  /** Example lines for the import box placeholder when this is the target language. */
+  importExample?: string
   /** Extra grammar instructions for the AI prompt when this is the target language. */
   grammarPromptHints: string
   /** Whether a bundled frequency word list exists (wordlist table). Without one, /suggest asks the AI. */
@@ -58,6 +62,7 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     importHeaderWords: ['english', 'word', 'words', 'term', 'terms', 'translation', 'meaning', 'hint', 'front', 'back'],
     grammarPromptHints:
       'Verbs: irregular past tense and past participle. Nouns: irregular plural. Adjectives: irregular comparative and superlative.',
+    glossStyleHint: 'verbs as "to ..."',
     hasWordlist: false,
   },
   de: {
@@ -67,6 +72,7 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     articles: ['der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einen', 'einem', 'einer', 'eines'],
     glossStripPrefixes: ['der ', 'die ', 'das ', 'ein ', 'eine '],
     importHeaderWords: ['deutsch', 'german', 'wort', 'wörter', 'begriff', 'übersetzung', 'bedeutung', 'vokabel', 'vokabeln'],
+    importExample: 'der Hund\nKatze;cat\ngehen',
     genderColors: { der: 'blue', die: 'red', das: 'green' },
     genderArticles: { masculine: 'der', feminine: 'die', neuter: 'das' },
     grammarPromptHints: [
@@ -93,6 +99,7 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     articles: ['el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas'],
     glossStripPrefixes: ['el ', 'la ', 'los ', 'las ', 'un ', 'una '],
     importHeaderWords: ['español', 'spanish', 'palabra', 'palabras', 'término', 'traducción', 'significado'],
+    importExample: 'el perro\ngato;cat\ncomer',
     genderColors: { el: 'blue', la: 'red' },
     genderArticles: { masculine: 'el', feminine: 'la' },
     grammarPromptHints: [
@@ -103,6 +110,10 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
     hasWordlist: false,
   },
 }
+
+/** The language pair a new user's first deck (and the new-deck form) starts with. */
+export const DEFAULT_SOURCE: LanguageCode = 'en'
+export const DEFAULT_TARGET: LanguageCode = 'de'
 
 export function isLanguageCode(code: string): code is LanguageCode {
   return (LANGUAGE_CODES as readonly string[]).includes(code)

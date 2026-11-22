@@ -24,7 +24,7 @@ export function TabBar() {
               end={t.to === '/'}
               className={({ isActive }) =>
                 `flex h-16 flex-col items-center justify-center gap-1 text-xs font-medium ${
-                  isActive ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-400 dark:text-zinc-500'
+                  isActive ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-500 dark:text-zinc-400'
                 }`
               }
             >

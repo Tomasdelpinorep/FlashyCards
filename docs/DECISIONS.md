@@ -619,3 +619,49 @@
 - **Open visual issues spotted:**
   - Tap targets under 44 px: `btnSmall` h-9, chips h-8, segmented controls, the "Done" text links.
   - Home on an empty deck is a wall of zeros, with no "add words to start" guidance.
+
+## M8+M9 (lean): edit/suspend, About, Settings toggles, PWA, QA fixes, en→es check
+
+- **No service worker.** The app ships a manifest and icons only. A service worker could pin a stale
+  bundle after a deploy, or cache Cloudflare Access's login redirect as if it were the app. Offline
+  grading already works without one: reviews wait in the localStorage outbox (`lib/outbox.ts`, e2e
+  `offline.spec.ts`), and the page itself needs the network to load.
+- **Manifest behind Access:** `<link rel="manifest" crossorigin="use-credentials">`. Without it the
+  browser fetches the manifest without cookies and gets the Access login page. The icon PNGs are
+  rendered once from `public/icon.svg` by `scripts/gen-icons.ts` (with the Playwright Chromium) and
+  committed. `vite build` copies `public/` into `dist/client`.
+- **Card edit (`PATCH /cards/:id`, `services/editCard.ts`):**
+  - Edits are merged into `cards.override_json`. An empty or null field deletes its key, so the
+    card falls back to the shared entry. The entry, the lemma and `lemma_key` never change.
+  - When the translation or the extras change, the card's `card_glosses` are rewritten. The rewrite
+    is one `db.batch`: UPDATE, `DELETE FROM card_glosses`, then `glossInsertStatement`.
+  - The key set comes from `resolvedCardGlosses()` in `resolve.ts`, now shared with `/generate`
+    (its `cardGlosses` calls it). It is the entry glosses of the merged content, plus the extras,
+    plus the input term for source-side input.
+  - A note-only or status-only edit leaves the glosses alone.
+  - 409 `card_not_ready` unless the card is ready or suspended. Unsuspending keeps the FSRS state.
+- **Deviations from the plan:**
+  - `updateCard` lives in `services/editCard.ts`, not `db/cards.ts`, to avoid an import cycle:
+    `resolve.ts` already imports `db/cards.ts`.
+  - The About page says Apache-2.0, not MIT, because `LICENSE` is Apache 2.0.
+  - es keeps its `genderColors` (el blue, la red). The test checks that colouring follows the es
+    config and that German articles never colour in es.
+  - The client sends only the fields that changed, so untouched fields keep following the
+    generated content.
+- **AI-off copy:** without a key, `/generate` returns 503 before claiming any card, so the cards stay
+  `pending`. The client loop stops for the session and resumes by itself the next time the app
+  loads with pending cards (`shouldResume`). The banner therefore promises "filled in automatically
+  once it's available (next time you open the app)". Failed cards need a manual Retry, and their
+  copy says so ("try Retry later").
+- **en→es check:**
+  - Language details that had leaked into code moved into `LanguageConfig`:
+    `DEFAULT_SOURCE`/`DEFAULT_TARGET`, `importExample` (the import placeholder), and
+    `glossStyleHint` (the 'verbs as "to ..."' prompt hint, now only for English sources; the
+    en→de prompt is unchanged).
+  - `DEFAULT_DECK` takes its name from the config.
+  - The fake generator has an es lexicon and per-language generic sentences.
+- **QA fixes:**
+  - Tap targets are now at least 44 px.
+  - Home shows guidance on an empty deck, and a note when no word is ready yet.
+  - Long invalid import terms wrap instead of widening the page.
+  - Inactive tab labels and the deck language label now pass axe colour contrast.

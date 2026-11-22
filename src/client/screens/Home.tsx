@@ -27,7 +27,7 @@ export function Home() {
           <label className="flex items-center">
             <span className="sr-only">Deck</span>
             <select
-              className="max-w-44 truncate rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm font-medium dark:border-zinc-700 dark:bg-zinc-900"
+              className="min-h-11 max-w-44 truncate rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm font-medium dark:border-zinc-700 dark:bg-zinc-900"
               value={deck.id}
               onChange={(e) => selectDeck(e.target.value)}
             >
@@ -57,27 +57,51 @@ export function Home() {
         </p>
       )}
 
-      <section className={`${card} grid grid-cols-3 gap-2 text-center`} aria-label="Deck stats" aria-busy={stats.isPending}>
-        <Stat label="Words" value={s?.total} />
-        <Stat label="Due now" value={s?.dueNow} />
-        <Stat label="New" value={s?.new} />
-        <Stat label="Learning" value={s?.learning} />
-        <Stat label="Preparing" value={s?.pending} />
-        <Stat label="Failed" value={s?.failed} />
-      </section>
+      {s && s.total === 0 ? (
+        <section className={`${card} flex flex-col gap-3`} data-testid="empty-deck">
+          <h2 className="text-lg font-semibold">Add words to start</h2>
+          <p className="text-sm">
+            Pick the most common words to learn, or import your own list (one word per line, or a CSV / text file). Each word gets a
+            translation and an example sentence.
+          </p>
+          <Link to="/add" className={btnPrimary}>
+            Add words
+          </Link>
+          <Link to="/add?tab=import" className={btnSecondary}>
+            Import a list
+          </Link>
+        </section>
+      ) : (
+        <>
+          {s && s.ready === 0 && s.pending + s.failed > 0 && (
+            <p className="rounded-xl bg-zinc-100 px-4 py-3 text-sm dark:bg-zinc-900" data-testid="none-ready">
+              None of your words are ready to study yet.{' '}
+              {s.pending > 0 ? 'They are being prepared; this page updates when they are.' : 'Retry the failed words, or add new ones.'}
+            </p>
+          )}
+          <section className={`${card} grid grid-cols-3 gap-2 text-center`} aria-label="Deck stats" aria-busy={stats.isPending}>
+            <Stat label="Words" value={s?.total} />
+            <Stat label="Due now" value={s?.dueNow} />
+            <Stat label="New" value={s?.new} />
+            <Stat label="Learning" value={s?.learning} />
+            <Stat label="Preparing" value={s?.pending} />
+            <Stat label="Failed" value={s?.failed} />
+          </section>
 
-      <Link to="/train" className={btnPrimary}>
-        Train · {s?.dueNow ?? '–'} due
-      </Link>
-      {s && (s.reviewedToday > 0 || s.dueToday > s.dueNow) && (
-        <p className={`${muted} text-center`}>
-          {s.reviewedToday} reviewed today{s.dueToday > s.dueNow ? ` · ${s.dueToday - s.dueNow} more due later today` : ''}
-        </p>
+          <Link to="/train" className={btnPrimary}>
+            Train · {s?.dueNow ?? '–'} due
+          </Link>
+          {s && (s.reviewedToday > 0 || s.dueToday > s.dueNow) && (
+            <p className={`${muted} text-center`}>
+              {s.reviewedToday} reviewed today{s.dueToday > s.dueNow ? ` · ${s.dueToday - s.dueNow} more due later today` : ''}
+            </p>
+          )}
+          <LearnButton readyNew={s?.new} newToday={s?.newToday} dailyNewLimit={deck.settings.dailyNewLimit} />
+          <Link to="/add" className={btnSecondary}>
+            Add words
+          </Link>
+        </>
       )}
-      <LearnButton readyNew={s?.new} newToday={s?.newToday} dailyNewLimit={deck.settings.dailyNewLimit} />
-      <Link to="/add" className={btnSecondary}>
-        Add words
-      </Link>
     </Screen>
   )
 }

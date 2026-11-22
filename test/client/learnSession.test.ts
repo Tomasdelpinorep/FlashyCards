@@ -30,6 +30,7 @@ function card(id: string, srs: SrsFields = newSrsFields(NOW)): CardDTO {
     translation: null,
     extraTranslations: [],
     content: null,
+    note: null,
     genError: null,
     state: srs.state,
     due: srs.due,

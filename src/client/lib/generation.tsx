@@ -95,11 +95,24 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
 
 /** The banner text for a failed /generate call (503 ai_not_configured has its own copy). */
 export function generationErrorText(err: unknown): string {
-  if (err instanceof ApiError && err.body?.error === 'ai_not_configured') return AI_NOT_CONFIGURED
+  if (isAiUnavailable(err)) return AI_NOT_CONFIGURED
   return err instanceof Error ? err.message : String(err)
 }
 
-export const AI_NOT_CONFIGURED = "AI isn't configured on the server"
+/** 503 ai_not_configured (no key on the server) or ai_unavailable (the AI call failed). */
+export function isAiUnavailable(err: unknown): boolean {
+  return err instanceof ApiError && (err.body?.error === 'ai_not_configured' || err.body?.error === 'ai_unavailable')
+}
+
+/**
+ * True to the behaviour: without AI, /generate leaves the cards 'pending' (it 503s before claiming
+ * any), and the loop resumes by itself whenever the app loads with pending cards (shouldResume).
+ */
+export const AI_NOT_CONFIGURED =
+  "Word details can't be generated right now. Your words are saved and will be filled in automatically once it's available (next time you open the app)."
+
+/** AddWords: /suggest without a word list needs the AI; nothing was added. */
+export const SUGGEST_UNAVAILABLE = "New word suggestions aren't available right now. You can still add your own words in the Import tab."
 
 export function useGeneration() {
   return useContext(GenerationContext)

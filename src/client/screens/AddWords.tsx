@@ -1,5 +1,5 @@
 import { useMemo, useState, type ChangeEvent, type ReactNode } from 'react'
-import { Link, Navigate } from 'react-router'
+import { Link, Navigate, useSearchParams } from 'react-router'
 import { LANGUAGES, type LanguageCode } from '../../shared/languages'
 import {
   keyRows,
@@ -13,7 +13,7 @@ import { GenerationBanner } from '../components/GenerationBanner'
 import { ImportSummary } from '../components/ImportSummary'
 import { btnPrimary, btnSecondary, btnSmall, card, ErrorText, input, muted, Screen } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
-import { useGeneration } from '../lib/generation'
+import { isAiUnavailable, SUGGEST_UNAVAILABLE, useGeneration } from '../lib/generation'
 import { duplicateText, invalidReason } from '../lib/importCopy'
 import { useDeckStats, useImport, useSuggest } from '../lib/queries'
 
@@ -27,7 +27,8 @@ type TabProps = { deckId: string; sourceLang: LanguageCode; targetLang: Language
 
 export function AddWords() {
   const { deck } = useCurrentDeck()
-  const [tab, setTab] = useState<Tab>('suggest')
+  const [params] = useSearchParams()
+  const [tab, setTab] = useState<Tab>(params.get('tab') === 'import' ? 'import' : 'suggest')
   if (!deck) return <Navigate to="/" replace />
   const props = { deckId: deck.id, sourceLang: deck.sourceLang as LanguageCode, targetLang: deck.targetLang as LanguageCode, tabs: <Tabs tab={tab} onChange={setTab} /> }
   return tab === 'suggest' ? <SuggestTab key={deck.id} {...props} /> : <ImportTab key={deck.id} {...props} />
@@ -47,7 +48,7 @@ function Tabs({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
           role="tab"
           aria-selected={tab === t.id}
           onClick={() => onChange(t.id)}
-          className={`flex-1 rounded-lg py-2 text-center text-sm font-medium ${
+          className={`min-h-11 flex-1 rounded-lg py-2 text-center text-sm font-medium ${
             tab === t.id ? 'bg-white shadow-sm dark:bg-zinc-800' : 'text-zinc-500 dark:text-zinc-400'
           }`}
         >
@@ -163,7 +164,7 @@ function SuggestTab({ deckId, targetLang, tabs }: TabProps) {
           {[...PRESETS, 'custom' as const].map((p) => (
             <label
               key={p}
-              className={`flex-1 cursor-pointer rounded-lg py-2 text-center text-sm font-medium ${
+              className={`flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-lg py-2 text-center text-sm font-medium ${
                 preset === p ? 'bg-white shadow-sm dark:bg-zinc-800' : 'text-zinc-500 dark:text-zinc-400'
               }`}
             >
@@ -188,7 +189,7 @@ function SuggestTab({ deckId, targetLang, tabs }: TabProps) {
         )}
       </fieldset>
       <GenerationBanner deckId={deckId} stats={stats.data} />
-      <ErrorText error={suggest.error} />
+      <ErrorText error={isAiUnavailable(suggest.error) ? SUGGEST_UNAVAILABLE : suggest.error} />
       <button type="button" className={btnPrimary} disabled={!valid || suggest.isPending} onClick={submit}>
         {suggest.isPending ? 'Adding…' : valid ? `Add ${count} word${count === 1 ? '' : 's'}` : 'Add'}
       </button>
@@ -292,12 +293,12 @@ function ImportTab({ deckId, sourceLang, targetLang, tabs }: TabProps) {
           className={`${input} min-h-48 font-mono text-sm`}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={'der Hund\nKatze;cat\ngehen\n# lines starting with # are ignored'}
+          placeholder={`${LANGUAGES[targetLang].importExample ?? 'word\nword;translation'}\n# lines starting with # are ignored`}
           spellCheck={false}
           autoCapitalize="off"
         />
       </label>
-      <p className={muted}>Add a meaning or translation after a tab, “;” or “|”, e.g. “Bank;bench”.</p>
+      <p className={muted}>Add a meaning or translation after a tab, “;” or “|”.</p>
 
       <div className="flex flex-wrap items-center gap-2">
         <label className={`${btnSmall} cursor-pointer`}>
@@ -321,7 +322,7 @@ function ImportTab({ deckId, sourceLang, targetLang, tabs }: TabProps) {
           {langOptions.map((o) => (
             <label
               key={o.value}
-              className={`flex-1 cursor-pointer rounded-lg py-2 text-center text-sm font-medium ${
+              className={`flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-lg py-2 text-center text-sm font-medium ${
                 inputLang === o.value ? 'bg-white shadow-sm dark:bg-zinc-800' : 'text-zinc-500 dark:text-zinc-400'
               }`}
             >
@@ -371,7 +372,7 @@ function ImportTab({ deckId, sourceLang, targetLang, tabs }: TabProps) {
               <summary className="cursor-pointer text-red-700 dark:text-red-400">{parsed.invalid.length} can't be read</summary>
               <ul className="mt-1 flex flex-col gap-0.5">
                 {parsed.invalid.map((r) => (
-                  <li key={r.line}>
+                  <li key={r.line} className="[overflow-wrap:anywhere]">
                     Line {r.line}: {r.term ? `“${r.term}” ` : ''}({invalidReason(r)})
                   </li>
                 ))}

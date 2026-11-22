@@ -10,11 +10,11 @@
 import type { LanguageCode } from '../../shared/languages'
 import { glossKey, termKey } from '../../shared/normalize'
 import type { InputLang, LanguagePair } from '../../shared/parseImport'
-import type { CardStatus } from '../../shared/schemas'
+import { MAX_EXTRA_TRANSLATIONS, type CardStatus } from '../../shared/schemas'
 import { cardDisplay } from '../db/cards'
 import { parseJsonArray } from '../db/util'
 
-export const MAX_EXTRA_TRANSLATIONS = 10
+export { MAX_EXTRA_TRANSLATIONS }
 
 export type Side = 'target' | 'source'
 
@@ -172,11 +172,29 @@ export async function loadCandidates(
 }
 
 /** Gloss keys of a resolved card: the entry's translation and alternatives, plus the hint. */
-export function entryGlosses(src: LanguageCode, entry: EntryRow, hintKey: string): Set<string> {
+export function entryGlosses(src: LanguageCode, entry: Pick<EntryRow, 'translation' | 'alt_translations_json'>, hintKey: string): Set<string> {
   const words = [entry.translation ?? '', ...parseJsonArray(entry.alt_translations_json)]
   const out = new Set(words.map((w) => glossKey(src, w)).filter(Boolean))
   if (hintKey) out.add(hintKey)
   return out
+}
+
+/**
+ * The full card_glosses set of a resolved card (written by /generate and rewritten by
+ * PATCH /cards/:id): entryGlosses (translation, alternatives, hint) + the card's extra
+ * translations + the input term itself when it was typed in the source language.
+ * `entry` is the entry, or the card's merged content when it has an edited translation.
+ */
+export function resolvedCardGlosses(
+  src: LanguageCode,
+  entry: Pick<EntryRow, 'translation' | 'alt_translations_json'>,
+  card: { hintKey: string; inputTerm: string; side: Side | null; extras?: readonly string[] },
+): Set<string> {
+  const set = entryGlosses(src, entry, card.hintKey)
+  for (const x of card.extras ?? []) set.add(glossKey(src, x))
+  if (card.side === 'source') set.add(glossKey(src, card.inputTerm))
+  set.delete('')
+  return set
 }
 
 /**

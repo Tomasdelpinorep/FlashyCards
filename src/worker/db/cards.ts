@@ -31,6 +31,7 @@ export type CardRow = {
   status: CardStatus
   gen_error: string | null
   override_json: string | null
+  note: string | null
   created_at: number
   updated_at: number
 } & SrsFields
@@ -111,6 +112,7 @@ export function toCardDTO(row: CardListRow): CardDTO {
     translation: content?.translation ?? null,
     extraTranslations: parseJsonArray(row.extra_translations_json),
     content,
+    note: row.note ?? null,
     genError: row.gen_error,
     state: row.state,
     due: row.due,
@@ -123,7 +125,7 @@ export function toCardDTO(row: CardListRow): CardDTO {
   return dto
 }
 
-const LIST_SELECT = `
+export const LIST_SELECT = `
   SELECT c.*, e.lemma AS e_lemma, e.translation AS e_translation, e.grammar_json AS e_grammar,
          e.pos AS e_pos, e.alt_translations_json AS e_alts, e.cefr AS e_cefr,
          e.example_target AS e_example_target, e.example_source AS e_example_source,

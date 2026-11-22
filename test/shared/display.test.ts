@@ -27,6 +27,17 @@ describe('[[ ]] markers', () => {
     expect(stripMarkers('a [[b]] c]]')).toBe('a b c')
     expect(highlightSegments(null)).toEqual([])
   })
+  it('an edited sentence (override) without markers renders plain; with markers it highlights', () => {
+    const entry = {
+      lemma: 'Hund', pos: 'noun', translation: 'dog', alt_translations_json: '[]', cefr: 'A1', grammar_json: null,
+      example_target: 'Der [[Hund]] bellt.', example_source: 'The [[dog]] barks.',
+    }
+    const plain = mergeContent(entry, JSON.stringify({ exampleTarget: 'Mein Hund schläft.' }))!
+    expect(highlightSegments(plain.exampleTarget)).toEqual([{ text: 'Mein Hund schläft.', mark: false }])
+    expect(plain.exampleSource).toBe('The [[dog]] barks.')
+    const marked = mergeContent(entry, JSON.stringify({ exampleTarget: 'Mein [[Hund]] schläft.' }))!
+    expect(highlightSegments(marked.exampleTarget).filter((s) => s.mark).map((s) => s.text)).toEqual(['Hund'])
+  })
 })
 
 describe('display helpers', () => {
