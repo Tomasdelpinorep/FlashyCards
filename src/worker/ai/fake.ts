@@ -3,8 +3,10 @@
  *
  * Words are looked up in a small lexicon keyed by `<side>:<termKey>` or
  * `<side>:<termKey>|<hintKey>` (a meaning hint selects a sense), so different inputs can reach
- * the same lemma: dog -> Hund, big/large -> groß, ging -> gehen. Unknown words get a generic
- * entry built from the input; junk ("asdf", digits, "xxxx") is `not_a_word`.
+ * the same lemma: dog -> Hund, big/large -> groß, ging -> gehen. For en -> de, words not in that
+ * lexicon are then looked up in the realistic dev lexicon (devLexicon.de.ts: the word list's first
+ * ~170 lemmas plus common words), so local runs show real-looking cards. Unknown words get a
+ * generic entry built from the input; junk ("asdf", digits, "xxxx") is `not_a_word`.
  *
  * Tests can extend the lexicon, mark extra words as junk, queue errors, and hold a call open
  * with `gate` to interleave parallel requests. Every call is recorded in `calls`.
@@ -13,6 +15,7 @@ import { LANGUAGES, type LanguageCode } from '../../shared/languages'
 import { glossKey, termKey } from '../../shared/normalize'
 import type { GenerationInput, GenerationRequest, SentenceGenerator, SuggestedWord, SuggestWordsRequest } from './generator'
 import type { Gender, GeneratedItem, Grammar, VerbTable } from './schema'
+import { DEV_LEXICON_DE, type DevEntry } from './devLexicon.de'
 
 type Six = [string, string, string, string, string, string]
 
@@ -235,11 +238,42 @@ export class FakeGenerator implements SentenceGenerator {
       const key = termKey(side === 'target' ? req.targetLang : req.sourceLang, it.input)
       const word = (hintKey && lexicon[`${side}:${key}|${hintKey}`]) || lexicon[`${side}:${key}`]
       if (word) return toItem(req.targetLang, it.input, side, word)
+      const dev = devLexiconFor(req.targetLang, req.sourceLang)?.get(`${side}:${key}`)
+      if (dev) return { input: it.input, input_side: side, status: 'ok', ...dev }
     }
     const side = sides[0]!
     if (isJunk(it.input) || this.notAWords.has(it.input.trim().toLowerCase())) return notAWord(it.input, side)
     return toItem(req.targetLang, it.input, side, genericWord(req, it, side))
   }
+}
+
+/**
+ * Realistic dev entries (devLexicon.de.ts) keyed like the lexicon: `target:<lemma key>` (also
+ * without a leading "sich ") and `source:<key>` for the translation and alternatives, with and
+ * without "to"/"a"/"the" (first entry wins). Consulted after the built-in/test lexicon, so tests
+ * keep their outputs. Built once, on first use.
+ */
+let devIndexDe: Map<string, DevEntry> | undefined
+function devLexiconFor(targetLang: LanguageCode, sourceLang: LanguageCode): Map<string, DevEntry> | undefined {
+  if (targetLang !== 'de' || sourceLang !== 'en') return undefined
+  if (devIndexDe) return devIndexDe
+  const index = new Map<string, DevEntry>()
+  const add = (key: string, e: DevEntry) => {
+    if (!key.endsWith(':') && !index.has(key)) index.set(key, e)
+  }
+  for (const e of DEV_LEXICON_DE) {
+    const lemma = e.lemma!
+    add(`target:${termKey('de', lemma)}`, e)
+    if (lemma.startsWith('sich ')) add(`target:${termKey('de', lemma.slice(5))}`, e)
+  }
+  for (const e of DEV_LEXICON_DE) {
+    for (const gloss of [e.translation!, ...e.alt_translations]) {
+      add(`source:${termKey('en', gloss)}`, e)
+      add(`source:${glossKey('en', gloss)}`, e)
+    }
+  }
+  devIndexDe = index
+  return index
 }
 
 function defaultSuggestPool(lexicon: Record<string, FakeWord>): SuggestedWord[] {
