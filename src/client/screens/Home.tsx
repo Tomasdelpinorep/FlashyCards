@@ -62,7 +62,7 @@ export function Home() {
         <section className={`${card} flex flex-col gap-3`} data-testid="empty-deck">
           <h2 className="text-lg font-semibold">Add words to start</h2>
           <p className="text-sm">
-            Pick the most common words to learn, or import your own list (one word per line, or a CSV / text file). Each word gets a
+            Pick the most common words to learn, or import your own list (one word per line, or a CSV / text file). Words from the dictionary come with a
             translation and an example sentence.
           </p>
           <Link to="/add" className={btnPrimary}>
@@ -77,7 +77,7 @@ export function Home() {
           {s && s.ready === 0 && s.pending + s.failed > 0 && (
             <p className="rounded-xl bg-zinc-100 px-4 py-3 text-sm dark:bg-zinc-900" data-testid="none-ready">
               None of your words are ready to study yet.{' '}
-              {s.pending > 0 ? 'They are being prepared; this page updates when they are.' : 'Retry the failed words, or add new ones.'}
+              {s.pending > 0 ? 'They are being looked up; this page updates when they are.' : 'Add their meanings in Words, or add new words.'}
             </p>
           )}
           <section className={`${card} grid grid-cols-3 gap-2 text-center`} aria-label="Deck stats" aria-busy={stats.isPending}>
@@ -86,7 +86,7 @@ export function Home() {
             <Stat label="New" value={s?.new} />
             <Stat label="Learning" value={s?.learning} />
             <Stat label="Preparing" value={s?.pending} />
-            <Stat label="Failed" value={s?.failed} />
+            <Stat label="Need meaning" value={s?.failed} />
           </section>
 
           <Link to="/train" className={btnPrimary}>

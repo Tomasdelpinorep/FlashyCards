@@ -47,20 +47,21 @@ export function HowTo() {
           </li>
         </ul>
         <p>
-          The translation, example sentence and other details are filled in by AI, which can take a moment. While that happens a word
-          shows as “Preparing…”. Words you already have are not added twice: they're listed as “already in your deck”. AI can make
-          mistakes, so you can correct any word later.
+          The translation, example sentence and other details come from a hand-checked dictionary, so dictionary words are ready at
+          once. A word the dictionary doesn't know shows as “Needs meaning”: open it in Words and type the meaning yourself. Words you
+          already have are not added twice: they're listed as “already in your deck”. You can correct any word later.
         </p>
         <p className="font-medium">What the word states mean</p>
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <B>Preparing</B>: the AI is still working on it.
+            <B>Preparing</B>: it is still being looked up (only for a moment).
           </li>
           <li>
             <B>Ready</B>: it can be learned and reviewed.
           </li>
           <li>
-            <B>Failed</B>: it couldn't be prepared (for example, it wasn't recognised as a word). Tap <B>Retry failed</B> to try again.
+            <B>Needs meaning</B>: the dictionary doesn't know it (or it wasn't recognised as a word). Open it and add the German word and
+            its meaning; it's ready to learn straight away.
           </li>
           <li>
             <B>Duplicates</B>: it turned out to be a word you already had, so it isn't studied twice.
@@ -123,7 +124,7 @@ export function HowTo() {
 
       <Section title="Your words">
         <p>
-          The <B>Words</B> tab lists everything in the deck. Search, or filter by All, Preparing, Ready, Failed, Suspended or Duplicates.
+          The <B>Words</B> tab lists everything in the deck. Search, or filter by All, Preparing, Ready, Needs meaning, Suspended or Duplicates.
           Tap a word to open its page.
         </p>
         <p>On a word's page you can:</p>
@@ -131,13 +132,13 @@ export function HowTo() {
           <li>
             <B>Edit</B> the translation, extra meanings (“Also means”), the example sentence and its translation, and a note. In a
             sentence, wrap the word in double brackets, like <span className="font-mono">Der [[Hund]] bellt.</span>, to highlight it.
-            Leave a field empty to go back to the generated text.
+            Leave a field empty to go back to the dictionary text.
           </li>
           <li>
             <B>Suspend</B> a word to stop it appearing in Learn and Train, and <B>Unsuspend</B> it to bring it back.
           </li>
           <li>
-            <B>Retry failed words</B> if it couldn't be prepared, or <B>Delete</B> it.
+            <B>Add the meaning</B> of a word that needs one, or <B>Delete</B> it.
           </li>
         </ul>
       </Section>

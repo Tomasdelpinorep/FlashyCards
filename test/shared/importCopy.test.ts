@@ -32,7 +32,7 @@ describe('import summary copy (DUPLICATES 10.8)', () => {
     expect(duplicateText(dup({}), 'de')).toBe('der Hund: already in your deck')
     expect(duplicateText(dup({ reason: 'in_file', line: 7 }), 'de')).toBe('Hund (line 7): listed twice in this import')
     expect(duplicateText(dup({ input: 'Katze', existing: { id: 'c', display: 'Katze', status: 'failed' } }), 'de')).toBe(
-      "Katze: already in your deck (generation failed, retry it from Words)",
+      "Katze: already in your deck (needs a meaning, add it in Words)",
     )
   })
 })

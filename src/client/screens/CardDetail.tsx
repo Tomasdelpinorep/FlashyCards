@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { duplicateOfText, formsLine, translationLine } from '../../shared/display'
-import { MAX_EXTRA_TRANSLATIONS, NOTE_MAX, type CardDTO } from '../../shared/schemas'
+import { LANGUAGES, type LanguageCode } from '../../shared/languages'
+import { MAX_EXTRA_TRANSLATIONS, NOTE_MAX, type CardDTO, type MeaningInput } from '../../shared/schemas'
 import { btnPrimary, btnSecondary, btnSmall, card as cardClass, ErrorText, input, muted, Screen, Sentence, Word } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
-import { useCard, useDeleteCard, useRetryFailed, useUpdateCard } from '../lib/queries'
+import { useCard, useDeleteCard, useFillMeaning, useRetryFailed, useUpdateCard } from '../lib/queries'
 import { useGeneration } from '../lib/generation'
 import { badgeBase, failedText, STATUS_BADGE } from '../lib/wordRow'
 
@@ -17,6 +18,7 @@ export function CardDetail() {
   const remove = useDeleteCard(deck?.id ?? '')
   const retry = useRetryFailed(deck?.id ?? '')
   const update = useUpdateCard(deck?.id ?? '', id ?? '')
+  const fill = useFillMeaning(deck?.id ?? '', id ?? '')
   const { start } = useGeneration()
   const [editing, setEditing] = useState(false)
   const c = query.data
@@ -71,7 +73,11 @@ export function CardDetail() {
               <p className={muted}>Preparing the translation and an example sentence…</p>
             ) : c.status === 'failed' ? (
               <p className="text-sm text-red-700 dark:text-red-400">
-                {c.genError === 'not_a_word' ? `“${c.inputTerm}” was not recognised as a word.` : `${failedText(c.genError)}.`}
+                {c.genError === 'needs_meaning'
+                  ? `“${c.inputTerm}” isn't in the dictionary yet. Add its meaning below.`
+                  : c.genError === 'not_a_word'
+                    ? `“${c.inputTerm}” was not recognised as a word. If it is one, add its meaning below.`
+                    : `${failedText(c.genError)}.`}
               </p>
             ) : null}
             {c.note && <p className="text-sm whitespace-pre-line">Note: {c.note}</p>}
@@ -115,7 +121,10 @@ export function CardDetail() {
               </button>
             </div>
           )}
-          {c.status === 'failed' && (
+          {c.status === 'failed' && deck && (
+            <MeaningForm card={c} sourceLang={deck.sourceLang} targetLang={deck.targetLang} saving={fill.isPending} error={fill.error} onSave={(body) => fill.mutate(body)} />
+          )}
+          {c.status === 'failed' && c.genError !== 'needs_meaning' && c.genError !== 'not_a_word' && (
             <button type="button" className={btnSecondary} disabled={retry.isPending} onClick={() => retry.mutate(undefined, { onSuccess: () => start() })}>
               {retry.isPending ? 'Retrying…' : 'Retry failed words'}
             </button>
@@ -135,6 +144,92 @@ export function CardDetail() {
         </>
       )}
     </Screen>
+  )
+}
+
+/**
+ * The user's own meaning for a word the dictionary doesn't know (POST /cards/:id/meaning): the
+ * word in the target language and its meaning are required; gender (for nouns) and an example
+ * sentence with its translation are optional.
+ */
+function MeaningForm({
+  card,
+  sourceLang,
+  targetLang,
+  saving,
+  error,
+  onSave,
+}: {
+  card: CardDTO
+  sourceLang: string
+  targetLang: string
+  saving: boolean
+  error: unknown
+  onSave: (body: MeaningInput) => void
+}) {
+  const target = LANGUAGES[targetLang as LanguageCode]
+  const source = LANGUAGES[sourceLang as LanguageCode]
+  const typedSource = card.inputLang === 'source'
+  const [word, setWord] = useState(typedSource ? '' : card.inputTerm)
+  const [translation, setTranslation] = useState(typedSource ? card.inputTerm : (card.inputHint ?? ''))
+  const [gender, setGender] = useState<'' | 'masculine' | 'feminine' | 'neuter'>('')
+  const [exampleTarget, setExampleTarget] = useState('')
+  const [exampleSource, setExampleSource] = useState('')
+  const genders = Object.entries(target?.genderArticles ?? {}) as ['masculine' | 'feminine' | 'neuter', string][]
+  const valid = word.trim() !== '' && translation.trim() !== ''
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault()
+    if (!valid) return
+    onSave({
+      word,
+      translation,
+      ...(gender ? { gender } : {}),
+      ...(exampleTarget.trim() ? { exampleTarget } : {}),
+      ...(exampleSource.trim() ? { exampleSource } : {}),
+    })
+  }
+
+  return (
+    <form onSubmit={submit} className={`${cardClass} flex flex-col gap-3`} aria-label="Add the meaning">
+      <p className="text-lg font-semibold">Add the meaning</p>
+      <label className="flex flex-col gap-1">
+        <span className="text-sm font-medium">{target?.name ?? 'The'} word</span>
+        <input className={input} value={word} maxLength={100} required onChange={(e) => setWord(e.target.value)} lang={targetLang} />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="text-sm font-medium">{source?.name ?? 'Your'} meaning</span>
+        <input className={input} value={translation} maxLength={100} required onChange={(e) => setTranslation(e.target.value)} />
+      </label>
+      {genders.length > 0 && (
+        <label className="flex flex-col gap-1">
+          <span className="text-sm font-medium">If it's a noun: gender</span>
+          <select className={input} value={gender} onChange={(e) => setGender(e.target.value as typeof gender)}>
+            <option value="">Not a noun / from the article</option>
+            {genders.map(([g, article]) => (
+              <option key={g} value={g}>
+                {article} ({g})
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      <label className="flex flex-col gap-1">
+        <span className="text-sm font-medium">Example sentence (optional)</span>
+        <textarea className={`${input} min-h-20`} value={exampleTarget} maxLength={300} onChange={(e) => setExampleTarget(e.target.value)} lang={targetLang} aria-describedby="meaning-help" />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="text-sm font-medium">Its translation (optional)</span>
+        <textarea className={`${input} min-h-20`} value={exampleSource} maxLength={300} onChange={(e) => setExampleSource(e.target.value)} aria-describedby="meaning-help" />
+      </label>
+      <p id="meaning-help" className={muted}>
+        Typing the article with a noun (“die Zwetschge”) sets its gender. In a sentence, wrap the word in [[double brackets]] to highlight it.
+      </p>
+      <ErrorText error={error} />
+      <button type="submit" className={btnPrimary} disabled={saving || !valid}>
+        {saving ? 'Saving…' : 'Save meaning'}
+      </button>
+    </form>
   )
 }
 
@@ -245,7 +340,7 @@ function EditForm({
       </label>
       <p id="marker-help" className={muted}>
         Wrap the word in [[double brackets]] to highlight it. Without them the sentence is shown plain. Leave a field empty to restore the
-        generated text.
+        dictionary text.
       </p>
       <label className="flex flex-col gap-1">
         <span className="text-sm font-medium">Note</span>

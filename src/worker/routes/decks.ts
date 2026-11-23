@@ -92,11 +92,9 @@ export const deckRoutes = new Hono<AppEnv>()
     const user = c.get('user')
     const deck = await getDeck(c.env.DB, user.id, c.req.valid('param').id)
     if (!deck) return c.json(notFound, 404)
-    // Fail closed before claiming anything: cards stay pending, no attempt is counted.
-    const generator = c.get('generator')()
-    if (!generator) return c.json({ error: 'ai_not_configured', message: "AI isn't configured on the server" }, 503)
+    // No AI configured (the default): dictionary hits are served, misses become needs_meaning.
     const result = await generateForDeck(c.env.DB, deck, {
-      generator,
+      generator: c.get('generator')(),
       limits: limitsFrom(c.env),
       userId: user.id,
     })

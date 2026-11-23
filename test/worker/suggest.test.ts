@@ -1,6 +1,7 @@
 /** M7: POST /decks/:id/suggest ("Add X new words"), docs/DUPLICATES.md 10.7 and 10.9 M7. */
 import { readFileSync } from 'node:fs'
 import { describe, expect, it, vi } from 'vitest'
+import { LANGUAGES } from '../../src/shared/languages'
 import { termKey } from '../../src/shared/normalize'
 import type { DeckDTO, GenerateResponse, ImportResponse, MeResponse, SuggestResponse } from '../../src/shared/schemas'
 import { FakeGenerator } from '../../src/worker/ai/fake'
@@ -12,7 +13,7 @@ type Ctx = ReturnType<typeof setup>
 
 /** A small German list in rank order (tests do not load the full migration; DECISIONS.md M7). */
 const LIST: [lemma: string, pos: string][] = [
-  ['ich', 'pronoun'], ['sein', 'verb'], ['Hund', 'noun'], ['Katze', 'noun'], ['Haus', 'noun'],
+  ['Mensch', 'noun'], ['sein', 'verb'], ['Hund', 'noun'], ['Katze', 'noun'], ['Haus', 'noun'],
   ['Wasser', 'noun'], ['gehen', 'verb'], ['essen', 'verb'], ['groß', 'adjective'], ['Bank', 'noun'],
   ['Tisch', 'noun'], ['Stuhl', 'noun'], ['Baum', 'noun'], ['Auto', 'noun'], ['Buch', 'noun'],
   ['Tür', 'noun'], ['Fenster', 'noun'], ['Stadt', 'noun'], ['Land', 'noun'], ['Zeit', 'noun'],
@@ -77,7 +78,7 @@ describe('POST /api/decks/:id/suggest (word list)', () => {
     const deck = await deckOf(ctx)
     await importText(ctx, deck, 'der Hund')
     await suggest(ctx, deck, 5)
-    expect(suggested(ctx, deck)).toEqual(['ich', 'sein', 'Katze', 'Haus', 'Wasser'])
+    expect(suggested(ctx, deck)).toEqual(['Mensch', 'sein', 'Katze', 'Haus', 'Wasser'])
   })
 
   it('never re-suggests deleted or duplicate cards', async () => {
@@ -97,7 +98,7 @@ describe('POST /api/decks/:id/suggest (word list)', () => {
     // Hund: deleted (and the duplicate dog card has lemma_key hund); Haus: deleted after ready;
     // Wasser: deleted while pending (no lemma_key, only its term_key); Katze: ready.
     await suggest(ctx, deck, 4)
-    expect(suggested(ctx, deck)).toEqual(['ich', 'sein', 'gehen', 'essen'])
+    expect(suggested(ctx, deck)).toEqual(['Mensch', 'sein', 'gehen', 'essen'])
   })
 
   it('does not suggest Hund once "dog" has resolved to Hund', async () => {
@@ -108,7 +109,7 @@ describe('POST /api/decks/:id/suggest (word list)', () => {
     await generate(ctx, deck)
     expect(scalar(ctx, "SELECT lemma_key FROM cards WHERE input_term = 'dog'")).toBe('hund')
     await suggest(ctx, deck, 3)
-    expect(suggested(ctx, deck)).toEqual(['ich', 'sein', 'Katze'])
+    expect(suggested(ctx, deck)).toEqual(['Mensch', 'sein', 'Katze'])
   })
 
   it('skipTopN skips the most common words (set through PATCH /decks/:id)', async () => {
@@ -139,7 +140,7 @@ describe('POST /api/decks/:id/suggest (word list)', () => {
     const ctx = setup()
     seedList(ctx)
     const bobDeck = await deckOf(ctx, BOB)
-    await importText(ctx, bobDeck, 'ich\nsein', 'target', BOB)
+    await importText(ctx, bobDeck, 'Mensch\nsein', 'target', BOB)
     await generate(ctx, bobDeck, BOB)
     const fake = ctx.generator as FakeGenerator
     const calls = fake.calls.length
@@ -158,7 +159,7 @@ describe('POST /api/decks/:id/suggest (word list)', () => {
     const deck = await deckOf(ctx)
     await importText(ctx, deck, 'dog', 'source') // pending: its lemma is not known yet, so Hund can still be suggested
     expect(await suggest(ctx, deck, 3)).toMatchObject({ added: 3, duplicates: [] })
-    expect(suggested(ctx, deck)).toEqual(['ich', 'sein', 'Hund'])
+    expect(suggested(ctx, deck)).toEqual(['Mensch', 'sein', 'Hund'])
 
     const g = await generate(ctx, deck)
     const call = (ctx.generator as FakeGenerator).calls[0]!
@@ -200,12 +201,21 @@ describe('POST /api/decks/:id/suggest (word list)', () => {
     err.mockRestore()
   })
 
-  it('uses the bundled German list when its migration is applied', async () => {
+  it('uses the bundled German list when its migration is applied, minus the skip list', async () => {
     const ctx = setup({}, { wordlists: true })
     const deck = await deckOf(ctx)
     await suggest(ctx, deck, 5)
-    const top = (JSON.parse(readFileSync('data/wordlists/de.json', 'utf8')) as { items: { lemma: string }[] }).items.slice(0, 5)
+    const skip = new Set(LANGUAGES.de.suggestSkipLemmas)
+    const top = (JSON.parse(readFileSync('data/wordlists/de.json', 'utf8')) as { items: { lemma: string }[] }).items.filter((i) => !skip.has(i.lemma)).slice(0, 5)
     expect(suggested(ctx, deck)).toEqual(top.map((i) => i.lemma))
+  })
+
+  it('never suggests the skip list (ich, sie, der, ...)', async () => {
+    const ctx = setup()
+    seedList(ctx, [['ich', 'pronoun'], ['sie', 'pronoun'], ['Hund', 'noun'], ['man', 'pronoun'], ['Katze', 'noun']])
+    const deck = await deckOf(ctx)
+    expect(await suggest(ctx, deck, 5)).toMatchObject({ added: 2, exhausted: true })
+    expect(suggested(ctx, deck)).toEqual(['Hund', 'Katze'])
   })
 })
 

@@ -24,8 +24,9 @@ describe('wordRowText', () => {
       hint: 'cat',
       subtitle: 'Preparing…',
     })
-    expect(wordRowText({ ...base, status: 'failed', genError: 'not_a_word' }).subtitle).toBe('Not recognised as a word')
-    expect(wordRowText({ ...base, status: 'failed', genError: 'boom' }).subtitle).toBe("Couldn't be prepared · try Retry later")
+    expect(wordRowText({ ...base, status: 'failed', genError: 'needs_meaning' }).subtitle).toBe('Not in the dictionary · add its meaning')
+    expect(wordRowText({ ...base, status: 'failed', genError: 'not_a_word' }).subtitle).toBe('Not recognised as a word · add its meaning')
+    expect(wordRowText({ ...base, status: 'failed', genError: 'boom' }).subtitle).toBe("Couldn't be looked up · retry or add its meaning")
   })
 })
 
@@ -34,7 +35,7 @@ describe('STATUS_BADGE', () => {
     expect(Object.fromEntries(Object.entries(STATUS_BADGE).map(([k, v]) => [k, v.label]))).toEqual({
       pending: 'Preparing',
       ready: 'Ready',
-      failed: 'Failed',
+      failed: 'Needs meaning',
       suspended: 'Suspended',
       duplicate: 'Duplicate',
       deleted: 'Deleted',

@@ -161,6 +161,22 @@ export const UpdateCardSchema = z
   .refine((d) => Object.values(d).some((v) => v !== undefined), { message: 'Nothing to update' })
 export type UpdateCardInput = z.infer<typeof UpdateCardSchema>
 
+/**
+ * POST /cards/:id/meaning: the user's own meaning for a word the dictionary doesn't know (a
+ * 'failed' card). `word` is the target-language word (a leading article sets the gender);
+ * stored in the card's override_json, with no shared entry.
+ */
+export const MeaningSchema = z
+  .object({
+    word: z.string().trim().min(1).max(100),
+    translation: z.string().trim().min(1).max(100),
+    gender: z.enum(['masculine', 'feminine', 'neuter']).nullable().optional(),
+    exampleTarget: OverrideTextSchema(300),
+    exampleSource: OverrideTextSchema(300),
+  })
+  .strict()
+export type MeaningInput = z.infer<typeof MeaningSchema>
+
 /** The side shown on the front of a reviewed card (review_logs.direction). */
 export const ShownDirectionSchema = z.enum(['target-source', 'source-target'])
 export type ShownDirection = z.infer<typeof ShownDirectionSchema>
@@ -315,6 +331,8 @@ export type DeckStats = {
   newToday: number
   /** Cards reported as duplicates (for the Home banner); not part of `total`. */
   duplicates: number
+  /** Failed cards the dictionary doesn't know (gen_error 'needs_meaning'); part of `failed`. Retry skips them. */
+  needsMeaning: number
 }
 
 /** POST /decks/:id/generate (PLAN section 4, DUPLICATES.md 10.6). Duplicates count toward `processed`. */
@@ -325,8 +343,10 @@ export type GenerateResponse = {
   fromCache: number
   /** Resolved by the AI call. */
   generated: number
-  /** Cards that became 'failed' (not a word, or 3 failed attempts). */
+  /** Cards that became 'failed' (not a word, not in the dictionary, or 3 failed attempts). */
   failed: number
+  /** Of `failed`: words not in the dictionary (no AI), waiting for the user's meaning. */
+  needsMeaning: number
   /** Cards still pending in the deck after this call. */
   remaining: number
   /** True when the daily AI limit stopped some cards from being generated. */

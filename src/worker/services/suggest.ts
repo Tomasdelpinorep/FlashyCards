@@ -4,8 +4,10 @@
  * Word-list path (LanguageConfig.hasWordlist): the next `count` DISTINCT lemma_keys of the
  * bundled frequency list with rank > skipTopN, excluding every lemma_key already in the deck in
  * ANY status (deleted and duplicate cards included) and the term_keys of cards whose input was
- * not in the source language. ONE query; it fetches count + 1 rows so `exhausted` can say
- * whether the list has anything left.
+ * not in the source language, and the language's suggestSkipLemmas. With suggestCuratedOnly, only
+ * lemmas with a curated dictionary entry for the deck's pair (target alias -> model 'curated';
+ * the whole list when the pair has none). ONE query; it fetches count + 1 rows so `exhausted`
+ * can say whether the list has anything left.
  *
  * AI fallback (no word list): ONE generator call asks for count x 1.2 words, excluding up to 500
  * of the deck's keys (most recent first); the answer goes through the same deck filter (one
@@ -60,14 +62,23 @@ export async function suggestForDeck(db: D1Database, deck: DeckRow, count: numbe
   let words: { lemma: string; lemmaKey: string }[]
   let exhausted = false
 
-  if (LANGUAGES[target]?.hasWordlist) {
+  const lang = LANGUAGES[target]
+  if (lang?.hasWordlist) {
+    const skip = (lang.suggestSkipLemmas ?? []).map((l) => termKey(target, l))
+    const curated = lang.suggestCuratedOnly
+      ? `AND (NOT EXISTS (SELECT 1 FROM entries ce WHERE ce.source_lang = ?6 AND ce.target_lang = ?2 AND ce.model = 'curated')
+              OR EXISTS (SELECT 1 FROM entry_aliases a JOIN entries e ON e.id = a.entry_id
+                         WHERE a.source_lang = ?6 AND a.target_lang = ?2 AND a.input_side = 'target'
+                           AND a.alias_key = w.lemma_key AND a.sense_key = '' AND e.model = 'curated'))`
+      : ''
     const { results } = await db
       .prepare(
         `SELECT w.lemma, w.lemma_key, MIN(w.rank) AS r FROM wordlist w
          WHERE w.lang = ?2 AND w.rank > ?3 AND ${DECK_HAS_KEY('w.lemma_key')}
+           AND w.lemma_key NOT IN (SELECT value FROM json_each(?5)) ${curated}
          GROUP BY w.lemma_key ORDER BY r LIMIT ?4`,
       )
-      .bind(deck.id, target, deckSettings(deck).skipTopN, count + 1)
+      .bind(deck.id, target, deckSettings(deck).skipTopN, count + 1, JSON.stringify(skip), ...(curated ? [deck.source_lang] : []))
       .all<{ lemma: string; lemma_key: string }>()
     exhausted = results.length <= count
     words = results.slice(0, count).map((r) => ({ lemma: r.lemma, lemmaKey: r.lemma_key }))

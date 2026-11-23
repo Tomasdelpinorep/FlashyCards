@@ -52,7 +52,7 @@ describe('POST /api/decks/:id/generate', () => {
     const deck = await deckOf(ctx)
     await importText(ctx, deck, 'Hund\nKatze\nging')
     const res = await generate(ctx, deck)
-    expect(res).toEqual({ processed: 3, fromCache: 0, generated: 3, failed: 0, remaining: 0, rateLimited: false, duplicates: [] })
+    expect(res).toEqual({ processed: 3, fromCache: 0, generated: 3, failed: 0, needsMeaning: 0, remaining: 0, rateLimited: false, duplicates: [] })
     expect(fakeOf(ctx).calls).toHaveLength(1)
     expect(fakeOf(ctx).calls[0]!).toMatchObject({ sourceLang: 'en', targetLang: 'de', level: 'A1-A2' })
 

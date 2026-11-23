@@ -20,7 +20,7 @@ export function duplicateText(d: DuplicateReport, targetLang: LanguageCode): str
   const same = termKey(targetLang, d.input) === termKey(targetLang, d.existing.display)
   const name = same ? d.existing.display : `${d.input} → ${d.existing.display}`
   if (d.addedTranslation) return `${name}: already in your deck, added as a translation`
-  if (d.existing.status === 'failed') return `${name}: already in your deck (generation failed, retry it from Words)`
+  if (d.existing.status === 'failed') return `${name}: already in your deck (needs a meaning, add it in Words)`
   return `${name}: already in your deck`
 }
 

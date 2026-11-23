@@ -65,7 +65,7 @@ function GenerationDuplicates({ targetLang }: { targetLang: LanguageCode }) {
   if (state.duplicates.length === 0) return null
   return (
     <details className={`${card} text-sm`}>
-      <summary className="cursor-pointer font-medium">{state.duplicates.length} more already in your deck (found while preparing)</summary>
+      <summary className="cursor-pointer font-medium">{state.duplicates.length} more already in your deck (found while looking up)</summary>
       <ul className="mt-2 flex flex-col gap-1.5">
         {state.duplicates.map((d, i) => (
           <li key={i}>
@@ -118,7 +118,7 @@ function SuggestTab({ deckId, targetLang, tabs }: TabProps) {
         {nothing && result.exhausted ? (
           <section className={`${card} flex flex-col gap-2`} role="status">
             <p className="text-lg font-semibold">No new words left</p>
-            <p className={muted}>You already have every word in the {lang.name} word list. Import your own words to keep going.</p>
+            <p className={muted}>You've added every word in the dictionary. Type your own words to keep going.</p>
           </section>
         ) : nothing && result.duplicates.length === 0 ? (
           <section className={`${card} flex flex-col gap-2`} role="status">
@@ -130,7 +130,7 @@ function SuggestTab({ deckId, targetLang, tabs }: TabProps) {
         )}
         {!nothing && result.exhausted && (
           <p className="rounded-xl bg-zinc-100 px-4 py-3 text-sm dark:bg-zinc-900" role="status">
-            That was the end of the {lang.name} word list: there are no more new words to suggest.
+            You've added every word in the dictionary. Type your own words to keep going.
           </p>
         )}
         <GenerationBanner deckId={deckId} stats={stats.data} />

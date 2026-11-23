@@ -33,17 +33,19 @@ export async function signToken(
 type RequestOpts = { method?: string; token?: string; body?: unknown; host?: string }
 
 /**
- * `options.generator`: the generator every request uses (default: a fresh FakeGenerator), or
- * `'env'` to use the production factory (ai/create.ts), which reads AI_PROVIDER and the host.
+ * `options.generator`: the generator every request uses (default: a fresh FakeGenerator), `null`
+ * for "no AI configured", or `'env'` to use the production factory (ai/create.ts), which reads
+ * AI_PROVIDER and the host. `options.seed` applies the curated dictionary migration.
  */
 export function setup(
   envOverrides: Partial<Bindings> = {},
-  options: { generator?: SentenceGenerator | 'env'; srs?: Partial<SrsConfig>; wordlists?: boolean } = {},
+  options: { generator?: SentenceGenerator | 'env' | null; srs?: Partial<SrsConfig>; wordlists?: boolean; seed?: boolean } = {},
 ) {
-  const { db, sqlite, counter } = createTestD1({ wordlists: options.wordlists })
+  const { db, sqlite, counter } = createTestD1({ wordlists: options.wordlists, seed: options.seed })
   /** The generator every request uses (a FakeGenerator unless the test passes its own). */
   const useEnv = options.generator === 'env'
   const generator = options.generator === 'env' || options.generator === undefined ? new FakeGenerator() : options.generator
+  const injected = options.generator === null ? null : generator
   const env: Bindings = {
     DB: db,
     ACCESS_TEAM_DOMAIN: TEAM_DOMAIN,
@@ -56,7 +58,7 @@ export function setup(
     ...envOverrides,
   }
   const app = createApp(
-    useEnv ? { jwks: () => localJwks, srs: options.srs } : { jwks: () => localJwks, generator: () => generator, srs: options.srs },
+    useEnv ? { jwks: () => localJwks, srs: options.srs } : { jwks: () => localJwks, generator: () => injected, srs: options.srs },
   )
 
   /** Request against a non-local host (as in production) unless `host` says otherwise. */

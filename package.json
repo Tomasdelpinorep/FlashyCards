@@ -17,6 +17,7 @@
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
     "wordlist:build": "tsx scripts/build-wordlist.ts",
     "wordlist:sql": "tsx scripts/wordlist-to-sql.ts",
+    "seed:sql": "tsx scripts/curated-to-sql.ts",
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots"
   },

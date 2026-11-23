@@ -129,7 +129,9 @@ export const LIST_SELECT = `
   SELECT c.*, e.lemma AS e_lemma, e.translation AS e_translation, e.grammar_json AS e_grammar,
          e.pos AS e_pos, e.alt_translations_json AS e_alts, e.cefr AS e_cefr,
          e.example_target AS e_example_target, e.example_source AS e_example_source,
-         dc.input_term AS dup_input_term, de.lemma AS dup_lemma, de.grammar_json AS dup_grammar
+         dc.input_term AS dup_input_term,
+         COALESCE(de.lemma, json_extract(dc.override_json, '$.lemma')) AS dup_lemma,
+         COALESCE(de.grammar_json, json_extract(dc.override_json, '$.grammar')) AS dup_grammar
   FROM cards c
   LEFT JOIN entries e ON e.id = c.entry_id
   LEFT JOIN cards dc ON dc.id = c.duplicate_of
@@ -230,7 +232,9 @@ export async function alsoInDeck(db: D1Database, cardIds: readonly string[]): Pr
   if (cardIds.length === 0) return out
   const { results } = await db
     .prepare(
-      `SELECT g.card_id AS for_id, o.id, o.input_term, e.lemma, e.grammar_json, o.created_at
+      `SELECT g.card_id AS for_id, o.id, o.input_term, o.created_at,
+         COALESCE(e.lemma, json_extract(o.override_json, '$.lemma')) AS lemma,
+         COALESCE(e.grammar_json, json_extract(o.override_json, '$.grammar')) AS grammar_json
        FROM json_each(?1) j
        JOIN card_glosses g ON g.card_id = j.value
        JOIN card_glosses og ON og.deck_id = g.deck_id AND og.gloss_key = g.gloss_key AND og.card_id <> g.card_id
@@ -373,6 +377,7 @@ export async function deckStats(
          COALESCE(SUM(status = 'ready' AND state <> 0 AND due <= ?1), 0) AS dueNow,
          COALESCE(SUM(status = 'ready' AND state <> 0 AND due < ?2), 0) AS dueToday,
          COALESCE(SUM(status = 'duplicate'), 0) AS duplicates,
+         COALESCE(SUM(status = 'failed' AND gen_error = 'needs_meaning'), 0) AS needsMeaning,
          (SELECT COUNT(*) FROM review_logs l JOIN cards lc ON lc.id = l.card_id
             WHERE l.user_id = ?4 AND l.reviewed_at >= ?5 AND lc.deck_id = ?3) AS reviewedToday,
          ${NEW_TODAY_SQL} AS newToday
@@ -403,13 +408,14 @@ export async function softDeleteCard(db: D1Database, userId: string, cardId: str
 
 /**
  * POST /decks/:id/retry-failed: failed cards go back to pending with a fresh attempt count.
- * Duplicates (and deleted cards) are never touched. One statement.
+ * Duplicates (and deleted cards) are never touched, nor needs_meaning cards (retrying can't help:
+ * the dictionary still doesn't know them; the user enters the meaning). One statement.
  */
 export async function retryFailed(db: D1Database, deckId: string): Promise<number> {
   const res = await db
     .prepare(
       `UPDATE cards SET status = 'pending', gen_attempts = 0, gen_error = NULL, gen_claimed_at = NULL, updated_at = ?
-       WHERE deck_id = ? AND status = 'failed'`,
+       WHERE deck_id = ? AND status = 'failed' AND gen_error IS NOT 'needs_meaning'`,
     )
     .bind(Date.now(), deckId)
     .run()

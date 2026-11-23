@@ -409,6 +409,7 @@ describe('GET /api/decks/:id/stats', () => {
       reviewedToday: 0,
       newToday: 0,
       duplicates: 1,
+      needsMeaning: 0,
     })
   })
 })

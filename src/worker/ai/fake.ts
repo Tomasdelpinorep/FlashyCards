@@ -4,8 +4,8 @@
  * Words are looked up in a small lexicon keyed by `<side>:<termKey>` or
  * `<side>:<termKey>|<hintKey>` (a meaning hint selects a sense), so different inputs can reach
  * the same lemma: dog -> Hund, big/large -> groß, ging -> gehen. For en -> de, words not in that
- * lexicon are then looked up in the realistic dev lexicon (devLexicon.de.ts: the word list's first
- * ~170 lemmas plus common words), so local runs show real-looking cards. Unknown words get a
+ * lexicon are then looked up in the curated dictionary (curated.de.ts, the same entries
+ * migrations/0003_seed_de.sql seeds), so local runs show real-looking cards. Unknown words get a
  * generic entry built from the input; junk ("asdf", digits, "xxxx") is `not_a_word`.
  *
  * Tests can extend the lexicon, mark extra words as junk, queue errors, and hold a call open
@@ -15,7 +15,7 @@ import { LANGUAGES, type LanguageCode } from '../../shared/languages'
 import { glossKey, termKey } from '../../shared/normalize'
 import type { GenerationInput, GenerationRequest, SentenceGenerator, SuggestedWord, SuggestWordsRequest } from './generator'
 import type { Gender, GeneratedItem, Grammar, VerbTable } from './schema'
-import { DEV_LEXICON_DE, type DevEntry } from './devLexicon.de'
+import { CURATED_DE, type CuratedEntry as DevEntry } from './curated.de'
 
 type Six = [string, string, string, string, string, string]
 
@@ -248,7 +248,7 @@ export class FakeGenerator implements SentenceGenerator {
 }
 
 /**
- * Realistic dev entries (devLexicon.de.ts) keyed like the lexicon: `target:<lemma key>` (also
+ * Curated entries (curated.de.ts) keyed like the lexicon: `target:<lemma key>` (also
  * without a leading "sich ") and `source:<key>` for the translation and alternatives, with and
  * without "to"/"a"/"the" (first entry wins). Consulted after the built-in/test lexicon, so tests
  * keep their outputs. Built once, on first use.
@@ -261,12 +261,12 @@ function devLexiconFor(targetLang: LanguageCode, sourceLang: LanguageCode): Map<
   const add = (key: string, e: DevEntry) => {
     if (!key.endsWith(':') && !index.has(key)) index.set(key, e)
   }
-  for (const e of DEV_LEXICON_DE) {
+  for (const e of CURATED_DE) {
     const lemma = e.lemma!
     add(`target:${termKey('de', lemma)}`, e)
     if (lemma.startsWith('sich ')) add(`target:${termKey('de', lemma.slice(5))}`, e)
   }
-  for (const e of DEV_LEXICON_DE) {
+  for (const e of CURATED_DE) {
     for (const gloss of [e.translation!, ...e.alt_translations]) {
       add(`source:${termKey('en', gloss)}`, e)
       add(`source:${glossKey('en', gloss)}`, e)

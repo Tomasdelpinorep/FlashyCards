@@ -13,7 +13,11 @@ import { getCard, LIST_SELECT, type CardListRow } from '../db/cards'
 import { parseJsonArray } from '../db/util'
 import { glossInsertStatement, resolvedCardGlosses } from './resolve'
 
-export type UpdateCardResult = { card: CardDTO } | { error: 'not_found' } | { error: 'card_not_ready'; status: string }
+export type UpdateCardResult =
+  | { card: CardDTO }
+  | { error: 'not_found' }
+  | { error: 'card_not_ready'; status: string }
+  | { error: 'translation_required' }
 
 const EDITABLE = new Set(['ready', 'suspended'])
 const OVERRIDE_FIELDS = ['translation', 'exampleTarget', 'exampleSource'] as const
@@ -43,6 +47,8 @@ export async function updateCard(db: D1Database, userId: string, cardId: string,
   if (!row) return { error: 'not_found' }
   if (!EDITABLE.has(row.status)) return { error: 'card_not_ready', status: row.status }
   const src = row.d_source_lang
+  // A card with the user's own meaning (no shared entry) has nothing to fall back to.
+  if (row.entry_id === null && (input.translation === null || input.translation === '')) return { error: 'translation_required' }
 
   // Merge the edit into the existing override: '' / null removes a key (falls back to the entry).
   let override: ContentOverride = {}

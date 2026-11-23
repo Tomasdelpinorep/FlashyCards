@@ -23,18 +23,20 @@ export function wordRowText(card: RowCard): { title: string; hint: string | null
 }
 
 /**
- * Friendly text for a failed card. `genError` holds either 'not_a_word' or a raw technical error
- * (an AI/validation message), which is never shown as such.
+ * Friendly text for a failed card ("Needs meaning"). `genError` holds 'needs_meaning' (not in the
+ * dictionary), 'not_a_word', or a raw technical error, which is never shown as such.
  */
 export function failedText(genError: string | null): string {
-  return genError === 'not_a_word' ? 'Not recognised as a word' : "Couldn't be prepared · try Retry later"
+  if (genError === 'needs_meaning') return 'Not in the dictionary · add its meaning'
+  if (genError === 'not_a_word') return 'Not recognised as a word · add its meaning'
+  return "Couldn't be looked up · retry or add its meaning"
 }
 
 /** Short label + pill colours for a card status (one place; used by Words rows and CardDetail). */
 export const STATUS_BADGE: Record<RowCard['status'], { label: string; className: string }> = {
   pending: { label: 'Preparing', className: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200' },
   ready: { label: 'Ready', className: 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200' },
-  failed: { label: 'Failed', className: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200' },
+  failed: { label: 'Needs meaning', className: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200' },
   suspended: { label: 'Suspended', className: 'bg-rose-200 text-rose-950 dark:bg-rose-900 dark:text-rose-100' },
   duplicate: { label: 'Duplicate', className: 'bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-200' },
   // Never listed (deleted cards are filtered out server-side); here only to keep the map total.

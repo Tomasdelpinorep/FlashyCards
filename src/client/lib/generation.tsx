@@ -105,8 +105,10 @@ export function isAiUnavailable(err: unknown): boolean {
 }
 
 /**
- * True to the behaviour: without AI, /generate leaves the cards 'pending' (it 503s before claiming
- * any), and the loop resumes by itself whenever the app loads with pending cards (shouldResume).
+ * Shown when a /generate call answers 503 (an older server, or an AI call that failed): the cards
+ * stay 'pending' and the loop resumes by itself whenever the app loads with pending cards
+ * (shouldResume). Without AI the current server never 503s: dictionary misses become
+ * "Needs meaning".
  */
 export const AI_NOT_CONFIGURED =
   "Word details can't be generated right now. Your words are saved and will be filled in automatically once it's available (next time you open the app)."

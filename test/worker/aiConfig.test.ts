@@ -1,4 +1,7 @@
-/** M5 Part 0: /generate fails closed when AI is not configured (no silent fake fallback in production). */
+/**
+ * M5 Part 0: no silent fake fallback in production. Without AI (the no-AI dictionary), /generate
+ * serves the shared cache and marks misses needs_meaning instead of answering 503.
+ */
 import { describe, expect, it, vi } from 'vitest'
 import type { GenerateResponse, MeResponse } from '../../src/shared/schemas'
 import { setup } from '../helpers/app'
@@ -19,16 +22,16 @@ async function deckWithPending(ctx: ReturnType<typeof setup>, host?: string) {
 const scalar = (ctx: ReturnType<typeof setup>, sql: string) => Object.values(ctx.sqlite.prepare(sql).get() as object)[0]
 
 describe('POST /generate when AI is not configured', () => {
-  it('AI_PROVIDER=anthropic without a key: 503 ai_not_configured, cards stay pending, nothing written', async () => {
+  it('AI_PROVIDER=anthropic without a key: dictionary misses need a meaning, no AI, no budget, nothing cached', async () => {
     const err = vi.spyOn(console, 'error').mockImplementation(() => {})
     const ctx = setup({ AI_PROVIDER: 'anthropic', ANTHROPIC_API_KEY: undefined }, { generator: 'env' })
     const { deck, req } = await deckWithPending(ctx)
     const res = await req(`/api/decks/${deck}/generate`, { method: 'POST' })
-    expect(res.status).toBe(503)
-    expect(await res.json()).toEqual({ error: 'ai_not_configured', message: "AI isn't configured on the server" })
-    expect(ctx.sqlite.prepare('SELECT status, gen_attempts, gen_claimed_at FROM cards').all()).toEqual([
-      { status: 'pending', gen_attempts: 0, gen_claimed_at: null },
-      { status: 'pending', gen_attempts: 0, gen_claimed_at: null },
+    expect(res.status).toBe(200)
+    expect((await res.json()) as GenerateResponse).toMatchObject({ processed: 2, generated: 0, failed: 2, needsMeaning: 2, remaining: 0, rateLimited: false })
+    expect(ctx.sqlite.prepare('SELECT status, gen_error, gen_attempts, gen_claimed_at FROM cards').all()).toEqual([
+      { status: 'failed', gen_error: 'needs_meaning', gen_attempts: 1, gen_claimed_at: null },
+      { status: 'failed', gen_error: 'needs_meaning', gen_attempts: 1, gen_claimed_at: null },
     ])
     expect(scalar(ctx, 'SELECT COUNT(*) FROM entries')).toBe(0)
     expect(scalar(ctx, 'SELECT COUNT(*) FROM entry_aliases')).toBe(0)
@@ -36,11 +39,13 @@ describe('POST /generate when AI is not configured', () => {
     err.mockRestore()
   })
 
-  it('AI_PROVIDER unset without a key on a production host: 503', async () => {
+  it('AI_PROVIDER unset without a key on a production host: no AI (needs_meaning), never the fake', async () => {
     const err = vi.spyOn(console, 'error').mockImplementation(() => {})
     const ctx = setup({ AI_PROVIDER: '' }, { generator: 'env' })
     const { deck, req } = await deckWithPending(ctx)
-    expect((await req(`/api/decks/${deck}/generate`, { method: 'POST' })).status).toBe(503)
+    const res = await req(`/api/decks/${deck}/generate`, { method: 'POST' })
+    expect(res.status).toBe(200)
+    expect((await res.json()) as GenerateResponse).toMatchObject({ needsMeaning: 2 })
     expect(scalar(ctx, 'SELECT COUNT(*) FROM entries')).toBe(0)
     err.mockRestore()
   })

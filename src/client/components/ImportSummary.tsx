@@ -8,7 +8,7 @@ export function ImportSummary({ result, targetLang }: { result: ImportResponse; 
   return (
     <section className={`${card} flex flex-col gap-3`} role="status">
       <p className="text-lg font-semibold">{summaryText(result)}</p>
-      {result.pending > 0 && <p className={muted}>New words show as “Preparing…” until their example sentences are ready.</p>}
+      {result.pending > 0 && <p className={muted}>Words the dictionary doesn't know show as “Needs meaning”: open them in Words to add the meaning.</p>}
 
       {result.duplicates.length > 0 && (
         <details>

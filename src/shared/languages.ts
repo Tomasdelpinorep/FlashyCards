@@ -50,6 +50,14 @@ export interface LanguageConfig {
   hasWordlist: boolean
   /** Source and licence of the bundled word list, for the About screen (attribution required). */
   wordlist?: WordlistSource
+  /** Word-list lemmas "Add new words" never suggests (pronouns, articles, ... a learner gets for free). */
+  suggestSkipLemmas?: readonly string[]
+  /**
+   * "Add new words" suggests only lemmas the curated dictionary has (model 'curated' entries for
+   * the deck's pair), so every suggestion is ready at once. A pair without curated entries falls
+   * back to the whole word list.
+   */
+  suggestCuratedOnly?: boolean
 }
 
 export type WordlistSource = {
@@ -107,6 +115,8 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
       'Separable verbs in example_target: wrap both parts, e.g. "Ich [[stehe]] um sieben Uhr [[auf]]."',
     ].join('\n'),
     hasWordlist: true, // migrations/0002_wordlist_de.sql, from data/wordlists/de.json
+    suggestSkipLemmas: ['ich', 'sie', 'der', 'du', 'es', 'wir', 'er', 'ein', 'ja', 'ihr', 'nein', 'sich', 'man'],
+    suggestCuratedOnly: true, // migrations/0003_seed_de.sql
     wordlist: {
       name: 'FrequencyWords by Hermit Dave (OpenSubtitles 2018)',
       url: 'https://github.com/hermitdave/FrequencyWords',

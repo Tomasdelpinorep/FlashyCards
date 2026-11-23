@@ -16,6 +16,7 @@ import type {
   ReviewInput,
   ReviewQueueResponse,
   SuggestResponse,
+  MeaningInput,
   UpdateCardInput,
   UpdateDeckInput,
   UpdateMeInput,
@@ -149,6 +150,19 @@ export function useUpdateCard(deckId: string, cardId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (body: UpdateCardInput) => unwrap<CardResponse>(api.cards[':id'].$patch({ param: { id: cardId }, json: body })),
+    onSuccess: ({ card }) => {
+      qc.setQueryData<CardResponse>(keys.card(cardId), { card })
+      void qc.invalidateQueries({ queryKey: keys.card(cardId) })
+      void qc.invalidateQueries({ queryKey: keys.deck(deckId) })
+    },
+  })
+}
+
+/** POST /cards/:id/meaning: the user's meaning for a word the dictionary doesn't know. */
+export function useFillMeaning(deckId: string, cardId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: MeaningInput) => unwrap<CardResponse>(api.cards[':id'].meaning.$post({ param: { id: cardId }, json: body })),
     onSuccess: ({ card }) => {
       qc.setQueryData<CardResponse>(keys.card(cardId), { card })
       void qc.invalidateQueries({ queryKey: keys.card(cardId) })

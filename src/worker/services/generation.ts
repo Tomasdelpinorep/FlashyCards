@@ -3,8 +3,10 @@
  * section 10.4:
  *
  *   1. claim up to 10 pending cards with a 90 s lease on gen_claimed_at (one guarded UPDATE)
- *   2. alias lookup (the global cache): hits cost nothing
- *   3. cache misses -> daily budget (only misses count) -> ONE batched AI call
+ *   2. alias lookup (the global cache, seeded with the curated dictionary): hits cost nothing
+ *   3. cache misses -> daily budget (only misses count) -> ONE batched AI call; without a
+ *      generator (no AI configured, the default) a miss is final: 'failed' + 'needs_meaning',
+ *      and the user types the meaning (services/fillMeaning.ts)
  *   4. entries INSERT ... ON CONFLICT DO NOTHING, aliases INSERT OR IGNORE, read the winners
  *   5. per card in created_at order: batchSeen ?? findDuplicate -> duplicate (+ mergeTranslation),
  *      otherwise 'ready' through the guarded UPDATE ... NOT EXISTS (all in one statement)
@@ -46,6 +48,8 @@ import {
 export const GENERATE_BATCH = 10
 export const LEASE_MS = 90_000
 export const MAX_ATTEMPTS = 3
+/** gen_error of a card the dictionary does not know (no AI): the user enters the meaning. */
+export const NEEDS_MEANING = 'needs_meaning'
 const MAX_ALT_TRANSLATIONS = 3
 
 type ClaimedRow = {
@@ -84,13 +88,14 @@ type NewEntry = {
   example_source: string | null
 }
 
-export type GenerateOptions = { generator: SentenceGenerator; limits: Limits; userId: string; now?: number }
+/** `generator: null` = no AI: cache misses become needs_meaning at once (no budget, no call). */
+export type GenerateOptions = { generator: SentenceGenerator | null; limits: Limits; userId: string; now?: number }
 
 export async function generateForDeck(db: D1Database, deck: DeckRow, opts: GenerateOptions): Promise<GenerateResponse> {
   const now = opts.now ?? Date.now()
   const pair: LanguagePair = { sourceLang: deck.source_lang as LanguageCode, targetLang: deck.target_lang as LanguageCode }
   const src = pair.sourceLang
-  const response: GenerateResponse = { processed: 0, fromCache: 0, generated: 0, failed: 0, remaining: 0, rateLimited: false, duplicates: [] }
+  const response: GenerateResponse = { processed: 0, fromCache: 0, generated: 0, failed: 0, needsMeaning: 0, remaining: 0, rateLimited: false, duplicates: [] }
 
   // 1. Claim (one statement). Cards whose lease expired (a Worker died) are claimable again.
   // Suggested cards also return their word-list POS, which goes to the model as `pos` only
@@ -130,9 +135,16 @@ export async function generateForDeck(db: D1Database, deck: DeckRow, opts: Gener
     else groups.set(key, { key, cards: [c], input: { input: c.term, hint: c.row.input_hint, inputLang: c.lang, ...(c.row.pos_hint ? { pos: c.row.pos_hint } : {}) } })
   }
 
-  // 3. Budget (two queries when there are misses): only cache misses count.
+  // 3. Budget (two queries when there are misses): only cache misses count. Without a generator
+  // a miss is final at once: the user enters the meaning.
+  const generator = opts.generator
+  const failures: [id: string, error: string, final: 0 | 1][] = []
   let toGenerate = [...groups.values()]
   const deferred: Claimed[] = []
+  if (!generator) {
+    for (const g of toGenerate) for (const c of g.cards) failures.push([c.row.id, NEEDS_MEANING, 1])
+    toGenerate = []
+  }
   if (toGenerate.length > 0) {
     const budget = await checkBudget(db, opts.userId, toGenerate.length, opts.limits, now)
     if (budget.allowed < toGenerate.length) {
@@ -146,11 +158,10 @@ export async function generateForDeck(db: D1Database, deck: DeckRow, opts: Gener
   }
 
   // 4. One AI call for the misses, then post-validation.
-  const failures: [id: string, error: string, final: 0 | 1][] = []
   const newEntries: { group: MissGroup; entry: NewEntry; side: Side }[] = []
-  if (toGenerate.length > 0) {
+  if (generator && toGenerate.length > 0) {
     try {
-      const items = await opts.generator.generate({
+      const items = await generator.generate({
         sourceLang: pair.sourceLang,
         targetLang: pair.targetLang,
         level: deckSettings(deck).sentenceLevel,
@@ -175,8 +186,8 @@ export async function generateForDeck(db: D1Database, deck: DeckRow, opts: Gener
   }
 
   // 5. Entries + aliases + winners (one batch of three statements).
-  if (newEntries.length > 0) {
-    const byKey = await persistEntries(db, pair, newEntries, opts.generator.model, now)
+  if (generator && newEntries.length > 0) {
+    const byKey = await persistEntries(db, pair, newEntries, generator.model, now)
     for (const { group, entry, side } of newEntries) {
       const row = byKey.get(`${entry.lemma_key}\u0000${entry.sense_key}`)
       if (!row) {
@@ -252,7 +263,9 @@ export async function generateForDeck(db: D1Database, deck: DeckRow, opts: Gener
   const resultOf = (key: string) => results[statements.findIndex((s) => s.key === key)]?.results ?? []
   const readyIds = new Set(resultOf('ready').map((r) => r.id as string))
   const dupIds = new Set(resultOf('dups').map((r) => r.id as string))
-  const failed = resultOf('failures').filter((r) => r.status === 'failed').length
+  const failedRows = resultOf('failures').filter((r) => r.status === 'failed')
+  const failed = failedRows.length
+  response.needsMeaning = failedRows.filter((r) => r.gen_error === NEEDS_MEANING).length
   let remaining = Number(resultOf('remaining')[0]?.n ?? 0)
 
   const count = (res: Resolution) => {
@@ -397,7 +410,7 @@ function failureStatement(db: D1Database, failures: readonly [string, string, 0 
          gen_claimed_at = NULL, updated_at = ?2
        FROM json_each(?1) j
        WHERE cards.id = json_extract(j.value, '$[0]') AND cards.status = 'pending'
-       RETURNING cards.id, cards.status`,
+       RETURNING cards.id, cards.status, cards.gen_error`,
     )
     .bind(JSON.stringify(failures), now)
 }
@@ -576,7 +589,8 @@ export function fixVerbTables(g: Grammar): Grammar {
   return { ...g, verb: { ...g.verb, present: clean(g.verb.present), past: clean(g.verb.past) } }
 }
 
-function cleanSentence(s: string | null): string | null {
+/** Trim; a sentence without valid [[ ]] markers is kept without them. */
+export function cleanSentence(s: string | null | undefined): string | null {
   const t = s?.trim()
   if (!t) return null
   return hasValidMarkers(t) ? t : stripMarkers(t)

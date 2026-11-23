@@ -136,7 +136,8 @@ export async function loadCandidates(
     .prepare(
       `SELECT c.id, c.input_term, c.input_lang, c.input_side, c.term_key, c.hint_key, c.lemma_key, c.sense_key,
               c.status, c.extra_translations_json, c.created_at, c.rowid AS seq,
-              e.lemma AS e_lemma, e.grammar_json AS e_grammar,
+              COALESCE(e.lemma, json_extract(c.override_json, '$.lemma')) AS e_lemma,
+              COALESCE(e.grammar_json, json_extract(c.override_json, '$.grammar')) AS e_grammar,
               (SELECT json_group_array(g.gloss_key) FROM card_glosses g WHERE g.card_id = c.id) AS glosses_json
        FROM cards c LEFT JOIN entries e ON e.id = c.entry_id
        WHERE c.deck_id = ?1 AND c.status NOT IN ('duplicate','deleted')

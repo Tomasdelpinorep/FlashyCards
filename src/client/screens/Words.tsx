@@ -11,7 +11,7 @@ const FILTERS: { value: CardStatusFilter | ''; label: string }[] = [
   { value: '', label: 'All' },
   { value: 'pending', label: 'Preparing' },
   { value: 'ready', label: 'Ready' },
-  { value: 'failed', label: 'Failed' },
+  { value: 'failed', label: 'Needs meaning' },
   { value: 'suspended', label: 'Suspended' },
   { value: 'duplicate', label: 'Duplicates' },
 ]

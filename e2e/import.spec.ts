@@ -50,7 +50,7 @@ test.describe('import', () => {
     await expect(summary.getByText(/Line 7: .* \(longer than 100 characters\)/)).toBeVisible()
 
     // The generation loop finishes: nothing left to prepare.
-    await expect(page.getByText(/Preparing \d+ words?/)).toHaveCount(0)
+    await expect(page.getByText(/Looking up \d+ words?/)).toHaveCount(0)
     await expect.poll(async () => (await api.stats(deck.id)).ready).toBe(3)
     await shot('add-words-import-summary')
 
@@ -106,10 +106,10 @@ test.describe('import', () => {
     await page.getByRole('button', { name: 'Import 3 words' }).click()
     await expect(page.getByText('Added 3 words', { exact: true })).toBeVisible()
     // The banner shows as soon as preparation starts, before the first batch comes back.
-    await expect(page.getByRole('status').filter({ hasText: 'Preparing 3 words… 0/3' })).toBeVisible()
+    await expect(page.getByRole('status').filter({ hasText: 'Looking up 3 words… 0/3' })).toBeVisible()
     await shot('add-words-import-progress')
     gate.release()
-    await expect(page.getByText(/Preparing \d+ words?/)).toHaveCount(0)
+    await expect(page.getByText(/Looking up \d+ words?/)).toHaveCount(0)
     await expect.poll(async () => (await api.stats(deck.id)).ready).toBe(3)
     await expect(page.getByRole('link', { name: 'Learn them now' })).toBeVisible()
     expect(gate.calls()).toBeGreaterThan(0)
@@ -129,7 +129,7 @@ test.describe('import', () => {
     await expect(page.getByText('Added 2 words', { exact: true })).toBeVisible()
 
     // Found while preparing (reason 'resolved'), DUPLICATES.md 10.8 copy.
-    const found = page.getByText('2 more already in your deck (found while preparing)')
+    const found = page.getByText('2 more already in your deck (found while looking up)')
     await expect(found).toBeVisible()
     await found.click()
     await expect(page.getByRole('link', { name: 'dog → der Hund: already in your deck', exact: true })).toBeVisible()
