@@ -697,3 +697,44 @@
   "got it" writes nothing), and back is cleared once a review is written.
 - **Deviation:** Enter on an empty answer does nothing (use "Show answer"), to avoid an accidental
   Again.
+
+## No-AI dictionary (curated en→de, user-entered meanings)
+- **Decision (owner):** no runtime AI for now. The German content is a hand-written, proofread
+  dictionary: `data/seed/de/batch-{1,2,3}.json` (417 entries) + `src/worker/ai/devLexicon.de.ts`
+  (203), together `CURATED_DE` (`src/worker/ai/curated.de.ts`, bundled into the Worker; throws on a
+  duplicate lemma key). It covers the 600 lemmas of `data/seed/de/lemmas.json`. The fake generator
+  falls back to it (its hard-coded test words Hund/Katze/Haus/gehen/essen stay first; those are not
+  part of `CURATED_DE`, so the seeded rows are the curated ones).
+- **Seed:** `npm run seed:sql` (`scripts/curated-to-sql.ts`) writes `migrations/0003_seed_de.sql`:
+  entries with ids `cur-de-<lemma_key>`, `model='curated'`, upserted (curated wins over stale local
+  fake rows; the id of an existing row is kept, so aliases look the id up); aliases with
+  `INSERT OR REPLACE`. Target aliases: the lemma key, plus the bare word-list form ("erinnern" →
+  sich erinnern). Source aliases: termKey and glossKey of the translation and alternatives. Every
+  entry must pass ItemSchema + validateItem unchanged; any listed lemma without an entry fails.
+  `curated.test.ts` fails when the committed SQL differs from a regeneration.
+- **Alias conflicts** (271 source keys, one entry per key): a primary translation beats an
+  alternative, then the lower word-list rank. Hand-picked winners (`SOURCE_WINNERS`): boss → Chef,
+  doctor → Arzt, idea → Idee, information → Information, one → eins, right → richtig, sick →
+  krank, there → dort, watch → Uhr, when → wann. Other notable outcomes kept as the rule decides:
+  go/to go → gehen (not fahren), know → wissen, take → nehmen, no → nein, you → du, it → es,
+  work → Arbeit (to work → arbeiten), like → mögen, put → stellen.
+- **Data fixes during validation:** Gott, hin (devLexicon) and wohin (batch-2) had an alternative
+  with the same gloss key as the translation ("god"/"God", "to there"/"there", "where"/"where (to)"),
+  which post-validation drops; the alternative was removed.
+- **Status:** a miss is `status='failed'`, `gen_error='needs_meaning'` (no schema change; queues
+  already exclude failed cards). /generate no longer 503s without AI. Retry skips needs_meaning;
+  `stats.needsMeaning` drives the "N words need a meaning" banner. Every failed card shows
+  "Needs meaning" and can take a user meaning.
+- **User meaning:** `POST /cards/:id/meaning` stores `{lemma, pos, translation, grammar:{gender,
+  article}, examples}` in `override_json` with `entry_id` NULL (never in the shared cache). A
+  leading article sets the gender. Guarded like /generate's ready UPDATE → 409 `already_in_deck`.
+  `input_side` follows the declared input language (auto input: compares keys). PATCH can't clear
+  the translation of such a card.
+- **Suggest:** `suggestSkipLemmas` (ich sie der du es wir er ein ja ihr nein sich man) and
+  `suggestCuratedOnly` in `languages.ts`; a pair without curated entries uses the whole list.
+- **Changing the dictionary later** (e.g. swapping film-heavy words): edit the data, `npm run
+  seed:sql`, commit. Once 0003 has run remotely, write a new migration instead (`npm run seed:sql
+  -- 0004`; D1 never re-runs an applied migration); the upsert makes re-applying the full seed
+  safe, and curated.test.ts checks the newest seed file. A word removed from the data stays in
+  the cache (harmless: it is no longer listed in lemmas.json, but suggest may still offer it if
+  it is in the word list; delete its entry in that migration if that matters).

@@ -1,0 +1,3754 @@
+[
+  {
+    "lemma": "gehen",
+    "pos": "verb",
+    "translation": "to go",
+    "alt_translations": [
+      "to walk",
+      "to work (function)"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "gehe",
+          "p2s": "gehst",
+          "p3s": "geht",
+          "p1p": "gehen",
+          "p2p": "geht",
+          "p3p": "gehen"
+        },
+        "past": {
+          "p1s": "ging",
+          "p2s": "gingst",
+          "p3s": "ging",
+          "p1p": "gingen",
+          "p2p": "gingt",
+          "p3p": "gingen"
+        },
+        "present_3sg": "geht",
+        "past_3sg": "ging",
+        "perfect_3sg": "ist gegangen",
+        "participle": "gegangen",
+        "auxiliary": "sein",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Wie geht es dir? = How are you? Perfekt with sein."
+    },
+    "example_target": "Ich [[gehe]] jetzt nach Hause.",
+    "example_source": "I’m [[going]] home now."
+  },
+  {
+    "lemma": "Haus",
+    "pos": "noun",
+    "translation": "house",
+    "alt_translations": [
+      "home",
+      "building"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "neuter",
+      "article": "das",
+      "plural": "die Häuser",
+      "genitive": "des Hauses",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "nach Hause = (going) home; zu Hause = at home."
+    },
+    "example_target": "Unser [[Haus]] hat einen großen Garten.",
+    "example_source": "Our [[house]] has a big garden."
+  },
+  {
+    "lemma": "essen",
+    "pos": "verb",
+    "translation": "to eat",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "esse",
+          "p2s": "isst",
+          "p3s": "isst",
+          "p1p": "essen",
+          "p2p": "esst",
+          "p3p": "essen"
+        },
+        "past": {
+          "p1s": "aß",
+          "p2s": "aßest",
+          "p3s": "aß",
+          "p1p": "aßen",
+          "p2p": "aßt",
+          "p3p": "aßen"
+        },
+        "present_3sg": "isst",
+        "past_3sg": "aß",
+        "perfect_3sg": "hat gegessen",
+        "participle": "gegessen",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Irregular: du isst, er isst."
+    },
+    "example_target": "Wir [[essen]] heute Abend Pizza.",
+    "example_source": "We’re [[eating]] pizza tonight."
+  },
+  {
+    "lemma": "rein",
+    "pos": "adverb",
+    "translation": "in",
+    "alt_translations": [
+      "inside",
+      "pure"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Colloquial short form of herein/hinein. As an adjective rein means \"pure\": reines Wasser."
+    },
+    "example_target": "Komm doch [[rein]]!",
+    "example_source": "Do come [[in]]!"
+  },
+  {
+    "lemma": "stimmen",
+    "pos": "verb",
+    "translation": "to be right",
+    "alt_translations": [
+      "to be true",
+      "to vote",
+      "to tune"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "stimme",
+          "p2s": "stimmst",
+          "p3s": "stimmt",
+          "p1p": "stimmen",
+          "p2p": "stimmt",
+          "p3p": "stimmen"
+        },
+        "past": {
+          "p1s": "stimmte",
+          "p2s": "stimmtest",
+          "p3s": "stimmte",
+          "p1p": "stimmten",
+          "p2p": "stimmtet",
+          "p3p": "stimmten"
+        },
+        "present_3sg": "stimmt",
+        "past_3sg": "stimmte",
+        "perfect_3sg": "hat gestimmt",
+        "participle": "gestimmt",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Mostly in Das stimmt = That’s right. Stimmt so! = Keep the change."
+    },
+    "example_target": "Das [[stimmt]], du hast recht.",
+    "example_source": "That’s [[true]], you’re right."
+  },
+  {
+    "lemma": "nehmen",
+    "pos": "verb",
+    "translation": "to take",
+    "alt_translations": [
+      "to have (food or drink)",
+      "to use"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "nehme",
+          "p2s": "nimmst",
+          "p3s": "nimmt",
+          "p1p": "nehmen",
+          "p2p": "nehmt",
+          "p3p": "nehmen"
+        },
+        "past": {
+          "p1s": "nahm",
+          "p2s": "nahmst",
+          "p3s": "nahm",
+          "p1p": "nahmen",
+          "p2p": "nahmt",
+          "p3p": "nahmen"
+        },
+        "present_3sg": "nimmt",
+        "past_3sg": "nahm",
+        "perfect_3sg": "hat genommen",
+        "participle": "genommen",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": "accusative",
+      "comparative": null,
+      "superlative": null,
+      "note": "Irregular: du nimmst, er nimmt."
+    },
+    "example_target": "Ich [[nehme]] den Bus zur Arbeit.",
+    "example_source": "I [[take]] the bus to work."
+  },
+  {
+    "lemma": "bringen",
+    "pos": "verb",
+    "translation": "to bring",
+    "alt_translations": [
+      "to take",
+      "to get"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "bringe",
+          "p2s": "bringst",
+          "p3s": "bringt",
+          "p1p": "bringen",
+          "p2p": "bringt",
+          "p3p": "bringen"
+        },
+        "past": {
+          "p1s": "brachte",
+          "p2s": "brachtest",
+          "p3s": "brachte",
+          "p1p": "brachten",
+          "p2p": "brachtet",
+          "p3p": "brachten"
+        },
+        "present_3sg": "bringt",
+        "past_3sg": "brachte",
+        "perfect_3sg": "hat gebracht",
+        "participle": "gebracht",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Mixed verb: brachte, gebracht. Someone (dative) something (accusative)."
+    },
+    "example_target": "Kannst du mir ein Glas Wasser [[bringen]]?",
+    "example_source": "Can you [[bring]] me a glass of water?"
+  },
+  {
+    "lemma": "genug",
+    "pos": "adverb",
+    "translation": "enough",
+    "alt_translations": [],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Not declined. Comes after adjectives: groß genug = big enough."
+    },
+    "example_target": "Wir haben [[genug]] Zeit.",
+    "example_source": "We have [[enough]] time."
+  },
+  {
+    "lemma": "brauchen",
+    "pos": "verb",
+    "translation": "to need",
+    "alt_translations": [
+      "to require",
+      "to take (time)"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "brauche",
+          "p2s": "brauchst",
+          "p3s": "braucht",
+          "p1p": "brauchen",
+          "p2p": "braucht",
+          "p3p": "brauchen"
+        },
+        "past": {
+          "p1s": "brauchte",
+          "p2s": "brauchtest",
+          "p3s": "brauchte",
+          "p1p": "brauchten",
+          "p2p": "brauchtet",
+          "p3p": "brauchten"
+        },
+        "present_3sg": "braucht",
+        "past_3sg": "brauchte",
+        "perfect_3sg": "hat gebraucht",
+        "participle": "gebraucht",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": "accusative",
+      "comparative": null,
+      "superlative": null,
+      "note": "nicht brauchen zu = not have to: Du brauchst nicht zu kommen."
+    },
+    "example_target": "Ich [[brauche]] einen neuen Laptop.",
+    "example_source": "I [[need]] a new laptop."
+  },
+  {
+    "lemma": "gegen",
+    "pos": "preposition",
+    "translation": "against",
+    "alt_translations": [
+      "towards",
+      "around (time)",
+      "versus"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": "accusative",
+      "comparative": null,
+      "superlative": null,
+      "note": "With clock times: gegen acht Uhr = around eight o’clock."
+    },
+    "example_target": "Ich bin [[gegen]] diese Idee.",
+    "example_source": "I am [[against]] this idea."
+  },
+  {
+    "lemma": "Moment",
+    "pos": "noun",
+    "translation": "moment",
+    "alt_translations": [
+      "instant"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Momente",
+      "genitive": "des Moments",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "im Moment = at the moment."
+    },
+    "example_target": "Einen [[Moment]], bitte!",
+    "example_source": "One [[moment]], please!"
+  },
+  {
+    "lemma": "Junge",
+    "pos": "noun",
+    "translation": "boy",
+    "alt_translations": [
+      "lad",
+      "young man"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Jungen",
+      "genitive": "des Jungen",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Weak noun: den/dem/des Jungen. Colloquial plural also die Jungs."
+    },
+    "example_target": "Der [[Junge]] spielt im Garten.",
+    "example_source": "The [[boy]] is playing in the garden."
+  },
+  {
+    "lemma": "stehen",
+    "pos": "verb",
+    "translation": "to stand",
+    "alt_translations": [
+      "to be (located)",
+      "to suit"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "stehe",
+          "p2s": "stehst",
+          "p3s": "steht",
+          "p1p": "stehen",
+          "p2p": "steht",
+          "p3p": "stehen"
+        },
+        "past": {
+          "p1s": "stand",
+          "p2s": "standest",
+          "p3s": "stand",
+          "p1p": "standen",
+          "p2p": "standet",
+          "p3p": "standen"
+        },
+        "present_3sg": "steht",
+        "past_3sg": "stand",
+        "perfect_3sg": "hat gestanden",
+        "participle": "gestanden",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Das steht dir gut = That suits you. In southern Germany and Austria: ist gestanden."
+    },
+    "example_target": "Wir [[stehen]] an der Haltestelle.",
+    "example_source": "We are [[standing]] at the bus stop."
+  },
+  {
+    "lemma": "sonst",
+    "pos": "adverb",
+    "translation": "otherwise",
+    "alt_translations": [
+      "else",
+      "usually"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Sonst noch etwas? = Anything else?"
+    },
+    "example_target": "Beeil dich, [[sonst]] kommen wir zu spät.",
+    "example_source": "Hurry up, [[otherwise]] we’ll be late."
+  },
+  {
+    "lemma": "Musik",
+    "pos": "noun",
+    "translation": "music",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": null,
+      "genitive": "der Musik",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "No plural in everyday use."
+    },
+    "example_target": "Ich höre gern [[Musik]].",
+    "example_source": "I like listening to [[music]]."
+  },
+  {
+    "lemma": "fragen",
+    "pos": "verb",
+    "translation": "to ask",
+    "alt_translations": [
+      "to inquire"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "frage",
+          "p2s": "fragst",
+          "p3s": "fragt",
+          "p1p": "fragen",
+          "p2p": "fragt",
+          "p3p": "fragen"
+        },
+        "past": {
+          "p1s": "fragte",
+          "p2s": "fragtest",
+          "p3s": "fragte",
+          "p1p": "fragten",
+          "p2p": "fragtet",
+          "p3p": "fragten"
+        },
+        "present_3sg": "fragt",
+        "past_3sg": "fragte",
+        "perfect_3sg": "hat gefragt",
+        "participle": "gefragt",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": "accusative",
+      "comparative": null,
+      "superlative": null,
+      "note": "The person asked is accusative: Ich frage dich. fragen nach = to ask about."
+    },
+    "example_target": "Darf ich dich etwas [[fragen]]?",
+    "example_source": "May I [[ask]] you something?"
+  },
+  {
+    "lemma": "Herr",
+    "pos": "noun",
+    "translation": "Mr",
+    "alt_translations": [
+      "gentleman",
+      "lord"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Herren",
+      "genitive": "des Herrn",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Weak noun: den/dem/des Herrn. Meine Damen und Herren = ladies and gentlemen."
+    },
+    "example_target": "Guten Tag, [[Herr]] Müller!",
+    "example_source": "Hello, [[Mr]] Müller!"
+  },
+  {
+    "lemma": "dabei",
+    "pos": "adverb",
+    "translation": "with it",
+    "alt_translations": [
+      "with you",
+      "present",
+      "at the same time"
+    ],
+    "cefr": "B1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Ich bin dabei! = Count me in!"
+    },
+    "example_target": "Hast du deinen Ausweis [[dabei]]?",
+    "example_source": "Do you have your ID [[with you]]?"
+  },
+  {
+    "lemma": "heißen",
+    "pos": "verb",
+    "translation": "to be called",
+    "alt_translations": [
+      "to mean"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "heiße",
+          "p2s": "heißt",
+          "p3s": "heißt",
+          "p1p": "heißen",
+          "p2p": "heißt",
+          "p3p": "heißen"
+        },
+        "past": {
+          "p1s": "hieß",
+          "p2s": "hießest",
+          "p3s": "hieß",
+          "p1p": "hießen",
+          "p2p": "hießt",
+          "p3p": "hießen"
+        },
+        "present_3sg": "heißt",
+        "past_3sg": "hieß",
+        "perfect_3sg": "hat geheißen",
+        "participle": "geheißen",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "das heißt (d. h.) = that is (i.e.)."
+    },
+    "example_target": "Ich [[heiße]] Anna.",
+    "example_source": "My [[name is]] Anna."
+  },
+  {
+    "lemma": "niemand",
+    "pos": "pronoun",
+    "translation": "nobody",
+    "alt_translations": [
+      "no one"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Accusative niemand(en), dative niemand(em). Opposite: jemand."
+    },
+    "example_target": "[[Niemand]] ist zu Hause.",
+    "example_source": "[[Nobody]] is at home."
+  },
+  {
+    "lemma": "sofort",
+    "pos": "adverb",
+    "translation": "immediately",
+    "alt_translations": [
+      "right away",
+      "at once"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Ich komme [[sofort]]!",
+    "example_source": "I’m coming [[right away]]!"
+  },
+  {
+    "lemma": "bevor",
+    "pos": "conjunction",
+    "translation": "before",
+    "alt_translations": [],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Subordinating: the verb goes to the end. Before a noun use the preposition vor."
+    },
+    "example_target": "Wasch dir die Hände, [[bevor]] du isst.",
+    "example_source": "Wash your hands [[before]] you eat."
+  },
+  {
+    "lemma": "einmal",
+    "pos": "adverb",
+    "translation": "once",
+    "alt_translations": [
+      "one time",
+      "ever",
+      "just"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Colloquially mal: Komm mal her! noch einmal = once more."
+    },
+    "example_target": "Ich war [[einmal]] in Paris.",
+    "example_source": "I was in Paris [[once]]."
+  },
+  {
+    "lemma": "Problem",
+    "pos": "noun",
+    "translation": "problem",
+    "alt_translations": [
+      "issue",
+      "trouble"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "neuter",
+      "article": "das",
+      "plural": "die Probleme",
+      "genitive": "des Problems",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Kein [[Problem]], ich helfe dir.",
+    "example_source": "No [[problem]], I’ll help you."
+  },
+  {
+    "lemma": "Sohn",
+    "pos": "noun",
+    "translation": "son",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Söhne",
+      "genitive": "des Sohnes",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Mein [[Sohn]] geht in die Schule.",
+    "example_source": "My [[son]] goes to school."
+  },
+  {
+    "lemma": "wann",
+    "pos": "adverb",
+    "translation": "when",
+    "alt_translations": [
+      "what time"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Only for questions (direct or indirect); other \"when\" clauses use wenn or als."
+    },
+    "example_target": "[[Wann]] beginnt der Film?",
+    "example_source": "[[When]] does the film start?"
+  },
+  {
+    "lemma": "fertig",
+    "pos": "adjective",
+    "translation": "ready",
+    "alt_translations": [
+      "finished",
+      "done"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "mit etwas fertig sein = to be finished with something; colloquially also \"exhausted\"."
+    },
+    "example_target": "Das Essen ist gleich [[fertig]].",
+    "example_source": "The food will be [[ready]] in a moment."
+  },
+  {
+    "lemma": "halt",
+    "pos": "adverb",
+    "translation": "just",
+    "alt_translations": [
+      "simply",
+      "stop!"
+    ],
+    "cefr": "B1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Spoken modal particle, like eben. Halt! = Stop!"
+    },
+    "example_target": "Das ist [[halt]] so.",
+    "example_source": "That’s [[just]] the way it is."
+  },
+  {
+    "lemma": "allein",
+    "pos": "adjective",
+    "translation": "alone",
+    "alt_translations": [
+      "on one’s own",
+      "only"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Not declined. Colloquially also alleine."
+    },
+    "example_target": "Ich wohne [[allein]].",
+    "example_source": "I live [[alone]]."
+  },
+  {
+    "lemma": "beide",
+    "pos": "pronoun",
+    "translation": "both",
+    "alt_translations": [
+      "the two"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Declined like an adjective after an article: die beiden Kinder = the two children."
+    },
+    "example_target": "[[Beide]] Kinder spielen Fußball.",
+    "example_source": "[[Both]] children play football."
+  },
+  {
+    "lemma": "Sache",
+    "pos": "noun",
+    "translation": "thing",
+    "alt_translations": [
+      "matter",
+      "stuff"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Sachen",
+      "genitive": "der Sache",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Plural Sachen also means belongings or clothes."
+    },
+    "example_target": "Wo sind meine [[Sachen]]?",
+    "example_source": "Where are my [[things]]?"
+  },
+  {
+    "lemma": "Hilfe",
+    "pos": "noun",
+    "translation": "help",
+    "alt_translations": [
+      "aid",
+      "assistance"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Hilfen",
+      "genitive": "der Hilfe",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Hilfe! = Help! The plural is rare."
+    },
+    "example_target": "Danke für deine [[Hilfe]]!",
+    "example_source": "Thanks for your [[help]]!"
+  },
+  {
+    "lemma": "jeder",
+    "pos": "pronoun",
+    "translation": "every",
+    "alt_translations": [
+      "each",
+      "everyone"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Declined like der: jeder, jede, jedes; accusative masculine jeden. Alone: jeder = everyone."
+    },
+    "example_target": "Ich trinke [[jeden]] Morgen Kaffee.",
+    "example_source": "I drink coffee [[every]] morning."
+  },
+  {
+    "lemma": "gern",
+    "pos": "adverb",
+    "translation": "gladly",
+    "alt_translations": [
+      "with pleasure",
+      "to like doing"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "lieber",
+      "superlative": "am liebsten",
+      "note": "Verb + gern = to like doing something. Also gerne."
+    },
+    "example_target": "Ich spiele [[gern]] Fußball.",
+    "example_source": "I [[like]] playing football."
+  },
+  {
+    "lemma": "darüber",
+    "pos": "adverb",
+    "translation": "about it",
+    "alt_translations": [
+      "over it",
+      "above it"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Replaces über + a thing: über das Problem sprechen → darüber sprechen."
+    },
+    "example_target": "Wir sprechen morgen [[darüber]].",
+    "example_source": "We’ll talk [[about it]] tomorrow."
+  },
+  {
+    "lemma": "halten",
+    "pos": "verb",
+    "translation": "to hold",
+    "alt_translations": [
+      "to stop",
+      "to keep",
+      "to consider"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "halte",
+          "p2s": "hältst",
+          "p3s": "hält",
+          "p1p": "halten",
+          "p2p": "haltet",
+          "p3p": "halten"
+        },
+        "past": {
+          "p1s": "hielt",
+          "p2s": "hieltest",
+          "p3s": "hielt",
+          "p1p": "hielten",
+          "p2p": "hieltet",
+          "p3p": "hielten"
+        },
+        "present_3sg": "hält",
+        "past_3sg": "hielt",
+        "perfect_3sg": "hat gehalten",
+        "participle": "gehalten",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Irregular: du hältst, er hält. halten von = to think of: Was hältst du davon?"
+    },
+    "example_target": "Der Bus [[hält]] direkt vor der Schule.",
+    "example_source": "The bus [[stops]] right outside the school."
+  },
+  {
+    "lemma": "wahr",
+    "pos": "adjective",
+    "translation": "true",
+    "alt_translations": [
+      "real"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "nicht wahr? at the end of a sentence = isn’t it? / right?"
+    },
+    "example_target": "Das ist nicht [[wahr]]!",
+    "example_source": "That’s not [[true]]!"
+  },
+  {
+    "lemma": "dazu",
+    "pos": "adverb",
+    "translation": "in addition",
+    "alt_translations": [
+      "with it",
+      "to it",
+      "for that"
+    ],
+    "cefr": "B1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Replaces zu + a thing: Ich habe keine Lust dazu = I don’t feel like it."
+    },
+    "example_target": "Möchten Sie einen Salat [[dazu]]?",
+    "example_source": "Would you like a salad [[with it]]?"
+  },
+  {
+    "lemma": "daran",
+    "pos": "adverb",
+    "translation": "about it",
+    "alt_translations": [
+      "of it",
+      "on it"
+    ],
+    "cefr": "B1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Replaces an + a thing: denken an → daran denken. Colloquially dran."
+    },
+    "example_target": "Ich denke oft [[daran]].",
+    "example_source": "I often think [[about it]]."
+  },
+  {
+    "lemma": "Dank",
+    "pos": "noun",
+    "translation": "thanks",
+    "alt_translations": [
+      "gratitude"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": null,
+      "genitive": "des Dankes",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "No plural. Vielen Dank! = Thank you very much! Gott sei Dank = thank God."
+    },
+    "example_target": "Vielen [[Dank]] für die Einladung!",
+    "example_source": "Many [[thanks]] for the invitation!"
+  },
+  {
+    "lemma": "Fall",
+    "pos": "noun",
+    "translation": "case",
+    "alt_translations": [
+      "fall",
+      "event"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Fälle",
+      "genitive": "des Falles",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "auf jeden Fall = definitely; für den Fall, dass = in case. Also the grammatical case."
+    },
+    "example_target": "Ich komme auf jeden [[Fall]] mit.",
+    "example_source": "I’m coming along in any [[case]]."
+  },
+  {
+    "lemma": "egal",
+    "pos": "adjective",
+    "translation": "all the same",
+    "alt_translations": [
+      "doesn’t matter",
+      "whatever"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Not declined. Egal! = Whatever! / Never mind!"
+    },
+    "example_target": "Das ist mir [[egal]].",
+    "example_source": "It’s [[all the same]] to me."
+  },
+  {
+    "lemma": "kennen",
+    "pos": "verb",
+    "translation": "to know",
+    "alt_translations": [
+      "to be familiar with"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "kenne",
+          "p2s": "kennst",
+          "p3s": "kennt",
+          "p1p": "kennen",
+          "p2p": "kennt",
+          "p3p": "kennen"
+        },
+        "past": {
+          "p1s": "kannte",
+          "p2s": "kanntest",
+          "p3s": "kannte",
+          "p1p": "kannten",
+          "p2p": "kanntet",
+          "p3p": "kannten"
+        },
+        "present_3sg": "kennt",
+        "past_3sg": "kannte",
+        "perfect_3sg": "hat gekannt",
+        "participle": "gekannt",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": "accusative",
+      "comparative": null,
+      "superlative": null,
+      "note": "kennen = to know people, places, things; wissen = to know facts."
+    },
+    "example_target": "Ich [[kenne]] ihn schon lange.",
+    "example_source": "I’ve [[known]] him for a long time."
+  },
+  {
+    "lemma": "vergessen",
+    "pos": "verb",
+    "translation": "to forget",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "vergesse",
+          "p2s": "vergisst",
+          "p3s": "vergisst",
+          "p1p": "vergessen",
+          "p2p": "vergesst",
+          "p3p": "vergessen"
+        },
+        "past": {
+          "p1s": "vergaß",
+          "p2s": "vergaßest",
+          "p3s": "vergaß",
+          "p1p": "vergaßen",
+          "p2p": "vergaßt",
+          "p3p": "vergaßen"
+        },
+        "present_3sg": "vergisst",
+        "past_3sg": "vergaß",
+        "perfect_3sg": "hat vergessen",
+        "participle": "vergessen",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": "accusative",
+      "comparative": null,
+      "superlative": null,
+      "note": "Irregular: du/er vergisst. Participle without ge-: vergessen."
+    },
+    "example_target": "Ich habe meinen Schlüssel [[vergessen]].",
+    "example_source": "I [[forgot]] my key."
+  },
+  {
+    "lemma": "Frage",
+    "pos": "noun",
+    "translation": "question",
+    "alt_translations": [
+      "issue"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Fragen",
+      "genitive": "der Frage",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "eine Frage stellen = to ask a question."
+    },
+    "example_target": "Ich habe eine [[Frage]].",
+    "example_source": "I have a [[question]]."
+  },
+  {
+    "lemma": "echt",
+    "pos": "adjective",
+    "translation": "real",
+    "alt_translations": [
+      "genuine",
+      "really"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Colloquially \"really\": echt gut = really good. Echt? = Really?"
+    },
+    "example_target": "Das ist [[echt]] toll!",
+    "example_source": "That’s [[really]] great!"
+  },
+  {
+    "lemma": "eigentlich",
+    "pos": "adverb",
+    "translation": "actually",
+    "alt_translations": [
+      "really",
+      "in fact"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Was machst du [[eigentlich]] beruflich?",
+    "example_source": "What do you [[actually]] do for a living?"
+  },
+  {
+    "lemma": "Baby",
+    "pos": "noun",
+    "translation": "baby",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "neuter",
+      "article": "das",
+      "plural": "die Babys",
+      "genitive": "des Babys",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Das [[Baby]] schläft endlich.",
+    "example_source": "The [[baby]] is finally asleep."
+  },
+  {
+    "lemma": "Name",
+    "pos": "noun",
+    "translation": "name",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Namen",
+      "genitive": "des Namens",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Irregular: den/dem Namen, but genitive des Namens."
+    },
+    "example_target": "Wie ist Ihr [[Name]]?",
+    "example_source": "What is your [[name]]?"
+  },
+  {
+    "lemma": "bekommen",
+    "pos": "verb",
+    "translation": "to get",
+    "alt_translations": [
+      "to receive"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "bekomme",
+          "p2s": "bekommst",
+          "p3s": "bekommt",
+          "p1p": "bekommen",
+          "p2p": "bekommt",
+          "p3p": "bekommen"
+        },
+        "past": {
+          "p1s": "bekam",
+          "p2s": "bekamst",
+          "p3s": "bekam",
+          "p1p": "bekamen",
+          "p2p": "bekamt",
+          "p3p": "bekamen"
+        },
+        "present_3sg": "bekommt",
+        "past_3sg": "bekam",
+        "perfect_3sg": "hat bekommen",
+        "participle": "bekommen",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": "accusative",
+      "comparative": null,
+      "superlative": null,
+      "note": "False friend: bekommen = to get, not \"to become\" (werden). Participle without ge-."
+    },
+    "example_target": "Ich habe einen Brief [[bekommen]].",
+    "example_source": "I [[received]] a letter."
+  },
+  {
+    "lemma": "Kopf",
+    "pos": "noun",
+    "translation": "head",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Köpfe",
+      "genitive": "des Kopfes",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Mir tut der [[Kopf]] weh.",
+    "example_source": "My [[head]] hurts."
+  },
+  {
+    "lemma": "später",
+    "pos": "adverb",
+    "translation": "later",
+    "alt_translations": [
+      "afterwards"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Comparative of spät."
+    },
+    "example_target": "Bis [[später]]!",
+    "example_source": "See you [[later]]!"
+  },
+  {
+    "lemma": "Glück",
+    "pos": "noun",
+    "translation": "luck",
+    "alt_translations": [
+      "happiness",
+      "fortune"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "neuter",
+      "article": "das",
+      "plural": null,
+      "genitive": "des Glücks",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "No plural. Glück haben = to be lucky; zum Glück = luckily."
+    },
+    "example_target": "Viel [[Glück]] bei der Prüfung!",
+    "example_source": "Good [[luck]] with the exam!"
+  },
+  {
+    "lemma": "letzte",
+    "pos": "adjective",
+    "translation": "last",
+    "alt_translations": [
+      "latest",
+      "final"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Always declined: der letzte Bus, letzten Sommer."
+    },
+    "example_target": "Wir waren [[letzte]] Woche in Wien.",
+    "example_source": "We were in Vienna [[last]] week."
+  },
+  {
+    "lemma": "darauf",
+    "pos": "adverb",
+    "translation": "on it",
+    "alt_translations": [
+      "to it",
+      "for it",
+      "afterwards"
+    ],
+    "cefr": "B1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Replaces auf + a thing: warten auf → darauf warten. Colloquially drauf."
+    },
+    "example_target": "Ich freue mich [[darauf]].",
+    "example_source": "I’m looking forward [[to it]]."
+  },
+  {
+    "lemma": "Ende",
+    "pos": "noun",
+    "translation": "end",
+    "alt_translations": [
+      "ending"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "neuter",
+      "article": "das",
+      "plural": "die Enden",
+      "genitive": "des Endes",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Ende Mai = at the end of May; zu Ende = over, finished."
+    },
+    "example_target": "Am [[Ende]] der Straße ist ein Café.",
+    "example_source": "At the [[end]] of the street there’s a café."
+  },
+  {
+    "lemma": "bald",
+    "pos": "adverb",
+    "translation": "soon",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "eher",
+      "superlative": "am ehesten",
+      "note": null
+    },
+    "example_target": "Bis [[bald]]!",
+    "example_source": "See you [[soon]]!"
+  },
+  {
+    "lemma": "töten",
+    "pos": "verb",
+    "translation": "to kill",
+    "alt_translations": [],
+    "cefr": "B1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "töte",
+          "p2s": "tötest",
+          "p3s": "tötet",
+          "p1p": "töten",
+          "p2p": "tötet",
+          "p3p": "töten"
+        },
+        "past": {
+          "p1s": "tötete",
+          "p2s": "tötetest",
+          "p3s": "tötete",
+          "p1p": "töteten",
+          "p2p": "tötetet",
+          "p3p": "töteten"
+        },
+        "present_3sg": "tötet",
+        "past_3sg": "tötete",
+        "perfect_3sg": "hat getötet",
+        "participle": "getötet",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": "accusative",
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Seife [[tötet]] viele Bakterien.",
+    "example_source": "Soap [[kills]] many bacteria."
+  },
+  {
+    "lemma": "Ding",
+    "pos": "noun",
+    "translation": "thing",
+    "alt_translations": [
+      "object"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": "neuter",
+      "article": "das",
+      "plural": "die Dinge",
+      "genitive": "des Dinges",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Colloquial plural also die Dinger."
+    },
+    "example_target": "Was ist das für ein [[Ding]]?",
+    "example_source": "What kind of [[thing]] is that?"
+  },
+  {
+    "lemma": "meinen",
+    "pos": "verb",
+    "translation": "to mean",
+    "alt_translations": [
+      "to think",
+      "to say"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "meine",
+          "p2s": "meinst",
+          "p3s": "meint",
+          "p1p": "meinen",
+          "p2p": "meint",
+          "p3p": "meinen"
+        },
+        "past": {
+          "p1s": "meinte",
+          "p2s": "meintest",
+          "p3s": "meinte",
+          "p1p": "meinten",
+          "p2p": "meintet",
+          "p3p": "meinten"
+        },
+        "present_3sg": "meint",
+        "past_3sg": "meinte",
+        "perfect_3sg": "hat gemeint",
+        "participle": "gemeint",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Also \"to think\": Ich meine, du hast recht. Not the possessive mein."
+    },
+    "example_target": "Was [[meinst]] du damit?",
+    "example_source": "What do you [[mean]] by that?"
+  },
+  {
+    "lemma": "toll",
+    "pos": "adjective",
+    "translation": "great",
+    "alt_translations": [
+      "fantastic",
+      "amazing"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "toller",
+      "superlative": "am tollsten",
+      "note": null
+    },
+    "example_target": "Das Konzert war [[toll]]!",
+    "example_source": "The concert was [[great]]!"
+  },
+  {
+    "lemma": "eins",
+    "pos": "numeral",
+    "translation": "one",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Used when counting; before a noun it is ein/eine: ein Apfel. Es ist eins = It’s one o’clock."
+    },
+    "example_target": "Der Bus Nummer [[eins]] fährt zum Bahnhof.",
+    "example_source": "Bus number [[one]] goes to the station."
+  },
+  {
+    "lemma": "Minute",
+    "pos": "noun",
+    "translation": "minute",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Minuten",
+      "genitive": "der Minute",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Der Zug kommt in fünf [[Minuten]].",
+    "example_source": "The train arrives in five [[minutes]]."
+  },
+  {
+    "lemma": "bereit",
+    "pos": "adjective",
+    "translation": "ready",
+    "alt_translations": [
+      "prepared",
+      "willing"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "bereit sein, etwas zu tun = to be willing to do something."
+    },
+    "example_target": "Bist du [[bereit]]?",
+    "example_source": "Are you [[ready]]?"
+  },
+  {
+    "lemma": "weit",
+    "pos": "adjective",
+    "translation": "far",
+    "alt_translations": [
+      "wide",
+      "long (distance)"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "weiter",
+      "superlative": "am weitesten",
+      "note": "weiter also means \"further, on\": Mach weiter! = Carry on!"
+    },
+    "example_target": "Ist es noch [[weit]] bis zum Bahnhof?",
+    "example_source": "Is it still [[far]] to the station?"
+  },
+  {
+    "lemma": "Ahnung",
+    "pos": "noun",
+    "translation": "idea",
+    "alt_translations": [
+      "clue",
+      "notion",
+      "hunch"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Ahnungen",
+      "genitive": "der Ahnung",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Keine Ahnung! = No idea!"
+    },
+    "example_target": "Ich habe keine [[Ahnung]].",
+    "example_source": "I have no [[idea]]."
+  },
+  {
+    "lemma": "bisschen",
+    "pos": "pronoun",
+    "translation": "a bit",
+    "alt_translations": [
+      "a little"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Usually ein bisschen; not declined."
+    },
+    "example_target": "Ich spreche ein [[bisschen]] Deutsch.",
+    "example_source": "I speak a [[little]] German."
+  },
+  {
+    "lemma": "Tür",
+    "pos": "noun",
+    "translation": "door",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Türen",
+      "genitive": "der Tür",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Mach bitte die [[Tür]] zu!",
+    "example_source": "Please close the [[door]]!"
+  },
+  {
+    "lemma": "euer",
+    "pos": "pronoun",
+    "translation": "your (plural)",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Possessive for ihr. Drops the e before an ending: eure Kinder, euren Hund."
+    },
+    "example_target": "Ist das [[euer]] Auto?",
+    "example_source": "Is that [[your]] car?"
+  },
+  {
+    "lemma": "Auge",
+    "pos": "noun",
+    "translation": "eye",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "neuter",
+      "article": "das",
+      "plural": "die Augen",
+      "genitive": "des Auges",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "unter vier Augen = in private."
+    },
+    "example_target": "Sie hat blaue [[Augen]].",
+    "example_source": "She has blue [[eyes]]."
+  },
+  {
+    "lemma": "Polizei",
+    "pos": "noun",
+    "translation": "police",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": null,
+      "genitive": "der Polizei",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "No plural in everyday use. Singular verb in German: Die Polizei ist da = The police are here."
+    },
+    "example_target": "Die [[Polizei]] kommt gleich.",
+    "example_source": "The [[police]] are coming soon."
+  },
+  {
+    "lemma": "sterben",
+    "pos": "verb",
+    "translation": "to die",
+    "alt_translations": [
+      "to pass away"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "sterbe",
+          "p2s": "stirbst",
+          "p3s": "stirbt",
+          "p1p": "sterben",
+          "p2p": "sterbt",
+          "p3p": "sterben"
+        },
+        "past": {
+          "p1s": "starb",
+          "p2s": "starbst",
+          "p3s": "starb",
+          "p1p": "starben",
+          "p2p": "starbt",
+          "p3p": "starben"
+        },
+        "present_3sg": "stirbt",
+        "past_3sg": "starb",
+        "perfect_3sg": "ist gestorben",
+        "participle": "gestorben",
+        "auxiliary": "sein",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Irregular: du stirbst, er stirbt. Perfekt with sein. sterben an + dative = to die of."
+    },
+    "example_target": "Die Pflanze [[stirbt]] ohne Wasser.",
+    "example_source": "The plant [[dies]] without water."
+  },
+  {
+    "lemma": "draußen",
+    "pos": "adverb",
+    "translation": "outside",
+    "alt_translations": [
+      "outdoors"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "For location; for direction use nach draußen."
+    },
+    "example_target": "Die Kinder spielen [[draußen]].",
+    "example_source": "The children are playing [[outside]]."
+  },
+  {
+    "lemma": "fast",
+    "pos": "adverb",
+    "translation": "almost",
+    "alt_translations": [
+      "nearly"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "False friend: fast means \"almost\", not \"fast\" (schnell)."
+    },
+    "example_target": "Ich bin [[fast]] fertig.",
+    "example_source": "I’m [[almost]] done."
+  },
+  {
+    "lemma": "runter",
+    "pos": "adverb",
+    "translation": "down",
+    "alt_translations": [
+      "downstairs"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Colloquial short form of herunter/hinunter."
+    },
+    "example_target": "Komm bitte [[runter]]!",
+    "example_source": "Please come [[down]]!"
+  },
+  {
+    "lemma": "vorbei",
+    "pos": "adverb",
+    "translation": "over",
+    "alt_translations": [
+      "past",
+      "by"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "vorbeikommen = to drop by; an etwas vorbei = past something."
+    },
+    "example_target": "Der Sommer ist schon [[vorbei]].",
+    "example_source": "Summer is already [[over]]."
+  },
+  {
+    "lemma": "treffen",
+    "pos": "verb",
+    "translation": "to meet",
+    "alt_translations": [
+      "to hit",
+      "to make (a decision)"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "treffe",
+          "p2s": "triffst",
+          "p3s": "trifft",
+          "p1p": "treffen",
+          "p2p": "trefft",
+          "p3p": "treffen"
+        },
+        "past": {
+          "p1s": "traf",
+          "p2s": "trafst",
+          "p3s": "traf",
+          "p1p": "trafen",
+          "p2p": "traft",
+          "p3p": "trafen"
+        },
+        "present_3sg": "trifft",
+        "past_3sg": "traf",
+        "perfect_3sg": "hat getroffen",
+        "participle": "getroffen",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": "accusative",
+      "comparative": null,
+      "superlative": null,
+      "note": "Irregular: du triffst, er trifft. sich treffen = to meet up."
+    },
+    "example_target": "Ich [[treffe]] heute meine Freundin.",
+    "example_source": "I’m [[meeting]] my friend today."
+  },
+  {
+    "lemma": "verrückt",
+    "pos": "adjective",
+    "translation": "crazy",
+    "alt_translations": [
+      "mad",
+      "insane"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "verrückter",
+      "superlative": "am verrücktesten",
+      "note": "verrückt nach = crazy about."
+    },
+    "example_target": "Bist du [[verrückt]]?",
+    "example_source": "Are you [[crazy]]?"
+  },
+  {
+    "lemma": "hinter",
+    "pos": "preposition",
+    "translation": "behind",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": "accusative or dative",
+      "comparative": null,
+      "superlative": null,
+      "note": "Dative for position (wo?), accusative for movement (wohin?)."
+    },
+    "example_target": "Der Garten ist [[hinter]] dem Haus.",
+    "example_source": "The garden is [[behind]] the house."
+  },
+  {
+    "lemma": "Sorge",
+    "pos": "noun",
+    "translation": "worry",
+    "alt_translations": [
+      "concern",
+      "care"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Sorgen",
+      "genitive": "der Sorge",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "sich Sorgen machen = to worry."
+    },
+    "example_target": "Mach dir keine [[Sorgen]]!",
+    "example_source": "Don’t [[worry]]!"
+  },
+  {
+    "lemma": "einzig",
+    "pos": "adjective",
+    "translation": "only",
+    "alt_translations": [
+      "single",
+      "sole"
+    ],
+    "cefr": "B1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Usually declined: das einzige Problem = the only problem."
+    },
+    "example_target": "Du bist mein [[einziger]] Freund hier.",
+    "example_source": "You are my [[only]] friend here."
+  },
+  {
+    "lemma": "darum",
+    "pos": "adverb",
+    "translation": "that’s why",
+    "alt_translations": [
+      "about it",
+      "around it"
+    ],
+    "cefr": "B1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Also replaces um + a thing: Es geht darum, ... = It’s about ..."
+    },
+    "example_target": "[[Darum]] bin ich so müde.",
+    "example_source": "[[That’s why]] I’m so tired."
+  },
+  {
+    "lemma": "Tochter",
+    "pos": "noun",
+    "translation": "daughter",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Töchter",
+      "genitive": "der Tochter",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Unsere [[Tochter]] ist zehn Jahre alt.",
+    "example_source": "Our [[daughter]] is ten years old."
+  },
+  {
+    "lemma": "Idee",
+    "pos": "noun",
+    "translation": "idea",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Ideen",
+      "genitive": "der Idee",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Das ist eine gute [[Idee]]!",
+    "example_source": "That’s a good [[idea]]!"
+  },
+  {
+    "lemma": "darin",
+    "pos": "adverb",
+    "translation": "in it",
+    "alt_translations": [
+      "inside",
+      "therein"
+    ],
+    "cefr": "B1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Replaces in + a thing (location). Colloquially drin."
+    },
+    "example_target": "Hier ist die Dose, die Kekse sind [[darin]].",
+    "example_source": "Here’s the tin; the biscuits are [[in it]]."
+  },
+  {
+    "lemma": "ruhig",
+    "pos": "adjective",
+    "translation": "quiet",
+    "alt_translations": [
+      "calm",
+      "peaceful"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "ruhiger",
+      "superlative": "am ruhigsten",
+      "note": "As a particle: Komm ruhig rein! = Feel free to come in!"
+    },
+    "example_target": "Unsere Straße ist sehr [[ruhig]].",
+    "example_source": "Our street is very [[quiet]]."
+  },
+  {
+    "lemma": "spät",
+    "pos": "adjective",
+    "translation": "late",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "später",
+      "superlative": "am spätesten",
+      "note": "Wie spät ist es? = What time is it?"
+    },
+    "example_target": "Es ist schon [[spät]].",
+    "example_source": "It’s already [[late]]."
+  },
+  {
+    "lemma": "ziemlich",
+    "pos": "adverb",
+    "translation": "quite",
+    "alt_translations": [
+      "rather",
+      "pretty",
+      "fairly"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Es ist heute [[ziemlich]] kalt.",
+    "example_source": "It’s [[pretty]] cold today."
+  },
+  {
+    "lemma": "sogar",
+    "pos": "adverb",
+    "translation": "even",
+    "alt_translations": [],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Er spricht [[sogar]] Japanisch.",
+    "example_source": "He [[even]] speaks Japanese."
+  },
+  {
+    "lemma": "kurz",
+    "pos": "adjective",
+    "translation": "short",
+    "alt_translations": [
+      "brief",
+      "briefly"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "kürzer",
+      "superlative": "am kürzesten",
+      "note": "Also \"briefly\": Warte kurz! = Wait a moment!"
+    },
+    "example_target": "Meine Haare sind jetzt [[kurz]].",
+    "example_source": "My hair is [[short]] now."
+  },
+  {
+    "lemma": "Kerl",
+    "pos": "noun",
+    "translation": "guy",
+    "alt_translations": [
+      "fellow",
+      "bloke"
+    ],
+    "cefr": "B1",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Kerle",
+      "genitive": "des Kerls",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Colloquial. Informal plural also die Kerls."
+    },
+    "example_target": "Er ist ein netter [[Kerl]].",
+    "example_source": "He’s a nice [[guy]]."
+  },
+  {
+    "lemma": "liegen",
+    "pos": "verb",
+    "translation": "to lie",
+    "alt_translations": [
+      "to be (located)",
+      "to be situated"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "liege",
+          "p2s": "liegst",
+          "p3s": "liegt",
+          "p1p": "liegen",
+          "p2p": "liegt",
+          "p3p": "liegen"
+        },
+        "past": {
+          "p1s": "lag",
+          "p2s": "lagst",
+          "p3s": "lag",
+          "p1p": "lagen",
+          "p2p": "lagt",
+          "p3p": "lagen"
+        },
+        "present_3sg": "liegt",
+        "past_3sg": "lag",
+        "perfect_3sg": "hat gelegen",
+        "participle": "gelegen",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Position (wo?); the action of putting is legen. In southern Germany and Austria: ist gelegen."
+    },
+    "example_target": "Das Buch [[liegt]] auf dem Tisch.",
+    "example_source": "The book [[is lying]] on the table."
+  },
+  {
+    "lemma": "suchen",
+    "pos": "verb",
+    "translation": "to look for",
+    "alt_translations": [
+      "to search",
+      "to seek"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "suche",
+          "p2s": "suchst",
+          "p3s": "sucht",
+          "p1p": "suchen",
+          "p2p": "sucht",
+          "p3p": "suchen"
+        },
+        "past": {
+          "p1s": "suchte",
+          "p2s": "suchtest",
+          "p3s": "suchte",
+          "p1p": "suchten",
+          "p2p": "suchtet",
+          "p3p": "suchten"
+        },
+        "present_3sg": "sucht",
+        "past_3sg": "suchte",
+        "perfect_3sg": "hat gesucht",
+        "participle": "gesucht",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": "accusative",
+      "comparative": null,
+      "superlative": null,
+      "note": "Direct object, no preposition: Ich suche einen Job. suchen nach = to search for."
+    },
+    "example_target": "Ich [[suche]] meine Brille.",
+    "example_source": "I’m [[looking for]] my glasses."
+  },
+  {
+    "lemma": "je",
+    "pos": "adverb",
+    "translation": "each",
+    "alt_translations": [
+      "ever",
+      "per",
+      "the (je … desto)"
+    ],
+    "cefr": "B1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "je ... desto = the ... the: Je früher, desto besser. je nach = depending on."
+    },
+    "example_target": "Die Äpfel kosten [[je]] einen Euro.",
+    "example_source": "The apples cost one euro [[each]]."
+  },
+  {
+    "lemma": "woher",
+    "pos": "adverb",
+    "translation": "where from",
+    "alt_translations": [
+      "from where"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "[[Woher]] kommst du?",
+    "example_source": "[[Where]] are you from?"
+  },
+  {
+    "lemma": "lang",
+    "pos": "adjective",
+    "translation": "long",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "länger",
+      "superlative": "am längsten",
+      "note": "After a time span: zwei Jahre lang = for two years. The adverb lange = for a long time."
+    },
+    "example_target": "Die Schlange ist sehr [[lang]].",
+    "example_source": "The queue is very [[long]]."
+  },
+  {
+    "lemma": "Job",
+    "pos": "noun",
+    "translation": "job",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Jobs",
+      "genitive": "des Jobs",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Sie hat einen neuen [[Job]].",
+    "example_source": "She has a new [[job]]."
+  },
+  {
+    "lemma": "überhaupt",
+    "pos": "adverb",
+    "translation": "at all",
+    "alt_translations": [
+      "anyway",
+      "in general"
+    ],
+    "cefr": "B1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "überhaupt nicht = not at all; überhaupt kein = no ... at all."
+    },
+    "example_target": "Das verstehe ich [[überhaupt]] nicht.",
+    "example_source": "I don’t understand that [[at all]]."
+  },
+  {
+    "lemma": "Teufel",
+    "pos": "noun",
+    "translation": "devil",
+    "alt_translations": [],
+    "cefr": "B1",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Teufel",
+      "genitive": "des Teufels",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "In exclamations: Was zum Teufel ...? = What the hell ...?"
+    },
+    "example_target": "Das Märchen handelt von einem [[Teufel]].",
+    "example_source": "The fairy tale is about a [[devil]]."
+  },
+  {
+    "lemma": "verlieren",
+    "pos": "verb",
+    "translation": "to lose",
+    "alt_translations": [],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "verliere",
+          "p2s": "verlierst",
+          "p3s": "verliert",
+          "p1p": "verlieren",
+          "p2p": "verliert",
+          "p3p": "verlieren"
+        },
+        "past": {
+          "p1s": "verlor",
+          "p2s": "verlorst",
+          "p3s": "verlor",
+          "p1p": "verloren",
+          "p2p": "verlort",
+          "p3p": "verloren"
+        },
+        "present_3sg": "verliert",
+        "past_3sg": "verlor",
+        "perfect_3sg": "hat verloren",
+        "participle": "verloren",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": "accusative",
+      "comparative": null,
+      "superlative": null,
+      "note": "Participle without ge-: verloren."
+    },
+    "example_target": "Unser Team hat das Spiel [[verloren]].",
+    "example_source": "Our team [[lost]] the game."
+  },
+  {
+    "lemma": "groß",
+    "pos": "adjective",
+    "translation": "big",
+    "alt_translations": [
+      "large",
+      "tall",
+      "great"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "größer",
+      "superlative": "am größten",
+      "note": "Also \"tall\" for people: Er ist sehr groß."
+    },
+    "example_target": "Unsere Wohnung ist sehr [[groß]].",
+    "example_source": "Our flat is very [[big]]."
+  },
+  {
+    "lemma": "Hand",
+    "pos": "noun",
+    "translation": "hand",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Hände",
+      "genitive": "der Hand",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Gib mir deine [[Hand]].",
+    "example_source": "Give me your [[hand]]."
+  },
+  {
+    "lemma": "Grund",
+    "pos": "noun",
+    "translation": "reason",
+    "alt_translations": [
+      "ground",
+      "bottom",
+      "basis"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Gründe",
+      "genitive": "des Grundes",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "aus diesem Grund = for this reason; im Grunde = basically."
+    },
+    "example_target": "Es gibt keinen [[Grund]] zur Sorge.",
+    "example_source": "There’s no [[reason]] to worry."
+  },
+  {
+    "lemma": "Mama",
+    "pos": "noun",
+    "translation": "mum",
+    "alt_translations": [
+      "mom",
+      "mummy"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Mamas",
+      "genitive": "der Mama",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Informal; the neutral word is Mutter."
+    },
+    "example_target": "Meine [[Mama]] kocht sehr gut.",
+    "example_source": "My [[mum]] cooks very well."
+  },
+  {
+    "lemma": "Ruhe",
+    "pos": "noun",
+    "translation": "peace",
+    "alt_translations": [
+      "quiet",
+      "calm",
+      "rest"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": null,
+      "genitive": "der Ruhe",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "No plural. Lass mich in Ruhe! = Leave me alone!"
+    },
+    "example_target": "Ich brauche ein bisschen [[Ruhe]].",
+    "example_source": "I need a bit of [[peace and quiet]]."
+  },
+  {
+    "lemma": "Tod",
+    "pos": "noun",
+    "translation": "death",
+    "alt_translations": [],
+    "cefr": "B1",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Tode",
+      "genitive": "des Todes",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "The plural is rare."
+    },
+    "example_target": "Der [[Tod]] gehört zum Leben.",
+    "example_source": "[[Death]] is part of life."
+  },
+  {
+    "lemma": "Stunde",
+    "pos": "noun",
+    "translation": "hour",
+    "alt_translations": [
+      "lesson"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Stunden",
+      "genitive": "der Stunde",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Also a school lesson. For clock times use Uhr: Es ist drei Uhr."
+    },
+    "example_target": "Ich warte schon eine [[Stunde]].",
+    "example_source": "I’ve been waiting for an [[hour]]."
+  },
+  {
+    "lemma": "hoffen",
+    "pos": "verb",
+    "translation": "to hope",
+    "alt_translations": [],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "hoffe",
+          "p2s": "hoffst",
+          "p3s": "hofft",
+          "p1p": "hoffen",
+          "p2p": "hofft",
+          "p3p": "hoffen"
+        },
+        "past": {
+          "p1s": "hoffte",
+          "p2s": "hofftest",
+          "p3s": "hoffte",
+          "p1p": "hofften",
+          "p2p": "hofftet",
+          "p3p": "hofften"
+        },
+        "present_3sg": "hofft",
+        "past_3sg": "hoffte",
+        "perfect_3sg": "hat gehofft",
+        "participle": "gehofft",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "hoffen auf + accusative = to hope for."
+    },
+    "example_target": "Ich [[hoffe]], du kommst bald.",
+    "example_source": "I [[hope]] you’re coming soon."
+  },
+  {
+    "lemma": "oben",
+    "pos": "adverb",
+    "translation": "upstairs",
+    "alt_translations": [
+      "up",
+      "above",
+      "at the top"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "For location; for direction use nach oben."
+    },
+    "example_target": "Mein Zimmer ist [[oben]].",
+    "example_source": "My room is [[upstairs]]."
+  },
+  {
+    "lemma": "gestern",
+    "pos": "adverb",
+    "translation": "yesterday",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "gestern Abend = last night."
+    },
+    "example_target": "[[Gestern]] war ich im Kino.",
+    "example_source": "[[Yesterday]] I went to the cinema."
+  },
+  {
+    "lemma": "versuchen",
+    "pos": "verb",
+    "translation": "to try",
+    "alt_translations": [
+      "to attempt",
+      "to taste"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "versuche",
+          "p2s": "versuchst",
+          "p3s": "versucht",
+          "p1p": "versuchen",
+          "p2p": "versucht",
+          "p3p": "versuchen"
+        },
+        "past": {
+          "p1s": "versuchte",
+          "p2s": "versuchtest",
+          "p3s": "versuchte",
+          "p1p": "versuchten",
+          "p2p": "versuchtet",
+          "p3p": "versuchten"
+        },
+        "present_3sg": "versucht",
+        "past_3sg": "versuchte",
+        "perfect_3sg": "hat versucht",
+        "participle": "versucht",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "With zu + infinitive. Participle without ge-: versucht."
+    },
+    "example_target": "Ich [[versuche]], mehr Wasser zu trinken.",
+    "example_source": "I’m [[trying]] to drink more water."
+  },
+  {
+    "lemma": "Art",
+    "pos": "noun",
+    "translation": "kind",
+    "alt_translations": [
+      "type",
+      "way",
+      "species"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Arten",
+      "genitive": "der Art",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Also \"manner\": auf diese Art = in this way."
+    },
+    "example_target": "Welche [[Art]] von Musik magst du?",
+    "example_source": "What [[kind]] of music do you like?"
+  },
+  {
+    "lemma": "Schatz",
+    "pos": "noun",
+    "translation": "treasure",
+    "alt_translations": [
+      "darling",
+      "sweetheart"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Schätze",
+      "genitive": "des Schatzes",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Very common as a term of endearment."
+    },
+    "example_target": "Gute Nacht, [[Schatz]]!",
+    "example_source": "Good night, [[darling]]!"
+  },
+  {
+    "lemma": "endlich",
+    "pos": "adverb",
+    "translation": "finally",
+    "alt_translations": [
+      "at last"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "[[Endlich]] ist Wochenende!",
+    "example_source": "It’s [[finally]] the weekend!"
+  },
+  {
+    "lemma": "etwa",
+    "pos": "adverb",
+    "translation": "about",
+    "alt_translations": [
+      "approximately",
+      "perhaps"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Not the same as etwas. In questions it shows surprise: Bist du etwa krank?"
+    },
+    "example_target": "Die Fahrt dauert [[etwa]] eine Stunde.",
+    "example_source": "The journey takes [[about]] an hour."
+  },
+  {
+    "lemma": "erzählen",
+    "pos": "verb",
+    "translation": "to tell",
+    "alt_translations": [
+      "to narrate"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "erzähle",
+          "p2s": "erzählst",
+          "p3s": "erzählt",
+          "p1p": "erzählen",
+          "p2p": "erzählt",
+          "p3p": "erzählen"
+        },
+        "past": {
+          "p1s": "erzählte",
+          "p2s": "erzähltest",
+          "p3s": "erzählte",
+          "p1p": "erzählten",
+          "p2p": "erzähltet",
+          "p3p": "erzählten"
+        },
+        "present_3sg": "erzählt",
+        "past_3sg": "erzählte",
+        "perfect_3sg": "hat erzählt",
+        "participle": "erzählt",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Participle without ge-: erzählt. von etwas erzählen = to tell about something."
+    },
+    "example_target": "Er [[erzählt]] gern Witze.",
+    "example_source": "He likes [[telling]] jokes."
+  },
+  {
+    "lemma": "laufen",
+    "pos": "verb",
+    "translation": "to run",
+    "alt_translations": [
+      "to walk",
+      "to go",
+      "to be on (film)"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "laufe",
+          "p2s": "läufst",
+          "p3s": "läuft",
+          "p1p": "laufen",
+          "p2p": "lauft",
+          "p3p": "laufen"
+        },
+        "past": {
+          "p1s": "lief",
+          "p2s": "liefst",
+          "p3s": "lief",
+          "p1p": "liefen",
+          "p2p": "lieft",
+          "p3p": "liefen"
+        },
+        "present_3sg": "läuft",
+        "past_3sg": "lief",
+        "perfect_3sg": "ist gelaufen",
+        "participle": "gelaufen",
+        "auxiliary": "sein",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Irregular: du läufst, er läuft. Perfekt with sein. Wie läuft es? = How is it going?"
+    },
+    "example_target": "Ich [[laufe]] jeden Morgen im Park.",
+    "example_source": "I [[run]] in the park every morning."
+  },
+  {
+    "lemma": "schwer",
+    "pos": "adjective",
+    "translation": "heavy",
+    "alt_translations": [
+      "difficult",
+      "hard",
+      "serious"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "schwerer",
+      "superlative": "am schwersten",
+      "note": null
+    },
+    "example_target": "Der Koffer ist sehr [[schwer]].",
+    "example_source": "The suitcase is very [[heavy]]."
+  },
+  {
+    "lemma": "anders",
+    "pos": "adverb",
+    "translation": "different",
+    "alt_translations": [
+      "differently",
+      "else"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Not declined; before a noun use ander-: ein anderes Buch."
+    },
+    "example_target": "Heute ist alles [[anders]].",
+    "example_source": "Everything is [[different]] today."
+  },
+  {
+    "lemma": "fünf",
+    "pos": "numeral",
+    "translation": "five",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Wir haben [[fünf]] Katzen.",
+    "example_source": "We have [[five]] cats."
+  },
+  {
+    "lemma": "Wasser",
+    "pos": "noun",
+    "translation": "water",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "neuter",
+      "article": "das",
+      "plural": "die Wasser",
+      "genitive": "des Wassers",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "The plural is rare; die Wässer = kinds of (mineral) water."
+    },
+    "example_target": "Ein Glas [[Wasser]], bitte.",
+    "example_source": "A glass of [[water]], please."
+  },
+  {
+    "lemma": "erste",
+    "pos": "numeral",
+    "translation": "first",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Ordinal of eins; declined like an adjective: der erste Mai, am ersten Tag."
+    },
+    "example_target": "Das ist mein [[erster]] Tag hier.",
+    "example_source": "This is my [[first]] day here."
+  },
+  {
+    "lemma": "Geschichte",
+    "pos": "noun",
+    "translation": "story",
+    "alt_translations": [
+      "history"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Geschichten",
+      "genitive": "der Geschichte",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Also \"history\" (the subject)."
+    },
+    "example_target": "Oma erzählt uns eine [[Geschichte]].",
+    "example_source": "Grandma tells us a [[story]]."
+  },
+  {
+    "lemma": "wenig",
+    "pos": "adjective",
+    "translation": "little",
+    "alt_translations": [
+      "few",
+      "not much"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "weniger",
+      "superlative": "am wenigsten",
+      "note": "ein wenig = a little; wenige (plural) = few."
+    },
+    "example_target": "Ich habe heute [[wenig]] Zeit.",
+    "example_source": "I have [[little]] time today."
+  },
+  {
+    "lemma": "holen",
+    "pos": "verb",
+    "translation": "to fetch",
+    "alt_translations": [
+      "to get",
+      "to pick up"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "hole",
+          "p2s": "holst",
+          "p3s": "holt",
+          "p1p": "holen",
+          "p2p": "holt",
+          "p3p": "holen"
+        },
+        "past": {
+          "p1s": "holte",
+          "p2s": "holtest",
+          "p3s": "holte",
+          "p1p": "holten",
+          "p2p": "holtet",
+          "p3p": "holten"
+        },
+        "present_3sg": "holt",
+        "past_3sg": "holte",
+        "perfect_3sg": "hat geholt",
+        "participle": "geholt",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": "accusative",
+      "comparative": null,
+      "superlative": null,
+      "note": "abholen = to pick someone up."
+    },
+    "example_target": "Ich [[hole]] schnell Brot.",
+    "example_source": "I’ll quickly [[get]] some bread."
+  },
+  {
+    "lemma": "bedeuten",
+    "pos": "verb",
+    "translation": "to mean",
+    "alt_translations": [
+      "to signify"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "bedeute",
+          "p2s": "bedeutest",
+          "p3s": "bedeutet",
+          "p1p": "bedeuten",
+          "p2p": "bedeutet",
+          "p3p": "bedeuten"
+        },
+        "past": {
+          "p1s": "bedeutete",
+          "p2s": "bedeutetest",
+          "p3s": "bedeutete",
+          "p1p": "bedeuteten",
+          "p2p": "bedeutetet",
+          "p3p": "bedeuteten"
+        },
+        "present_3sg": "bedeutet",
+        "past_3sg": "bedeutete",
+        "perfect_3sg": "hat bedeutet",
+        "participle": "bedeutet",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "For words and signs; for what a person means use meinen."
+    },
+    "example_target": "Was [[bedeutet]] dieses Wort?",
+    "example_source": "What does this word [[mean]]?"
+  },
+  {
+    "lemma": "nett",
+    "pos": "adjective",
+    "translation": "nice",
+    "alt_translations": [
+      "kind",
+      "friendly"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "netter",
+      "superlative": "am nettesten",
+      "note": null
+    },
+    "example_target": "Deine Eltern sind sehr [[nett]].",
+    "example_source": "Your parents are very [[nice]]."
+  },
+  {
+    "lemma": "Wahrheit",
+    "pos": "noun",
+    "translation": "truth",
+    "alt_translations": [],
+    "cefr": "A2",
+    "grammar": {
+      "gender": "feminine",
+      "article": "die",
+      "plural": "die Wahrheiten",
+      "genitive": "der Wahrheit",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Sag mir bitte die [[Wahrheit]].",
+    "example_source": "Please tell me the [[truth]]."
+  },
+  {
+    "lemma": "deshalb",
+    "pos": "adverb",
+    "translation": "therefore",
+    "alt_translations": [
+      "that’s why",
+      "so"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "The verb comes right after it: deshalb bleibe ich."
+    },
+    "example_target": "Es regnet, [[deshalb]] bleiben wir zu Hause.",
+    "example_source": "It’s raining, [[so]] we’re staying at home."
+  },
+  {
+    "lemma": "welcher",
+    "pos": "pronoun",
+    "translation": "which",
+    "alt_translations": [
+      "what"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Declined like der: welcher, welche, welches; accusative masculine welchen."
+    },
+    "example_target": "[[Welchen]] Film möchtest du sehen?",
+    "example_source": "[[Which]] film do you want to see?"
+  },
+  {
+    "lemma": "bestimmt",
+    "pos": "adverb",
+    "translation": "definitely",
+    "alt_translations": [
+      "certainly",
+      "surely",
+      "particular"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "As an adjective: ein bestimmtes Buch = a particular book."
+    },
+    "example_target": "Er kommt [[bestimmt]] gleich.",
+    "example_source": "He’s [[definitely]] coming soon."
+  },
+  {
+    "lemma": "hoch",
+    "pos": "adjective",
+    "translation": "high",
+    "alt_translations": [
+      "tall"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": "höher",
+      "superlative": "am höchsten",
+      "note": "Drops the c before an ending: ein hoher Berg."
+    },
+    "example_target": "Der Berg ist sehr [[hoch]].",
+    "example_source": "The mountain is very [[high]]."
+  },
+  {
+    "lemma": "Alter",
+    "pos": "noun",
+    "translation": "age",
+    "alt_translations": [
+      "old age"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": "neuter",
+      "article": "das",
+      "plural": "die Alter",
+      "genitive": "des Alters",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "The plural is rare. Not to be confused with der Alte = the old man."
+    },
+    "example_target": "In deinem [[Alter]] hatte ich kein Handy.",
+    "example_source": "At your [[age]] I didn’t have a mobile."
+  },
+  {
+    "lemma": "schauen",
+    "pos": "verb",
+    "translation": "to look",
+    "alt_translations": [
+      "to watch",
+      "to see"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "schaue",
+          "p2s": "schaust",
+          "p3s": "schaut",
+          "p1p": "schauen",
+          "p2p": "schaut",
+          "p3p": "schauen"
+        },
+        "past": {
+          "p1s": "schaute",
+          "p2s": "schautest",
+          "p3s": "schaute",
+          "p1p": "schauten",
+          "p2p": "schautet",
+          "p3p": "schauten"
+        },
+        "present_3sg": "schaut",
+        "past_3sg": "schaute",
+        "perfect_3sg": "hat geschaut",
+        "participle": "geschaut",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Especially common in southern Germany and Austria. Schau mal! = Look!"
+    },
+    "example_target": "Ich [[schaue]] gern Filme.",
+    "example_source": "I like [[watching]] films."
+  },
+  {
+    "lemma": "Land",
+    "pos": "noun",
+    "translation": "country",
+    "alt_translations": [
+      "land",
+      "state",
+      "countryside"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "neuter",
+      "article": "das",
+      "plural": "die Länder",
+      "genitive": "des Landes",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "auf dem Land = in the countryside. Also a German federal state."
+    },
+    "example_target": "Deutschland ist ein schönes [[Land]].",
+    "example_source": "Germany is a beautiful [[country]]."
+  },
+  {
+    "lemma": "Zimmer",
+    "pos": "noun",
+    "translation": "room",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": "neuter",
+      "article": "das",
+      "plural": "die Zimmer",
+      "genitive": "des Zimmers",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Mein [[Zimmer]] ist klein, aber hell.",
+    "example_source": "My [[room]] is small but bright."
+  },
+  {
+    "lemma": "Wagen",
+    "pos": "noun",
+    "translation": "car",
+    "alt_translations": [
+      "carriage",
+      "cart",
+      "wagon"
+    ],
+    "cefr": "A2",
+    "grammar": {
+      "gender": "masculine",
+      "article": "der",
+      "plural": "die Wagen",
+      "genitive": "des Wagens",
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": "Also a train carriage. Southern German plural also die Wägen."
+    },
+    "example_target": "Er parkt seinen [[Wagen]] vor dem Haus.",
+    "example_source": "He parks his [[car]] in front of the house."
+  },
+  {
+    "lemma": "vier",
+    "pos": "numeral",
+    "translation": "four",
+    "alt_translations": [],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": null,
+      "governs_case": null,
+      "comparative": null,
+      "superlative": null,
+      "note": null
+    },
+    "example_target": "Meine Tochter ist [[vier]] Jahre alt.",
+    "example_source": "My daughter is [[four]] years old."
+  },
+  {
+    "lemma": "gefallen",
+    "pos": "verb",
+    "translation": "to like",
+    "alt_translations": [
+      "to please"
+    ],
+    "cefr": "A1",
+    "grammar": {
+      "gender": null,
+      "article": null,
+      "plural": null,
+      "genitive": null,
+      "verb": {
+        "present": {
+          "p1s": "gefalle",
+          "p2s": "gefällst",
+          "p3s": "gefällt",
+          "p1p": "gefallen",
+          "p2p": "gefallt",
+          "p3p": "gefallen"
+        },
+        "past": {
+          "p1s": "gefiel",
+          "p2s": "gefielst",
+          "p3s": "gefiel",
+          "p1p": "gefielen",
+          "p2p": "gefielt",
+          "p3p": "gefielen"
+        },
+        "present_3sg": "gefällt",
+        "past_3sg": "gefiel",
+        "perfect_3sg": "hat gefallen",
+        "participle": "gefallen",
+        "auxiliary": "haben",
+        "separable": false,
+        "reflexive": false
+      },
+      "governs_case": "dative",
+      "comparative": null,
+      "superlative": null,
+      "note": "The thing liked is the subject, the person is dative: Das gefällt mir = I like that."
+    },
+    "example_target": "Der Film hat mir gut [[gefallen]].",
+    "example_source": "I really [[liked]] the film."
+  }
+]

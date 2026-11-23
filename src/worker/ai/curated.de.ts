@@ -11,6 +11,9 @@
  * test/worker/curated.test.ts validates every entry.
  */
 import { termKey } from '../../shared/normalize'
+import batch1 from '../../../data/seed/de/batch-1.json'
+import batch2 from '../../../data/seed/de/batch-2.json'
+import batch3 from '../../../data/seed/de/batch-3.json'
 import { DEV_LEXICON_DE, type DevEntry } from './devLexicon.de'
 
 export type CuratedEntry = DevEntry
@@ -33,5 +36,12 @@ export function buildCurated(sources: readonly (readonly CuratedEntry[])[]): rea
   return out
 }
 
-// Phase 2 adds the data/seed/de batch files here.
-export const CURATED_DE: readonly CuratedEntry[] = buildCurated([DEV_LEXICON_DE])
+/** JSON data in the entry shape (validated by test/worker/curated.test.ts and the seed script). */
+const json = (data: unknown) => data as readonly CuratedEntry[]
+
+/**
+ * To change the dictionary: edit devLexicon.de.ts or a batch file (and data/seed/de/lemmas.json
+ * when the covered word list changes), then `npm run seed:sql` and commit the regenerated
+ * migrations/0003_seed_de.sql (curated.test.ts fails while the two disagree).
+ */
+export const CURATED_DE: readonly CuratedEntry[] = buildCurated([DEV_LEXICON_DE, json(batch1), json(batch2), json(batch3)])

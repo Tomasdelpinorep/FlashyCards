@@ -208,12 +208,14 @@ public/manifest.webmanifest icons/   test/{worker,shared}/*.test.ts
   1. `npm install`
   2. `npx wrangler d1 create flashcards`, then put the id into `wrangler.jsonc`
   3. Copy `.dev.vars.example` to `.dev.vars` and set `DEV_AUTH_EMAIL` and `AI_PROVIDER=fake|anthropic` (and `ALLOWED_EMAILS` only if you test real Access tokens locally)
-  4. `npm run db:migrate:local`
+  4. `npm run db:migrate:local` (includes the curated dictionary; after editing it, `npm run seed:sql` regenerates `migrations/0003_seed_de.sql`)
   5. `npm run dev`
   6. `npm test`
 - **Deploy:**
-  1. `npm run db:migrate:remote`
-  2. `npx wrangler secret put ANTHROPIC_API_KEY`
+  1. `npm run db:migrate:remote`, always BEFORE `npm run deploy`: the new build expects the
+     curated dictionary (`migrations/0003_seed_de.sql`) and every other migration to be applied.
+     Apply a migration locally first (`npm run db:migrate:local`).
+  2. Optional, not needed for the no-AI dictionary: `npx wrangler secret put ANTHROPIC_API_KEY`
   3. `npx wrangler secret put ALLOWED_EMAILS` (comma-separated). The repo is public, so the allowlist is never a `wrangler.jsonc` var. Until it is set, every login gets 403.
   4. `npm run deploy`
 - **Secrets:** `ANTHROPIC_API_KEY`, `ALLOWED_EMAILS`.

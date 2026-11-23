@@ -1,0 +1,3602 @@
+[
+ {
+  "rank": 4,
+  "lemma": "sein",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 6,
+  "lemma": "nicht",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 8,
+  "lemma": "und",
+  "pos": "conjunction",
+  "existing": true
+ },
+ {
+  "rank": 10,
+  "lemma": "was",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 11,
+  "lemma": "zu",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 14,
+  "lemma": "in",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 16,
+  "lemma": "mit",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 17,
+  "lemma": "wie",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 18,
+  "lemma": "auf",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 19,
+  "lemma": "dass",
+  "pos": "conjunction",
+  "existing": true
+ },
+ {
+  "rank": 20,
+  "lemma": "aber",
+  "pos": "conjunction",
+  "existing": true
+ },
+ {
+  "rank": 21,
+  "lemma": "so",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 22,
+  "lemma": "haben",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 23,
+  "lemma": "hier",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 24,
+  "lemma": "für",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 25,
+  "lemma": "von",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 26,
+  "lemma": "wenn",
+  "pos": "conjunction",
+  "existing": true
+ },
+ {
+  "rank": 29,
+  "lemma": "an",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 30,
+  "lemma": "noch",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 31,
+  "lemma": "nur",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 32,
+  "lemma": "da",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 34,
+  "lemma": "können",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 35,
+  "lemma": "gut",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 36,
+  "lemma": "auch",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 37,
+  "lemma": "schon",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 38,
+  "lemma": "als",
+  "pos": "conjunction",
+  "existing": true
+ },
+ {
+  "rank": 39,
+  "lemma": "mal",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 40,
+  "lemma": "jetzt",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 41,
+  "lemma": "dann",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 42,
+  "lemma": "aus",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 43,
+  "lemma": "mein",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 44,
+  "lemma": "um",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 45,
+  "lemma": "werden",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 46,
+  "lemma": "doch",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 47,
+  "lemma": "alles",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 48,
+  "lemma": "wissen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 49,
+  "lemma": "kein",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 50,
+  "lemma": "oder",
+  "pos": "conjunction",
+  "existing": true
+ },
+ {
+  "rank": 51,
+  "lemma": "nach",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 52,
+  "lemma": "nichts",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 54,
+  "lemma": "müssen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 55,
+  "lemma": "wollen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 56,
+  "lemma": "gehen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 57,
+  "lemma": "wo",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 58,
+  "lemma": "etwas",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 59,
+  "lemma": "mehr",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 60,
+  "lemma": "bei",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 61,
+  "lemma": "also",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 62,
+  "lemma": "bitte",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 63,
+  "lemma": "immer",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 64,
+  "lemma": "warum",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 65,
+  "lemma": "vor",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 66,
+  "lemma": "los",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 67,
+  "lemma": "wieder",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 68,
+  "lemma": "sagen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 69,
+  "lemma": "machen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 70,
+  "lemma": "danke",
+  "pos": "interjection",
+  "existing": true
+ },
+ {
+  "rank": 71,
+  "lemma": "sehr",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 72,
+  "lemma": "alle",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 73,
+  "lemma": "denn",
+  "pos": "conjunction",
+  "existing": true
+ },
+ {
+  "rank": 74,
+  "lemma": "Mann",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 75,
+  "lemma": "tun",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 76,
+  "lemma": "sehen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 77,
+  "lemma": "vielleicht",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 78,
+  "lemma": "wer",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 79,
+  "lemma": "dieser",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 80,
+  "lemma": "kommen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 81,
+  "lemma": "über",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 82,
+  "lemma": "geben",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 83,
+  "lemma": "dein",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 84,
+  "lemma": "sollen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 85,
+  "lemma": "nie",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 86,
+  "lemma": "wirklich",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 87,
+  "lemma": "viel",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 88,
+  "lemma": "weg",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 89,
+  "lemma": "einfach",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 90,
+  "lemma": "Leben",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 91,
+  "lemma": "Zeit",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 92,
+  "lemma": "weil",
+  "pos": "conjunction",
+  "existing": true
+ },
+ {
+  "rank": 93,
+  "lemma": "heute",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 94,
+  "lemma": "damit",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 95,
+  "lemma": "ganz",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 96,
+  "lemma": "sicher",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 97,
+  "lemma": "Frau",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 98,
+  "lemma": "nun",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 99,
+  "lemma": "bis",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 100,
+  "lemma": "leidtun",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 101,
+  "lemma": "zurück",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 102,
+  "lemma": "lassen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 103,
+  "lemma": "hallo",
+  "pos": "interjection",
+  "existing": true
+ },
+ {
+  "rank": 104,
+  "lemma": "Gott",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 105,
+  "lemma": "zwei",
+  "pos": "numeral",
+  "existing": true
+ },
+ {
+  "rank": 106,
+  "lemma": "genau",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 107,
+  "lemma": "klar",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 108,
+  "lemma": "morgen",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 109,
+  "lemma": "Leute",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 110,
+  "lemma": "Vater",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 111,
+  "lemma": "schön",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 112,
+  "lemma": "glauben",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 113,
+  "lemma": "ab",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 114,
+  "lemma": "gerade",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 115,
+  "lemma": "Tag",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 116,
+  "lemma": "reden",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 117,
+  "lemma": "wohl",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 118,
+  "lemma": "lieben",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 119,
+  "lemma": "Liebe",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 120,
+  "lemma": "unser",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 121,
+  "lemma": "jemand",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 122,
+  "lemma": "Geld",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 123,
+  "lemma": "durch",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 124,
+  "lemma": "ob",
+  "pos": "conjunction",
+  "existing": true
+ },
+ {
+  "rank": 125,
+  "lemma": "Mutter",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 126,
+  "lemma": "raus",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 127,
+  "lemma": "paar",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 128,
+  "lemma": "passieren",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 129,
+  "lemma": "denken",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 130,
+  "lemma": "wieso",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 131,
+  "lemma": "selbst",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 132,
+  "lemma": "hören",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 133,
+  "lemma": "mögen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 134,
+  "lemma": "ohne",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 135,
+  "lemma": "her",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 136,
+  "lemma": "andere",
+  "pos": "pronoun",
+  "existing": true
+ },
+ {
+  "rank": 137,
+  "lemma": "helfen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 138,
+  "lemma": "Nacht",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 139,
+  "lemma": "finden",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 140,
+  "lemma": "lange",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 141,
+  "lemma": "natürlich",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 142,
+  "lemma": "gar",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 143,
+  "lemma": "dort",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 144,
+  "lemma": "weiter",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 145,
+  "lemma": "seit",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 146,
+  "lemma": "gleich",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 147,
+  "lemma": "Recht",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 148,
+  "lemma": "richtig",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 149,
+  "lemma": "Ordnung",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 150,
+  "lemma": "davon",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 151,
+  "lemma": "dafür",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 152,
+  "lemma": "wegen",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 153,
+  "lemma": "Haus",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 154,
+  "lemma": "Mädchen",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 155,
+  "lemma": "hin",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 156,
+  "lemma": "Abend",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 157,
+  "lemma": "drei",
+  "pos": "numeral",
+  "existing": true
+ },
+ {
+  "rank": 158,
+  "lemma": "Freund",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 159,
+  "lemma": "warten",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 160,
+  "lemma": "Mensch",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 161,
+  "lemma": "essen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 162,
+  "lemma": "Angst",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 163,
+  "lemma": "bleiben",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 164,
+  "lemma": "zusammen",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 165,
+  "lemma": "Welt",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 166,
+  "lemma": "unter",
+  "pos": "preposition",
+  "existing": true
+ },
+ {
+  "rank": 167,
+  "lemma": "schnell",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 168,
+  "lemma": "tot",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 169,
+  "lemma": "dürfen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 170,
+  "lemma": "erst",
+  "pos": "adverb",
+  "existing": true
+ },
+ {
+  "rank": 171,
+  "lemma": "rein",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 172,
+  "lemma": "stimmen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 173,
+  "lemma": "nehmen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 174,
+  "lemma": "Kind",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 175,
+  "lemma": "bringen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 176,
+  "lemma": "genug",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 177,
+  "lemma": "brauchen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 178,
+  "lemma": "gegen",
+  "pos": "preposition",
+  "existing": false
+ },
+ {
+  "rank": 179,
+  "lemma": "Moment",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 180,
+  "lemma": "Junge",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 181,
+  "lemma": "stehen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 182,
+  "lemma": "sonst",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 183,
+  "lemma": "Musik",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 184,
+  "lemma": "Arbeit",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 185,
+  "lemma": "fragen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 186,
+  "lemma": "Herr",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 187,
+  "lemma": "dabei",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 188,
+  "lemma": "heißen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 189,
+  "lemma": "Familie",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 190,
+  "lemma": "niemand",
+  "pos": "pronoun",
+  "existing": false
+ },
+ {
+  "rank": 191,
+  "lemma": "sofort",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 192,
+  "lemma": "bevor",
+  "pos": "conjunction",
+  "existing": false
+ },
+ {
+  "rank": 193,
+  "lemma": "Jahr",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 194,
+  "lemma": "einmal",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 195,
+  "lemma": "Problem",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 196,
+  "lemma": "Sohn",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 197,
+  "lemma": "wann",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 198,
+  "lemma": "fertig",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 199,
+  "lemma": "halt",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 200,
+  "lemma": "allein",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 201,
+  "lemma": "sprechen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 202,
+  "lemma": "beide",
+  "pos": "pronoun",
+  "existing": false
+ },
+ {
+  "rank": 203,
+  "lemma": "Sache",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 204,
+  "lemma": "Hilfe",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 205,
+  "lemma": "jeder",
+  "pos": "pronoun",
+  "existing": false
+ },
+ {
+  "rank": 206,
+  "lemma": "gern",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 207,
+  "lemma": "darüber",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 208,
+  "lemma": "halten",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 209,
+  "lemma": "verstehen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 210,
+  "lemma": "wahr",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 211,
+  "lemma": "dazu",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 212,
+  "lemma": "Bruder",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 213,
+  "lemma": "daran",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 214,
+  "lemma": "Dank",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 215,
+  "lemma": "Fall",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 216,
+  "lemma": "egal",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 217,
+  "lemma": "kennen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 218,
+  "lemma": "vergessen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 219,
+  "lemma": "Frage",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 220,
+  "lemma": "echt",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 221,
+  "lemma": "eigentlich",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 222,
+  "lemma": "Uhr",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 223,
+  "lemma": "Stadt",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 224,
+  "lemma": "Baby",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 225,
+  "lemma": "fahren",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 226,
+  "lemma": "Name",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 227,
+  "lemma": "bekommen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 228,
+  "lemma": "Kopf",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 229,
+  "lemma": "klein",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 230,
+  "lemma": "später",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 231,
+  "lemma": "Glück",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 232,
+  "lemma": "letzte",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 233,
+  "lemma": "darauf",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 234,
+  "lemma": "Ende",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 235,
+  "lemma": "bald",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 236,
+  "lemma": "töten",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 237,
+  "lemma": "Ding",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 238,
+  "lemma": "meinen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 239,
+  "lemma": "toll",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 240,
+  "lemma": "eins",
+  "pos": "numeral",
+  "existing": false
+ },
+ {
+  "rank": 241,
+  "lemma": "Minute",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 242,
+  "lemma": "bereit",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 243,
+  "lemma": "weit",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 244,
+  "lemma": "Ahnung",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 245,
+  "lemma": "bisschen",
+  "pos": "pronoun",
+  "existing": false
+ },
+ {
+  "rank": 246,
+  "lemma": "Tür",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 247,
+  "lemma": "Auto",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 248,
+  "lemma": "euer",
+  "pos": "pronoun",
+  "existing": false
+ },
+ {
+  "rank": 249,
+  "lemma": "Auge",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 250,
+  "lemma": "Polizei",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 251,
+  "lemma": "sterben",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 252,
+  "lemma": "draußen",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 253,
+  "lemma": "fast",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 254,
+  "lemma": "runter",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 255,
+  "lemma": "vorbei",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 256,
+  "lemma": "treffen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 257,
+  "lemma": "arbeiten",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 258,
+  "lemma": "verrückt",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 259,
+  "lemma": "neu",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 260,
+  "lemma": "hinter",
+  "pos": "preposition",
+  "existing": false
+ },
+ {
+  "rank": 261,
+  "lemma": "Sorge",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 262,
+  "lemma": "einzig",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 263,
+  "lemma": "darum",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 264,
+  "lemma": "Tochter",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 265,
+  "lemma": "Idee",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 266,
+  "lemma": "Schwester",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 267,
+  "lemma": "darin",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 268,
+  "lemma": "ruhig",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 269,
+  "lemma": "spät",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 270,
+  "lemma": "ziemlich",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 271,
+  "lemma": "sogar",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 272,
+  "lemma": "kurz",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 273,
+  "lemma": "Kerl",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 274,
+  "lemma": "liegen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 275,
+  "lemma": "suchen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 276,
+  "lemma": "je",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 277,
+  "lemma": "woher",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 278,
+  "lemma": "lang",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 279,
+  "lemma": "Job",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 280,
+  "lemma": "spielen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 281,
+  "lemma": "überhaupt",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 282,
+  "lemma": "Teufel",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 283,
+  "lemma": "verlieren",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 284,
+  "lemma": "groß",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 285,
+  "lemma": "Hand",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 286,
+  "lemma": "Grund",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 287,
+  "lemma": "Mama",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 288,
+  "lemma": "Ruhe",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 289,
+  "lemma": "Tod",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 290,
+  "lemma": "Stunde",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 291,
+  "lemma": "hoffen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 292,
+  "lemma": "oben",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 293,
+  "lemma": "gestern",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 294,
+  "lemma": "versuchen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 295,
+  "lemma": "Art",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 296,
+  "lemma": "Schatz",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 297,
+  "lemma": "endlich",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 298,
+  "lemma": "etwa",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 299,
+  "lemma": "erzählen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 300,
+  "lemma": "laufen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 301,
+  "lemma": "schwer",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 302,
+  "lemma": "anders",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 303,
+  "lemma": "fünf",
+  "pos": "numeral",
+  "existing": false
+ },
+ {
+  "rank": 304,
+  "lemma": "Wasser",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 305,
+  "lemma": "erste",
+  "pos": "numeral",
+  "existing": false
+ },
+ {
+  "rank": 306,
+  "lemma": "Geschichte",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 307,
+  "lemma": "wenig",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 308,
+  "lemma": "holen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 309,
+  "lemma": "bedeuten",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 310,
+  "lemma": "nett",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 311,
+  "lemma": "Wahrheit",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 312,
+  "lemma": "Woche",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 313,
+  "lemma": "deshalb",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 314,
+  "lemma": "welcher",
+  "pos": "pronoun",
+  "existing": false
+ },
+ {
+  "rank": 315,
+  "lemma": "bestimmt",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 316,
+  "lemma": "hoch",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 317,
+  "lemma": "Alter",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 318,
+  "lemma": "schauen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 319,
+  "lemma": "Land",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 320,
+  "lemma": "Zimmer",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 321,
+  "lemma": "Wagen",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 322,
+  "lemma": "vier",
+  "pos": "numeral",
+  "existing": false
+ },
+ {
+  "rank": 323,
+  "lemma": "gefallen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 324,
+  "lemma": "Spaß",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 325,
+  "lemma": "niemals",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 326,
+  "lemma": "Schuld",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 327,
+  "lemma": "verlassen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 328,
+  "lemma": "zeigen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 329,
+  "lemma": "ernst",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 330,
+  "lemma": "Ort",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 331,
+  "lemma": "manchmal",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 332,
+  "lemma": "Seite",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 333,
+  "lemma": "zwischen",
+  "pos": "preposition",
+  "existing": false
+ },
+ {
+  "rank": 334,
+  "lemma": "eben",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 335,
+  "lemma": "während",
+  "pos": "preposition",
+  "existing": false
+ },
+ {
+  "rank": 336,
+  "lemma": "Spiel",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 337,
+  "lemma": "Chance",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 338,
+  "lemma": "Freundin",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 339,
+  "lemma": "Krieg",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 340,
+  "lemma": "entschuldigen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 341,
+  "lemma": "wichtig",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 342,
+  "lemma": "Bett",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 343,
+  "lemma": "schlecht",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 344,
+  "lemma": "Schule",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 345,
+  "lemma": "Entschuldigung",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 346,
+  "lemma": "Wort",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 347,
+  "lemma": "Typ",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 348,
+  "lemma": "schlafen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 349,
+  "lemma": "Gesicht",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 350,
+  "lemma": "falls",
+  "pos": "conjunction",
+  "existing": false
+ },
+ {
+  "rank": 351,
+  "lemma": "bloß",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 352,
+  "lemma": "unten",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 353,
+  "lemma": "Teil",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 354,
+  "lemma": "stellen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 355,
+  "lemma": "oft",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 356,
+  "lemma": "trinken",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 357,
+  "lemma": "einige",
+  "pos": "pronoun",
+  "existing": false
+ },
+ {
+  "rank": 358,
+  "lemma": "kriegen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 359,
+  "lemma": "Blut",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 360,
+  "lemma": "ehrlich",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 361,
+  "lemma": "Eltern",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 362,
+  "lemma": "scheinen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 363,
+  "lemma": "Herz",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 364,
+  "lemma": "glücklich",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 365,
+  "lemma": "alt",
+  "pos": "adjective",
+  "existing": true
+ },
+ {
+  "rank": 366,
+  "lemma": "Wiedersehen",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 367,
+  "lemma": "frei",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 368,
+  "lemma": "möglich",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 369,
+  "lemma": "irgendwie",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 370,
+  "lemma": "reichen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 371,
+  "lemma": "fest",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 372,
+  "lemma": "Waffe",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 373,
+  "lemma": "kaum",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 374,
+  "lemma": "irgendetwas",
+  "pos": "pronoun",
+  "existing": false
+ },
+ {
+  "rank": 375,
+  "lemma": "klingen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 376,
+  "lemma": "Platz",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 377,
+  "lemma": "Papa",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 378,
+  "lemma": "falsch",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 379,
+  "lemma": "sondern",
+  "pos": "conjunction",
+  "existing": false
+ },
+ {
+  "rank": 380,
+  "lemma": "Nummer",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 381,
+  "lemma": "früher",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 382,
+  "lemma": "wohin",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 383,
+  "lemma": "außer",
+  "pos": "preposition",
+  "existing": false
+ },
+ {
+  "rank": 384,
+  "lemma": "früh",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 385,
+  "lemma": "setzen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 386,
+  "lemma": "zuerst",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 387,
+  "lemma": "wahrscheinlich",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 388,
+  "lemma": "Telefon",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 389,
+  "lemma": "willkommen",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 390,
+  "lemma": "Plan",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 391,
+  "lemma": "retten",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 392,
+  "lemma": "hierher",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 393,
+  "lemma": "Fehler",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 394,
+  "lemma": "Dollar",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 395,
+  "lemma": "zehn",
+  "pos": "numeral",
+  "existing": false
+ },
+ {
+  "rank": 396,
+  "lemma": "passen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 397,
+  "lemma": "nächste",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 398,
+  "lemma": "Menge",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 399,
+  "lemma": "langsam",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 400,
+  "lemma": "bereits",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 401,
+  "lemma": "sechs",
+  "pos": "numeral",
+  "existing": false
+ },
+ {
+  "rank": 402,
+  "lemma": "Büro",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 403,
+  "lemma": "rufen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 404,
+  "lemma": "schaffen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 405,
+  "lemma": "leider",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 406,
+  "lemma": "Hölle",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 407,
+  "lemma": "trotzdem",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 408,
+  "lemma": "Doktor",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 409,
+  "lemma": "voll",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 410,
+  "lemma": "Film",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 411,
+  "lemma": "überall",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 412,
+  "lemma": "Hund",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 413,
+  "lemma": "direkt",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 414,
+  "lemma": "Schiff",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 415,
+  "lemma": "König",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 416,
+  "lemma": "danach",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 417,
+  "lemma": "funktionieren",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 418,
+  "lemma": "lernen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 419,
+  "lemma": "deswegen",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 420,
+  "lemma": "nennen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 421,
+  "lemma": "Feuer",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 422,
+  "lemma": "erinnern",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 423,
+  "lemma": "völlig",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 424,
+  "lemma": "Stelle",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 425,
+  "lemma": "Kumpel",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 426,
+  "lemma": "Kaffee",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 427,
+  "lemma": "Luft",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 428,
+  "lemma": "ziehen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 429,
+  "lemma": "verschwinden",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 430,
+  "lemma": "aufhören",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 431,
+  "lemma": "eigen",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 432,
+  "lemma": "zwar",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 433,
+  "lemma": "Buch",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 434,
+  "lemma": "krank",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 435,
+  "lemma": "fühlen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 436,
+  "lemma": "wert",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 437,
+  "lemma": "Arzt",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 438,
+  "lemma": "froh",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 439,
+  "lemma": "Straße",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 440,
+  "lemma": "heiraten",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 441,
+  "lemma": "super",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 442,
+  "lemma": "Onkel",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 443,
+  "lemma": "total",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 444,
+  "lemma": "Party",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 445,
+  "lemma": "erklären",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 446,
+  "lemma": "Wahl",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 447,
+  "lemma": "vertrauen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 448,
+  "lemma": "damals",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 449,
+  "lemma": "leicht",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 450,
+  "lemma": "nachdem",
+  "pos": "conjunction",
+  "existing": false
+ },
+ {
+  "rank": 451,
+  "lemma": "Gefühl",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 452,
+  "lemma": "kaufen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 453,
+  "lemma": "interessieren",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 454,
+  "lemma": "irgendwo",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 455,
+  "lemma": "Stück",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 456,
+  "lemma": "genauso",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 457,
+  "lemma": "Zukunft",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 458,
+  "lemma": "Licht",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 459,
+  "lemma": "Himmel",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 460,
+  "lemma": "Nachricht",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 461,
+  "lemma": "drüben",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 462,
+  "lemma": "kümmern",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 463,
+  "lemma": "laut",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 464,
+  "lemma": "anrufen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 465,
+  "lemma": "sitzen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 466,
+  "lemma": "Erde",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 467,
+  "lemma": "Schlüssel",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 468,
+  "lemma": "Rest",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 469,
+  "lemma": "eher",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 470,
+  "lemma": "Gefängnis",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 471,
+  "lemma": "Opfer",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 472,
+  "lemma": "Körper",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 473,
+  "lemma": "solcher",
+  "pos": "pronoun",
+  "existing": false
+ },
+ {
+  "rank": 474,
+  "lemma": "Mist",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 475,
+  "lemma": "schreiben",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 476,
+  "lemma": "böse",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 477,
+  "lemma": "Versuch",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 478,
+  "lemma": "vorstellen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 479,
+  "lemma": "wovon",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 480,
+  "lemma": "sobald",
+  "pos": "conjunction",
+  "existing": false
+ },
+ {
+  "rank": 481,
+  "lemma": "nochmal",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 482,
+  "lemma": "Sex",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 483,
+  "lemma": "Wohnung",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 484,
+  "lemma": "weh",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 485,
+  "lemma": "Krankenhaus",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 486,
+  "lemma": "Million",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 487,
+  "lemma": "Klasse",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 488,
+  "lemma": "hart",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 489,
+  "lemma": "Sinn",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 490,
+  "lemma": "außerdem",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 491,
+  "lemma": "verletzen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 492,
+  "lemma": "ändern",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 493,
+  "lemma": "erfahren",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 494,
+  "lemma": "tragen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 495,
+  "lemma": "wenigstens",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 496,
+  "lemma": "vorsichtig",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 497,
+  "lemma": "stolz",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 498,
+  "lemma": "stark",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 499,
+  "lemma": "fallen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 500,
+  "lemma": "besonders",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 501,
+  "lemma": "schicken",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 502,
+  "lemma": "Person",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 503,
+  "lemma": "schätzen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 504,
+  "lemma": "solange",
+  "pos": "conjunction",
+  "existing": false
+ },
+ {
+  "rank": 505,
+  "lemma": "großartig",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 506,
+  "lemma": "lachen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 507,
+  "lemma": "erwarten",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 508,
+  "lemma": "Boden",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 509,
+  "lemma": "Boss",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 510,
+  "lemma": "Stimme",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 511,
+  "lemma": "still",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 512,
+  "lemma": "Sicherheit",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 513,
+  "lemma": "Mund",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 514,
+  "lemma": "kämpfen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 515,
+  "lemma": "Zeug",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 516,
+  "lemma": "lustig",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 517,
+  "lemma": "umbringen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 518,
+  "lemma": "hassen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 519,
+  "lemma": "schlimm",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 520,
+  "lemma": "unglaublich",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 521,
+  "lemma": "Laden",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 522,
+  "lemma": "führen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 523,
+  "lemma": "Meinung",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 524,
+  "lemma": "lesen",
+  "pos": "verb",
+  "existing": true
+ },
+ {
+  "rank": 525,
+  "lemma": "Mörder",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 526,
+  "lemma": "geschehen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 527,
+  "lemma": "Geschäft",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 528,
+  "lemma": "Idiot",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 529,
+  "lemma": "Verzeihung",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 530,
+  "lemma": "fliegen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 531,
+  "lemma": "Team",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 532,
+  "lemma": "General",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 533,
+  "lemma": "vorher",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 534,
+  "lemma": "Schluss",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 535,
+  "lemma": "verdienen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 536,
+  "lemma": "perfekt",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 537,
+  "lemma": "versprechen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 538,
+  "lemma": "Handy",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 539,
+  "lemma": "hinten",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 540,
+  "lemma": "Monat",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 541,
+  "lemma": "acht",
+  "pos": "numeral",
+  "existing": false
+ },
+ {
+  "rank": 542,
+  "lemma": "nötig",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 543,
+  "lemma": "Mord",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 544,
+  "lemma": "heraus",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 545,
+  "lemma": "unmöglich",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 546,
+  "lemma": "Liebling",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 547,
+  "lemma": "tatsächlich",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 548,
+  "lemma": "folgen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 549,
+  "lemma": "bitten",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 550,
+  "lemma": "behalten",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 551,
+  "lemma": "Nähe",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 552,
+  "lemma": "plötzlich",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 553,
+  "lemma": "Tisch",
+  "pos": "noun",
+  "existing": true
+ },
+ {
+  "rank": 554,
+  "lemma": "jemals",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 555,
+  "lemma": "verkaufen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 556,
+  "lemma": "gefährlich",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 557,
+  "lemma": "anfangen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 558,
+  "lemma": "Hotel",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 559,
+  "lemma": "Meister",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 560,
+  "lemma": "Kampf",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 561,
+  "lemma": "Antwort",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 562,
+  "lemma": "obwohl",
+  "pos": "conjunction",
+  "existing": false
+ },
+ {
+  "rank": 563,
+  "lemma": "sieben",
+  "pos": "numeral",
+  "existing": false
+ },
+ {
+  "rank": 564,
+  "lemma": "komisch",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 565,
+  "lemma": "gewinnen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 566,
+  "lemma": "bezahlen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 567,
+  "lemma": "unterwegs",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 568,
+  "lemma": "dumm",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 569,
+  "lemma": "Ärger",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 570,
+  "lemma": "Bild",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 571,
+  "lemma": "dagegen",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 572,
+  "lemma": "Leiche",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 573,
+  "lemma": "verheiratet",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 574,
+  "lemma": "Agent",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 575,
+  "lemma": "Traum",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 576,
+  "lemma": "Entscheidung",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 577,
+  "lemma": "Regel",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 578,
+  "lemma": "Fenster",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 579,
+  "lemma": "fangen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 580,
+  "lemma": "fort",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 581,
+  "lemma": "ständig",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 582,
+  "lemma": "Gefahr",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 583,
+  "lemma": "absolut",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 584,
+  "lemma": "Augenblick",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 585,
+  "lemma": "Bescheid",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 586,
+  "lemma": "herum",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 587,
+  "lemma": "Gedanke",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 588,
+  "lemma": "Ziel",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 589,
+  "lemma": "benutzen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 590,
+  "lemma": "Bewegung",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 591,
+  "lemma": "wünschen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 592,
+  "lemma": "zahlen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 593,
+  "lemma": "Anfang",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 594,
+  "lemma": "legen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 595,
+  "lemma": "Anwalt",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 596,
+  "lemma": "offen",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 597,
+  "lemma": "arm",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 598,
+  "lemma": "Bier",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 599,
+  "lemma": "Partner",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 600,
+  "lemma": "Klappe",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 601,
+  "lemma": "süß",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 602,
+  "lemma": "Finger",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 603,
+  "lemma": "Ehe",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 604,
+  "lemma": "Rolle",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 605,
+  "lemma": "Hochzeit",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 606,
+  "lemma": "wach",
+  "pos": "adjective",
+  "existing": false
+ },
+ {
+  "rank": 607,
+  "lemma": "wozu",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 608,
+  "lemma": "Chef",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 609,
+  "lemma": "Information",
+  "pos": "noun",
+  "existing": false
+ },
+ {
+  "rank": 610,
+  "lemma": "erledigen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 611,
+  "lemma": "hoffentlich",
+  "pos": "adverb",
+  "existing": false
+ },
+ {
+  "rank": 612,
+  "lemma": "tanzen",
+  "pos": "verb",
+  "existing": false
+ },
+ {
+  "rank": 613,
+  "lemma": "ansehen",
+  "pos": "verb",
+  "existing": false
+ }
+]

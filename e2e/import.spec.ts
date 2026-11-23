@@ -69,10 +69,10 @@ test.describe('import', () => {
     await expect(card.locator('.text-blue-600').getByText('der', { exact: true })).toBeVisible()
     await expect(card.getByText('Plural: die Hunde')).toBeVisible()
     await expect(card.getByRole('paragraph').filter({ hasText: /^dog$/ })).toBeVisible()
-    await expect(card.getByText('Other meanings: hound')).toBeVisible()
+    // Hund comes from the curated dictionary (migrations/0003_seed_de.sql), not the fake AI.
     await expect(card.locator('mark', { hasText: 'Hund' })).toBeVisible()
-    await expect(card.getByText('Der Hund spielt im Garten.')).toBeVisible()
-    await expect(card.getByText('The dog is playing in the garden.')).toBeVisible()
+    await expect(card.getByText('Unser Hund heißt Bruno.')).toBeVisible()
+    await expect(card.getByText('Our dog is called Bruno.')).toBeVisible()
     await shot('card-detail-noun')
     await shot('card-detail-noun-dark', { dark: true })
 
@@ -116,8 +116,9 @@ test.describe('import', () => {
   })
 
   test('English input resolved by the AI to a word already in the deck', async ({ page, shot, api, deck }, testInfo) => {
-    // The AI cache is global and survives between tests of one run, so "dog" is only resolved by
-    // the AI (not by the cache at import time) the first time a run imports it.
+    // "dog" is in the curated dictionary, so it is a duplicate at import time. "pooch" is not: the
+    // (fake) AI resolves it to Hund. The AI cache is global and survives between tests of one run,
+    // so that post-AI path is observable only the first time a run imports "pooch".
     test.skip(testInfo.project.name !== 'mobile', 'post-AI path is observable once per run (shared AI cache)')
     await api.readyCards(deck.id, 'Hund')
 
@@ -126,22 +127,23 @@ test.describe('import', () => {
     await page.getByRole('radio', { name: 'English' }).check({ force: true })
     await page.getByLabel('One word per line').fill('dog\npooch')
     await page.getByRole('button', { name: 'Import 2 words' }).click()
-    await expect(page.getByText('Added 2 words', { exact: true })).toBeVisible()
+    const summary = page.getByRole('status').filter({ hasText: 'Added 1 word' })
+    await expect(summary.getByText('Added 1 word · 1 already in your deck', { exact: true })).toBeVisible()
+    await summary.getByText('1 already in your deck', { exact: true }).click()
+    await expect(summary.getByRole('link', { name: 'dog → der Hund: already in your deck', exact: true })).toBeVisible()
 
-    // Found while preparing (reason 'resolved'), DUPLICATES.md 10.8 copy.
-    const found = page.getByText('2 more already in your deck (found while looking up)')
+    // Found while looking up (reason 'resolved'), DUPLICATES.md 10.8 copy.
+    const found = page.getByText('1 more already in your deck (found while looking up)')
     await expect(found).toBeVisible()
     await found.click()
-    await expect(page.getByRole('link', { name: 'dog → der Hund: already in your deck', exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'pooch → der Hund: already in your deck, added as a translation' })).toBeVisible()
     await shot('add-words-import-post-ai-duplicates')
 
-    // Home: "2 words were already in your deck · View" -> the duplicates filter.
+    // Home: "1 word was already in your deck · View" -> the duplicates filter.
     await page.goto('/')
-    await expect(page.getByText('2 words were already in your deck')).toBeVisible()
+    await expect(page.getByText('1 word was already in your deck')).toBeVisible()
     await page.getByRole('link', { name: 'View' }).click()
     await expect(page).toHaveURL(/status=duplicate/)
-    await expect(page.getByRole('listitem').filter({ hasText: 'dog' })).toContainText('Already in your deck as der Hund')
     await expect(page.getByRole('listitem').filter({ hasText: 'pooch' })).toContainText('Already in your deck as der Hund')
     await shot('words-duplicates-filter')
 

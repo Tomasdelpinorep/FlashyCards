@@ -66,6 +66,21 @@ describe('no AI: the curated cache', () => {
     expect(await stats(ctx, deck)).toMatchObject({ ready: 4, failed: 2, needsMeaning: 2 })
   })
 
+  it('with the real seed migration: dictionary words are ready at import, others need a meaning', async () => {
+    const ctx = setup({}, { generator: null, seed: true })
+    const deck = await deckOf(ctx)
+    await importText(ctx, deck, 'das Haus\ngehen\nerinnern\nZwetschge')
+    expect(await importText(ctx, deck, 'dog\nto go', 'source')).toMatchObject({ added: 1, duplicates: [{ input: 'to go', existing: { display: 'gehen' } }] })
+    expect(await generate(ctx, deck)).toMatchObject({ processed: 1, needsMeaning: 1 })
+    const list = await cards(ctx, deck)
+    const by = (t: string) => list.find((c) => c.inputTerm === t)!
+    expect(by('das Haus')).toMatchObject({ status: 'ready', display: 'das Haus' })
+    expect(by('erinnern')).toMatchObject({ status: 'ready', display: 'sich erinnern' })
+    expect(by('dog')).toMatchObject({ status: 'ready', display: 'der Hund' })
+    expect(by('Zwetschge')).toMatchObject({ status: 'failed', genError: 'needs_meaning' })
+    expect(scalar(ctx, "SELECT COUNT(*) FROM entries WHERE model <> 'curated'")).toBe(0)
+  })
+
   it('retry-failed skips needs_meaning cards but retries other failures', async () => {
     const ctx = seeded()
     const deck = await deckOf(ctx)

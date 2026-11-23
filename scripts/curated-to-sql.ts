@@ -2,7 +2,8 @@
  * Generate migrations/0003_seed_de.sql from the curated en -> de dictionary (src/worker/ai/curated.de.ts)
  * and the lemma list it must cover (data/seed/de/lemmas.json):
  *
- *   npm run seed:sql
+ *   npm run seed:sql             # -> migrations/0003_seed_de.sql
+ *   npm run seed:sql -- 0004     # a later change, once 0003 has run remotely (D1 never re-runs a migration)
  *
  * entries: deterministic ids `cur-de-<lemma_key>`, model 'curated', PROMPT_VERSION, upserted
  * (ON CONFLICT ... DO UPDATE: curated content wins over stale rows, e.g. fake entries in a local
@@ -20,7 +21,7 @@
  *
  * Every statement stays far below D1's 100 KB statement limit (checked).
  */
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { LanguagePair } from '../src/shared/parseImport'
@@ -83,7 +84,14 @@ function checkEntry(e: CuratedEntry): string[] {
  * The seed SQL for `entries`, which must cover every lemma of `lemmas` (the word-list forms, in
  * rank order). Pure: the script's main() and the tests call it.
  */
-export function curatedToSql(entries: readonly CuratedEntry[], lemmas: readonly string[]): CuratedSql {
+export type CuratedSqlOptions = {
+  /** Word-list rank by lemma key (data/wordlists/de.json); default: the position in `lemmas`. */
+  ranks?: ReadonlyMap<string, number>
+  /** Hand-picked winners of source-side conflicts: alias key -> lemma (must be a claimant). */
+  winners?: Readonly<Record<string, string>>
+}
+
+export function curatedToSql(entries: readonly CuratedEntry[], lemmas: readonly string[], opts: CuratedSqlOptions = {}): CuratedSql {
   const problems = entries.flatMap(checkEntry)
 
   // Lemma key -> entry, and each entry's rank (its position in `lemmas`).
@@ -104,7 +112,8 @@ export function curatedToSql(entries: readonly CuratedEntry[], lemmas: readonly 
     if (!rank.has(e)) rank.set(e, i + 1)
     if (k !== termKey('de', e.lemma!)) extraTargetKeys.set(e, [...(extraTargetKeys.get(e) ?? []), k])
   })
-  const rankOf = (e: CuratedEntry, i: number) => rank.get(e) ?? lemmas.length + 1 + i
+  const wordRank = (e: CuratedEntry) => lemmaKeys(e.lemma!).map((k) => opts.ranks?.get(k)).find((r) => r !== undefined)
+  const rankOf = (e: CuratedEntry, i: number) => wordRank(e) ?? rank.get(e) ?? (opts.ranks ? 1_000_000 : lemmas.length) + 1 + i
 
   // Alias claims: one winner per (side, key).
   const claims = new Map<string, Claim[]>()
@@ -125,20 +134,29 @@ export function curatedToSql(entries: readonly CuratedEntry[], lemmas: readonly 
     })
   })
   const conflicts: string[] = []
+  const unusedWinners = new Set(Object.keys(opts.winners ?? {}))
   const aliasRows: [side: string, key: string, lemmaKey: string][] = []
   for (const [k, list] of [...claims].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
     const [side, key] = k.split('\u0000') as ['target' | 'source', string]
     list.sort((a, b) => Number(b.primary) - Number(a.primary) || a.rank - b.rank)
+    const chosen = side === 'source' ? opts.winners?.[key] : undefined
+    if (chosen !== undefined) {
+      const i = list.findIndex((c) => c.lemma === chosen)
+      if (i < 0) problems.push(`winner "${chosen}" for "${key}" is not one of its entries`)
+      else list.unshift(...list.splice(i, 1))
+      unusedWinners.delete(key)
+    }
     const win = list[0]!
     if (list.length > 1) {
       const desc = (c: Claim) => `${c.lemma} (${c.primary ? 'primary' : 'alt'}, rank ${c.rank})`
-      const line = `${side} "${key}": ${desc(win)} beats ${list.slice(1).map(desc).join(', ')}`
+      const line = `${side} "${key}": ${desc(win)}${chosen ? ' (chosen)' : ''} beats ${list.slice(1).map(desc).join(', ')}`
       if (side === 'target') problems.push(`target-side collision: ${line}`)
       else conflicts.push(line)
     }
     aliasRows.push([side, key, win.lemmaKey])
   }
 
+  for (const k of unusedWinners) problems.push(`winner for "${k}": no such source alias`)
   if (problems.length > 0) throw new Error(`curated dictionary has ${problems.length} problem(s):\n  ${problems.join('\n  ')}`)
 
   const out = [
@@ -194,14 +212,52 @@ export function readSeedLemmas(): string[] {
   return items.map((x) => (typeof x === 'string' ? x : (x as { lemma: string }).lemma))
 }
 
-export const SEED_SQL_FILE = join(root, 'migrations', '0003_seed_de.sql')
+/** The seed migration `number` writes to (default 0003). */
+export const seedSqlFile = (number = '0003') => join(root, 'migrations', `${number}_seed_de.sql`)
+
+/** The newest committed seed migration: the one that must match a regeneration. */
+export function latestSeedSqlFile(): string {
+  const files = readdirSync(join(root, 'migrations')).filter((f) => /^\d+_seed_de\.sql$/.test(f)).sort()
+  return join(root, 'migrations', files.at(-1) ?? '0003_seed_de.sql')
+}
+
+/** Word-list rank by lemma key (data/wordlists/de.json), the tie-break for alias conflicts. */
+export function readWordRanks(): Map<string, number> {
+  const list = JSON.parse(readFileSync(join(root, 'data', 'wordlists', 'de.json'), 'utf8')) as { items: { rank: number; lemma: string }[] }
+  const out = new Map<string, number>()
+  for (const it of list.items) if (!out.has(termKey('de', it.lemma))) out.set(termKey('de', it.lemma), it.rank)
+  return out
+}
+
+/**
+ * Source-side aliases where the rule (primary beats alternative, then word-list rank) picks a
+ * worse answer for an English word typed alone (docs/DECISIONS.md, No-AI dictionary).
+ */
+export const SOURCE_WINNERS: Readonly<Record<string, string>> = {
+  boss: 'Chef', // Boss is film-speak
+  doctor: 'Arzt',
+  idea: 'Idee', // Ahnung is "keine Ahnung"
+  information: 'Information', // not Bescheid
+  one: 'eins', // the number, not the pronoun man
+  right: 'richtig', // the adjective, not das Recht
+  sick: 'krank',
+  there: 'dort', // da has many meanings
+  watch: 'Uhr', // the noun; "to watch" stays sehen
+  when: 'wann', // the question word
+}
+
+/** The SQL for the real dictionary (main() and curated.test.ts). */
+export function seedSql(entries: readonly CuratedEntry[]): CuratedSql {
+  return curatedToSql(entries, readSeedLemmas(), { ranks: readWordRanks(), winners: SOURCE_WINNERS })
+}
 
 async function main() {
   const { CURATED_DE } = await import('../src/worker/ai/curated.de')
-  const result = curatedToSql(CURATED_DE, readSeedLemmas())
-  writeFileSync(SEED_SQL_FILE, result.sql)
+  const result = seedSql(CURATED_DE)
+  const file = seedSqlFile(process.argv[2])
+  writeFileSync(file, result.sql)
   for (const c of result.conflicts) console.log(`alias conflict: ${c}`)
-  console.log(`${result.entries} entries, ${result.aliases} aliases, ${result.conflicts.length} source-side conflicts -> ${SEED_SQL_FILE}`)
+  console.log(`${result.entries} entries, ${result.aliases} aliases, ${result.conflicts.length} source-side conflicts -> ${file}`)
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) void main()
