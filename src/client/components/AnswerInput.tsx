@@ -9,16 +9,21 @@
  * - Speech: interim transcripts fill the box and flip on an exact match, but start no pause
  *   timer (that would hint mid-utterance); the final result gets the soft check. Every
  *   recognition error is shown (lib/speech.ts speechErrorMessage).
+ * - Timing (src/shared/answerTiming.ts): thinkMs = box ready -> first keystroke or speech start,
+ *   typeMs = first input -> the reported result (null when spoken); time on a hidden page
+ *   does not count (lib/answerTiming.ts VisibleClock).
  */
 import { useEffect, useRef, useState } from 'react'
 import { checkAnyAnswer, type CheckResult, type Expected } from '../../shared/answerCheck'
+import { capTiming, type Timing } from '../../shared/answerTiming'
 import { isLanguageCode, LANGUAGES } from '../../shared/languages'
 import { browserLacksSpeechService, isSpeechSupported, speechErrorMessage, startListening } from '../lib/speech'
+import { VisibleClock } from '../lib/answerTiming'
 import { input as inputClass } from './ui'
 
 export const PAUSE_MS = 1500
 
-export type AnswerResult = CheckResult & { input: string }
+export type AnswerResult = CheckResult & { input: string; timing: Timing }
 
 /** Once the browser refuses the microphone (or has no speech service), the mic stays off for this page session. */
 let micBlocked: string | null = null
@@ -55,49 +60,61 @@ export function AnswerInput({
   const stopRef = useRef<(() => void) | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const micRef = useRef<HTMLButtonElement>(null)
+  const clock = useRef<VisibleClock | null>(null)
+  /** Visible ms from the box being ready to the first keystroke / speech, once known. */
+  const firstInput = useRef<number | null>(null)
 
   const config = isLanguageCode(lang) ? LANGUAGES[lang] : null
   const langName = config?.name ?? lang
   const label = `Type the ${langName} ${kind}`
   const needsArticle = expected.isNoun && !!expected.article && !!config?.requireArticleForNouns
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    clock.current = new VisibleClock()
+    return () => {
+      clock.current?.dispose()
       if (pause.current) clearTimeout(pause.current)
       stopRef.current?.()
-    },
-    [],
-  )
+    }
+  }, [])
 
-  const report = (r: AnswerResult) => {
+  const markInput = () => {
+    if (firstInput.current === null) firstInput.current = clock.current?.elapsed() ?? 0
+  }
+
+  /** `spoken`: the result came from speech (no typing component). */
+  const report = (r: CheckResult & { input: string }, spoken: boolean) => {
     if (done.current) return
     done.current = true
     if (pause.current) clearTimeout(pause.current)
     stopRef.current?.()
-    onResult(r)
+    const end = clock.current?.elapsed() ?? 0
+    const first = firstInput.current ?? end
+    onResult({ ...r, timing: capTiming(first, spoken ? null : end - first) })
   }
 
   /** A soft final check (pause, blur, end of speech): flips only when correct, else hints. */
-  const soft = (inputs: string[]) => {
+  const soft = (inputs: string[], spoken = false) => {
     if (done.current || inputs.every((s) => !s.trim())) return
     const r = checkAnyAnswer(inputs, expected, lang, 'final')
-    if (r.verdict === 'correct') report(r)
+    if (r.verdict === 'correct') report(r, spoken)
     else setHint(HINTS[r.verdict] ?? null)
   }
 
   /** `timer`: start the pause check (typing only; speech gets its check on the final result). */
   const change = (v: string, timer = true) => {
+    if (v) markInput()
     setValue(v)
     setHint(null)
     if (pause.current) clearTimeout(pause.current)
     const r = checkAnyAnswer([v], expected, lang, 'live')
-    if (r.verdict === 'correct') return report(r)
+    if (r.verdict === 'correct') return report(r, !timer)
     if (timer && v.trim()) pause.current = setTimeout(() => soft([v]), PAUSE_MS)
   }
 
   const submit = () => {
     if (!value.trim()) return
-    report(checkAnyAnswer([value], expected, lang, 'final'))
+    report(checkAnyAnswer([value], expected, lang, 'final'), false)
   }
 
   const toggleMic = () => {
@@ -120,13 +137,16 @@ export function AnswerInput({
       onInterim: (t) => {
         if (t) change(t, false)
       },
-      onSpeech: () => setHearing(true),
+      onSpeech: () => {
+        markInput()
+        setHearing(true)
+      },
       onFinal: (all) => {
         if (all.length === 0) return
         setValue(all[0]!)
         const live = checkAnyAnswer(all, expected, lang, 'live')
-        if (live.verdict === 'correct') report(live)
-        else soft(all)
+        if (live.verdict === 'correct') report(live, true)
+        else soft(all, true)
       },
       onError: (code) => {
         const m = speechErrorMessage(code, langName, browserLacksSpeechService())

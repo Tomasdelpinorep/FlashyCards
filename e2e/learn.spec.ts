@@ -1,12 +1,12 @@
 import type { Page } from '@playwright/test'
 import { expect, expectAccessible, test } from './fixtures'
 
-/** Steps through the learn session (intro -> quick check -> Show answer, Easy) until the summary shows. */
+/** Steps through the learn session (intro -> quick check -> Show answer, 4 = Easy) until the summary shows. */
 async function learnAll(page: Page) {
   const summary = page.getByText('Nice work')
   const next = page.getByRole('button', { name: /Show the word|Got it/ })
   const show = page.getByRole('button', { name: 'Show answer' })
-  const easy = page.getByRole('group', { name: 'How well did you know it?' }).getByRole('button', { name: /Easy/ })
+  const easy = page.getByRole('button', { name: 'Change grade' })
   for (let i = 0; i < 40; i++) {
     await expect(next.or(show).or(easy).or(summary).first()).toBeVisible()
     if (await summary.isVisible()) return
@@ -97,6 +97,7 @@ test.describe('learn new', () => {
     const answer = front.startsWith('der Hund') ? 'dog' : 'cat'
     await page.getByLabel('Type the English meaning').fill(answer)
     await expect(page.getByTestId('verdict')).toHaveText('✓ Correct')
+    await expect(page.getByTestId('auto-grade')).toHaveText(/^(Good|Easy) · \d+\.\d s$/) // real clock: timing varies
     await shot('learn-check-correct')
     await expectAccessible(page, 'learn quick check revealed')
   })

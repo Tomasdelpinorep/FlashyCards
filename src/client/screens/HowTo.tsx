@@ -88,24 +88,30 @@ export function HowTo() {
           works best in Chrome or Edge). A right
           answer turns the card over by itself; otherwise press Enter, or tap <B>Show answer</B> if you don't know. Nouns need their
           article (<B>der Hund</B>, not just Hund). Capitals don't matter, and you can write ae, oe, ue and ss for ä, ö, ü and ß. One
-          small typo in a longer word counts as <B>{GRADE_LABELS[2]}</B>. The app picks the grade, and you can change it:
+          small typo in a longer word counts as <B>{GRADE_LABELS[2]}</B>.
+        </p>
+        <p>
+          The app grades a right answer by how long it took: the time before your first key (or before you start speaking), and
+          the time to type it compared with how long that word should take (longer words, umlauts and articles get more time).
+          It learns your usual speed on each device, separately for phone and keyboard. The card shows the grade, for example{' '}
+          <B>{GRADE_LABELS[3]} · 2.1 s</B>; tap <B>Next</B> (or press Enter) to accept it, or <B>Change</B> to pick another:
         </p>
         <ul className="list-disc space-y-1 pl-5">
           <li>
             <B>{GRADE_LABELS[1]}</B>: you didn't know it. It comes back in a few minutes.
           </li>
           <li>
-            <B>{GRADE_LABELS[2]}</B>: you got it, but with effort. It comes back a little sooner.
+            <B>{GRADE_LABELS[2]}</B>: you got it, but with effort (a long think or slow typing). It comes back a little sooner.
           </li>
           <li>
             <B>{GRADE_LABELS[3]}</B>: you knew it. This is the usual answer.
           </li>
           <li>
-            <B>{GRADE_LABELS[4]}</B>: you knew it instantly. It waits longer before coming back.
+            <B>{GRADE_LABELS[4]}</B>: you knew it instantly (a quick start and quick typing). It waits longer before coming back.
           </li>
         </ul>
         <p>
-          Each button shows when you'll see the word again. If the app marked you wrong but you were right, tap <B>I was right</B>.
+          Each grade button shows when you'll see the word again. If the app marked you wrong but you were right, tap <B>I was right</B>.
           Be honest: it keeps your reviews well timed.
         </p>
         <p>
@@ -114,7 +120,7 @@ export function HowTo() {
           videos of a native speaker saying the word. When nothing is due you'll see <B>All done</B>, and{' '}
           <B>Practice anyway</B> lets you review early.
         </p>
-        <p className={muted}>With a keyboard: Enter checks the answer and moves on, and 1 to 4 pick {Object.values(GRADE_LABELS).join(', ')}.</p>
+        <p className={muted}>With a keyboard: Enter checks the answer and moves on with the app's grade, and 1 to 4 pick {Object.values(GRADE_LABELS).join(', ')}.</p>
       </Section>
 
       <Section title="How reviews are scheduled">

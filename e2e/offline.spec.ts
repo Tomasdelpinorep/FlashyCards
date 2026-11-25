@@ -20,6 +20,7 @@ test.describe('offline', () => {
     const grades = page.getByRole('group', { name: 'How well did you know it?' })
     for (const left of ['2 left · 1 reviewed', '1 left · 2 reviewed']) {
       await page.getByRole('button', { name: /Show answer/ }).click()
+      await page.getByRole('button', { name: 'Change grade' }).click()
       await grades.getByRole('button', { name: /Easy/ }).click()
       await expect(page.getByText(left)).toBeVisible()
     }

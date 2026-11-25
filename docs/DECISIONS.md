@@ -677,9 +677,10 @@
   - German and Spanish nouns need the article (`requireArticleForNouns`). "Hund" is
     `missing-article` and "die Hund" is `wrong-article`, both graded Again. The article is checked
     before the typo distance, so a wrong article is never a "typo".
-  - Live check while typing: only an exact match counts. It flips at once (no Enter) and grades
-    Good. The card then waits on its back (Enter / Next moves on, a grade overrides): the 1.2 s
-    auto-advance was removed at the user's request.
+  - Live check while typing: only an exact match counts. It flips at once (no Enter), graded
+    from the answer time (see "Grading from answer time"). The card then waits on its back
+    (Enter / Next moves on, a grade overrides): the 1.2 s auto-advance was removed at the user's
+    request.
   - Final check, on Enter: one typo (Damerau distance 1) on a term of 5+ letters (counted without
     the article) is "Almost — check the spelling", graded **Hard**, with "I was right" (Good) as an
     override. Anything else is Again.
@@ -698,6 +699,25 @@
   "got it" writes nothing), and back is cleared once a review is written.
 - **Deviation:** Enter on an empty answer does nothing (use "Show answer"), to avoid an accidental
   Again.
+
+## Grading from answer time (replaces the four grade buttons as the main UI)
+- **Measured** in AnswerInput (`src/client/lib/answerTiming.ts` VisibleClock, paused while
+  `document.hidden`): thinkMs = answer box ready -> first keystroke or speech start; typeMs = first
+  input -> correct answer (none for a spoken answer). Each capped at 60 s (`TIMING_CAP_MS`).
+- **Par** (`src/shared/answerTiming.ts`, pure, unit-tested): points of the expected answer (the
+  matched one) = 1 per letter, +2 per letter outside a-z (the language's answerFolds: ä ö ü ß,
+  accents), +1 per space/hyphen, +2 when the article is required; typePar = points x secPerPoint.
+- **Calibration per device** (localStorage `flashy.answerTiming.v1`, every access in try/catch),
+  separately for touch (`pointer: coarse`) and keyboard: moving averages (alpha 0.2) of
+  secPerPoint (typed answers) and thinkMs, from correct, uncapped answers within 4x of the current
+  estimate. Defaults 0.35 s/pt keyboard, 0.6 touch, think 2.5 s, blended in until 5 samples.
+- **Grade:** wrong / article mistake / Show answer Again; typo Hard; correct and (think >
+  max(8 s, 2.5 x typical) or type > 2 x par) Hard; correct, think <= max(1.5 s, 0.6 x typical)
+  and type <= par (or spoken) Easy; else Good. Thresholds are exported constants.
+- **UI:** the back shows "Good · 2.1 s" (grade colour) with Next (Enter accepts it), "Change"
+  (opens the grade buttons, same height, nothing moves) and "I was right" (Good) for wrong/typo
+  verdicts; keys 1-4 override at any time. The e2e suite freezes the clock through
+  `window.__answerClock` (read by `answerNow`) to make the grades deterministic.
 
 ## No-AI dictionary (curated en→de, user-entered meanings)
 - **Decision (owner):** no runtime AI for now. The German content is a hand-written, proofread

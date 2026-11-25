@@ -2,26 +2,44 @@
  * One study card with a typed / spoken answer, shared by Train and the Learn quick check.
  *
  * answering -> revealed{result, grade} -> onDone(grade).
- * - A live-correct answer flips at once (no Enter) and grades Good; it waits there (Enter / Next
- *   moves on, a grade button overrides) so the learner can read the back.
- * - Enter with any other answer, or "Show answer", flips with the reason and a diff; the default
- *   grade is Hard for a typo, else Again, and it moves on only with Enter / Next.
- * - On the revealed card the grade buttons (and keys 1-4) override the grade and move on.
+ * - A live-correct answer flips at once (no Enter); it waits there (Enter / Next moves on) so
+ *   the learner can read the back.
+ * - Enter with any other answer, or "Show answer", flips with the reason and a diff.
+ * - The grade is automatic (src/shared/answerTiming.ts): wrong Again, typo Hard, a right answer
+ *   Hard / Good / Easy from the think and typing time against the per-device calibration
+ *   (lib/answerTiming.ts), which the answer then updates. The card shows it ("Good · 2.1 s");
+ *   "Change" opens the grade buttons, keys 1-4 override at any time, "I was right" means Good.
  * The caller records the review in onDone, i.e. when leaving the card, so an override never
  * sends two reviews. Remount (key) per card.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { diffChars, expectedFor, gradeForVerdict, verdictText } from '../../shared/answerCheck'
+import { diffChars, expectedFor, verdictText } from '../../shared/answerCheck'
+import { answerPoints, effectiveCalibration, gradeFromTiming, typeParMs, updateCalibration } from '../../shared/answerTiming'
 import type { CardFaces, FaceDirection } from '../../shared/display'
 import { isLanguageCode, LANGUAGES } from '../../shared/languages'
 import type { CardDTO } from '../../shared/schemas'
-import type { Grade } from '../../shared/srs'
+import { GRADE_LABELS, type Grade } from '../../shared/srs'
+import { inputKind, loadCalibration, saveCalibration } from '../lib/answerTiming'
 import { speak, stopSpeaking } from '../lib/tts'
 import { AnswerInput, type AnswerResult } from './AnswerInput'
-import { CardBack, CardFront, GradeButtons } from './StudyCard'
+import { CardBack, CardFront, GradeButtons, GradeSummary } from './StudyCard'
 import { btnPrimary, btnSecondary, studyCard, studyFooter } from './ui'
 
 type Revealed = { result: AnswerResult | null; grade: Grade }
+
+/** The automatic grade of a result; the calibration then learns from it. */
+function autoGrade(result: AnswerResult | null, answerText: string, lang: string, articleRequired: boolean): Grade {
+  const kind = inputKind()
+  const cal = loadCalibration(kind)
+  const eff = effectiveCalibration(cal, kind)
+  const points = answerPoints(answerText, lang, articleRequired)
+  const verdict = result?.verdict ?? null
+  const timing = result?.timing ?? null
+  const grade = gradeFromTiming({ verdict, timing, typicalThinkMs: eff.thinkMs, typeParMs: typeParMs(points, eff.secPerPoint) })
+  const next = updateCalibration(cal, kind, { verdict, timing, points })
+  if (next !== cal) saveCalibration(kind, next)
+  return grade
+}
 
 function isTyping(): boolean {
   const el = document.activeElement
@@ -52,21 +70,23 @@ export function AnswerCard({
   onDone: (g: Grade) => void
 }) {
   const [revealed, setRevealed] = useState<Revealed | null>(null)
+  const [changing, setChanging] = useState(false)
   const nextRef = useRef<HTMLButtonElement>(null)
   const left = useRef(false)
   const shownOnce = useRef(false)
   const { expected, lang } = useMemo(() => expectedFor(card, direction, { sourceLang, targetLang }), [card, direction, sourceLang, targetLang])
   const ttsLang = isLanguageCode(targetLang) ? LANGUAGES[targetLang].ttsLang : targetLang
+  const articleRequired = expected.isNoun && !!expected.article && isLanguageCode(lang) && LANGUAGES[lang].requireArticleForNouns
 
   const reveal = useCallback(
     (result: AnswerResult | null) => {
       if (shownOnce.current) return
       shownOnce.current = true
-      setRevealed({ result, grade: result ? gradeForVerdict(result.verdict) : 1 })
+      setRevealed({ result, grade: autoGrade(result, result?.matched ?? expected.primary, lang, articleRequired) })
       onReveal?.()
       if (autoplay) speak([faces.speech.word], ttsLang)
     },
-    [autoplay, faces.speech.word, ttsLang, onReveal],
+    [autoplay, faces.speech.word, ttsLang, onReveal, expected.primary, lang, articleRequired],
   )
 
   const leave = useCallback(
@@ -116,6 +136,8 @@ export function AnswerCard({
       ? verdictText(result)
       : `The answer is ${expected.primary}`
     : ''
+  const timeMs = result ? result.timing.thinkMs + (result.timing.typeMs ?? 0) : null
+  const canClaimRight = !!result && result.verdict !== 'correct'
   const tone =
     result?.verdict === 'correct'
       ? 'text-green-700 dark:text-green-400'
@@ -146,7 +168,7 @@ export function AnswerCard({
         </div>
       </section>
       <p className="sr-only" aria-live="polite">
-        {status}
+        {revealed ? `${status}. Grade: ${GRADE_LABELS[revealed.grade]}` : ''}
       </p>
 
       {/* Tall enough for either state, so the card keeps its size when it flips. */}
@@ -163,13 +185,24 @@ export function AnswerCard({
           <button ref={nextRef} type="button" className={btnPrimary} disabled={!canGrade} onClick={() => leave(revealed.grade)}>
             Next <span className="ml-2 text-xs opacity-60">Enter</span>
           </button>
-          <GradeButtons
-            labels={labels}
-            disabled={!canGrade}
-            onGrade={leave}
-            selected={revealed.grade}
-            names={revealed.grade < 3 ? { 3: 'I was right' } : undefined}
-          />
+          {changing ? (
+            <GradeButtons
+              labels={labels}
+              disabled={!canGrade}
+              onGrade={leave}
+              selected={revealed.grade}
+              focusSelected
+              names={canClaimRight ? { 3: 'I was right' } : undefined}
+            />
+          ) : (
+            <GradeSummary
+              grade={revealed.grade}
+              timeMs={timeMs}
+              disabled={!canGrade}
+              onChange={() => setChanging(true)}
+              onRight={canClaimRight ? () => leave(3) : undefined}
+            />
+          )}
         </>
       )}
       </div>

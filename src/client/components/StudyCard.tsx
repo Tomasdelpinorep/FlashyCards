@@ -1,7 +1,8 @@
-/** Study card pieces shared by Train and Learn: the card faces, Listen and the four grade buttons. */
-import { useState } from 'react'
+/** Study card pieces shared by Train and Learn: the card faces, Listen, the automatic grade and the four grade buttons. */
+import { useEffect, useRef, useState } from 'react'
 import type { CardFaces } from '../../shared/display'
 import { isLanguageCode, LANGUAGES } from '../../shared/languages'
+import { formatSeconds } from '../../shared/answerTiming'
 import { GRADE_LABELS, GRADES, type Grade } from '../../shared/srs'
 import { pronunciationVideoUrl } from '../lib/pronunciation'
 import { ttsSupported, useHasVoice } from '../lib/tts'
@@ -117,6 +118,7 @@ export function GradeButtons({
   onGrade,
   names,
   selected,
+  focusSelected,
 }: {
   labels: Record<Grade, string> | null
   disabled: boolean
@@ -125,12 +127,19 @@ export function GradeButtons({
   names?: Partial<Record<Grade, string>>
   /** The grade "Next" will use, marked on its button. */
   selected?: Grade
+  /** Focus the selected button on mount (opened with "Change"). */
+  focusSelected?: boolean
 }) {
+  const selectedRef = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (focusSelected) selectedRef.current?.focus()
+  }, [focusSelected])
   return (
     <div className="grid grid-cols-4 gap-2" role="group" aria-label="How well did you know it?">
       {GRADES.map((g) => (
         <button
           key={g}
+          ref={selected === g ? selectedRef : undefined}
           type="button"
           disabled={disabled}
           onClick={() => onGrade(g)}
@@ -141,6 +150,47 @@ export function GradeButtons({
           <span className="text-xs tabular-nums">{labels?.[g] ?? '…'}</span>
         </button>
       ))}
+    </div>
+  )
+}
+
+/**
+ * The automatic grade on a revealed card ("Good · 2.1 s"), as tall as GradeButtons so "Change"
+ * swaps them without moving anything.
+ */
+export function GradeSummary({
+  grade,
+  timeMs,
+  disabled,
+  onChange,
+  onRight,
+}: {
+  grade: Grade
+  /** Answer time (think + type), null for "Show answer". */
+  timeMs: number | null
+  disabled: boolean
+  onChange: () => void
+  /** "I was right" (Good), offered when the answer was judged wrong or a typo. */
+  onRight?: () => void
+}) {
+  const small = 'inline-flex h-11 shrink-0 items-center rounded-lg px-3 text-sm font-medium disabled:opacity-40'
+  return (
+    <div data-testid="grade-summary" className={`flex h-16 items-center gap-2 rounded-xl border-2 px-3 ${GRADE_STYLES[grade]}`}>
+      <p className="min-w-0 flex-1 text-left text-lg font-semibold">
+        <span className="sr-only">Grade: </span>
+        <span data-testid="auto-grade">
+          {GRADE_LABELS[grade]}
+          {timeMs !== null && <span className="tabular-nums"> · {formatSeconds(timeMs)}</span>}
+        </span>
+      </p>
+      {onRight && (
+        <button type="button" disabled={disabled} onClick={onRight} className={`${small} border border-current`}>
+          I was right
+        </button>
+      )}
+      <button type="button" disabled={disabled} onClick={onChange} aria-label="Change grade" className={`${small} underline`}>
+        Change
+      </button>
     </div>
   )
 }
