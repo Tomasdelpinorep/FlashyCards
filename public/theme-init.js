@@ -1,7 +1,7 @@
 // Applies the saved colour theme before first paint (no flash). Mirrors src/client/lib/theme.ts:
 // keep the key, the theme ids and the backgrounds in sync with it.
 ;(function () {
-  var bg = { light: '#ffffff', dark: '#09090b', sepia: '#f4ecd8', solarized: '#fdf6e3', nord: '#2e3440', dracula: '#282a36' }
+  var bg = { light: '#ffffff', dark: '#09090b', sepia: '#f4ecd8', solarized: '#fdf6e3', nord: '#2e3440', dracula: '#282a36', betis: '#ffffff' }
   var darkThemes = { dark: 1, nord: 1, dracula: 1 }
   var theme = 'system'
   try {

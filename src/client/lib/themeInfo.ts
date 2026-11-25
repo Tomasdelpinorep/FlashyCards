@@ -20,6 +20,7 @@ export const THEMES = [
   { id: 'solarized', label: 'Solarized Light', dark: false, bg: '#fdf6e3', accent: '#1f72ad' },
   { id: 'nord', label: 'Nord', dark: true, bg: '#2e3440', accent: '#88c0d0' },
   { id: 'dracula', label: 'Dracula', dark: true, bg: '#282a36', accent: '#bd93f9' },
+  { id: 'betis', label: 'Real Betis Balompié', dark: false, bg: '#ffffff', accent: '#0bb363' },
 ] as const satisfies readonly ThemeInfo[]
 
 export type ThemeId = (typeof THEMES)[number]['id']

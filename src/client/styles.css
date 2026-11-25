@@ -102,3 +102,34 @@
   --accent: #bd93f9;
   --on-accent: #282a36;
 }
+
+/*
+ * Real Betis Balompié: white, the club green (#0bb363) and gold (#e7a614). The green is light,
+ * so text on it is dark green (white on #0bb363 is only 2.6:1, below AA). A thin striped band
+ * in the kit's green and white, edged in gold, runs along the top.
+ */
+:root[data-theme='betis'] {
+  --color-zinc-50: #f3faf6;
+  --color-zinc-100: #e4f4ea;
+  --color-zinc-200: #cde8d8;
+  --color-zinc-300: #a7d5b9;
+  --color-zinc-400: #78a88b;
+  --color-zinc-500: #4c7360;
+  --color-zinc-600: #3b5d4c;
+  --color-zinc-700: #2c4a3b;
+  --color-zinc-800: #1e362a;
+  --color-zinc-900: #12261c;
+  --color-zinc-950: #0a1711;
+  --accent: #0bb363;
+  --on-accent: #052417;
+}
+:root[data-theme='betis'] body::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, #0bb363 0 14px, #ffffff 14px 28px);
+  border-bottom: 2px solid #e7a614;
+  z-index: 60;
+  pointer-events: none;
+}
