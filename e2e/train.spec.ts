@@ -49,10 +49,14 @@ test.describe('train', () => {
     await shot('train-answering')
     await expectAccessible(page, 'train answering')
 
-    // 1. The right answer, typed: flips at once (no Enter), Good, moves on by itself.
+    // 1. The right answer, typed: flips at once (no Enter), Good; waits until Next.
     let en = await frontEnglish(page)
     await answer.pressSequentially(DE[en]!.toUpperCase().replace(' ', '  '))
     await expect(page.getByTestId('verdict')).toHaveText('✓ Correct')
+    await page.waitForTimeout(1500)
+    await expect(page.getByTestId('verdict')).toHaveText('✓ Correct')
+    await expect(page.getByRole('button', { name: /Next/ })).toBeFocused()
+    await page.keyboard.press('Enter')
     await expect(page.getByText(/ · 1 reviewed$/)).toBeVisible()
     await expect.poll(() => ratings).toEqual([3])
 
@@ -109,6 +113,10 @@ test.describe('train', () => {
     const de = await frontGerman(page)
     await page.getByLabel('Type the English meaning').fill(`the ${EN[de]}`)
     await expect(page.getByTestId('verdict')).toHaveText('✓ Correct')
+    await page.waitForTimeout(1500)
+    await expect(page.getByTestId('verdict')).toHaveText('✓ Correct')
+    await expect(page.getByRole('button', { name: /Next/ })).toBeFocused()
+    await page.keyboard.press('Enter')
     await expect(page.getByText(/ · 1 reviewed$/)).toBeVisible() // moved on by itself
 
     // EN -> DE: the front shows the translation; the choice is saved to the user's settings.

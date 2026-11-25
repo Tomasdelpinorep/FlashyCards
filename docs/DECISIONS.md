@@ -678,7 +678,8 @@
     `missing-article` and "die Hund" is `wrong-article`, both graded Again. The article is checked
     before the typo distance, so a wrong article is never a "typo".
   - Live check while typing: only an exact match counts. It flips at once (no Enter) and grades
-    Good. The card moves on by itself after 1.2 s unless the learner touches anything.
+    Good. The card then waits on its back (Enter / Next moves on, a grade overrides): the 1.2 s
+    auto-advance was removed at the user's request.
   - Final check, on Enter: one typo (Damerau distance 1) on a term of 5+ letters (counted without
     the article) is "Almost — check the spelling", graded **Hard**, with "I was right" (Good) as an
     override. Anything else is Again.

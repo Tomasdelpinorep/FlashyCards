@@ -2,8 +2,8 @@
  * One study card with a typed / spoken answer, shared by Train and the Learn quick check.
  *
  * answering -> revealed{result, grade} -> onDone(grade).
- * - A live-correct answer flips at once (no Enter) and grades Good; it moves on by itself after
- *   1.2 s unless the learner touches anything.
+ * - A live-correct answer flips at once (no Enter) and grades Good; it waits there (Enter / Next
+ *   moves on, a grade button overrides) so the learner can read the back.
  * - Enter with any other answer, or "Show answer", flips with the reason and a diff; the default
  *   grade is Hard for a typo, else Again, and it moves on only with Enter / Next.
  * - On the revealed card the grade buttons (and keys 1-4) override the grade and move on.
@@ -20,8 +20,6 @@ import { speak, stopSpeaking } from '../lib/tts'
 import { AnswerInput, type AnswerResult } from './AnswerInput'
 import { CardBack, CardFront, GradeButtons } from './StudyCard'
 import { btnPrimary, btnSecondary, studyCard, studyFooter } from './ui'
-
-export const AUTO_ADVANCE_MS = 1200
 
 type Revealed = { result: AnswerResult | null; grade: Grade }
 
@@ -85,21 +83,6 @@ export function AnswerCard({
   useEffect(() => {
     if (revealed) nextRef.current?.focus()
   }, [revealed])
-
-  // A live-correct answer moves on by itself unless the learner interacts.
-  const correct = revealed?.result?.verdict === 'correct'
-  useEffect(() => {
-    if (!correct || !revealed) return
-    const t = setTimeout(() => leave(revealed.grade), AUTO_ADVANCE_MS)
-    const cancel = () => clearTimeout(t)
-    window.addEventListener('pointerdown', cancel, true)
-    window.addEventListener('keydown', cancel, true)
-    return () => {
-      cancel()
-      window.removeEventListener('pointerdown', cancel, true)
-      window.removeEventListener('keydown', cancel, true)
-    }
-  }, [correct, revealed, leave])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
