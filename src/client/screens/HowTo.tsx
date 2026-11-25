@@ -91,6 +91,11 @@ export function HowTo() {
           small typo in a longer word counts as <B>{GRADE_LABELS[2]}</B>.
         </p>
         <p>
+          The microphone is a switch: while it's on, every new card listens by itself (it pauses after a few silent tries; tap it
+          to resume). Turn on <B>Auto</B> at the top of Train and a right answer moves on to the next card after a second, so
+          with both on you can train hands-free; tap anything to stay on the card.
+        </p>
+        <p>
           The app grades a right answer by how long it took: the time before your first key (or before you start speaking), and
           the time to type it compared with how long that word should take (longer words, umlauts and articles get more time).
           It learns your usual speed on each device, separately for phone and keyboard. The card shows the grade, for example{' '}

@@ -9,6 +9,9 @@
  *   Hard / Good / Easy from the think and typing time against the per-device calibration
  *   (lib/answerTiming.ts), which the answer then updates. The card shows it ("Good · 2.1 s");
  *   "Change" opens the grade buttons, keys 1-4 override at any time, "I was right" means Good.
+ * - Auto mode (Train only, `autoAdvance`): a correct card shows its grade for AUTO_ADVANCE_MS,
+ *   then moves on with it by itself; any tap, key or "Change" on the card cancels that.
+ *   Wrong, typo and "Show answer" cards wait for Enter / Next as usual.
  * The caller records the review in onDone, i.e. when leaving the card, so an override never
  * sends two reviews. Remount (key) per card.
  */
@@ -20,10 +23,13 @@ import { isLanguageCode, LANGUAGES } from '../../shared/languages'
 import type { CardDTO } from '../../shared/schemas'
 import { GRADE_LABELS, type Grade } from '../../shared/srs'
 import { inputKind, loadCalibration, saveCalibration } from '../lib/answerTiming'
+import { AUTO_ADVANCE_MS, shouldAutoAdvance } from '../lib/handsFree'
 import { speak, stopSpeaking } from '../lib/tts'
 import { AnswerInput, type AnswerResult } from './AnswerInput'
 import { CardBack, CardFront, GradeButtons, GradeSummary } from './StudyCard'
 import { btnPrimary, btnSecondary, studyCard, studyFooter } from './ui'
+
+export { AUTO_ADVANCE_MS }
 
 type Revealed = { result: AnswerResult | null; grade: Grade }
 
@@ -55,6 +61,7 @@ export function AnswerCard({
   labels,
   canGrade,
   autoplay,
+  autoAdvance = false,
   onReveal,
   onDone,
 }: {
@@ -66,11 +73,15 @@ export function AnswerCard({
   labels: Record<Grade, string> | null
   canGrade: boolean
   autoplay: boolean
+  /** Auto mode: move on by itself after a correct answer. */
+  autoAdvance?: boolean
   onReveal?: () => void
   onDone: (g: Grade) => void
 }) {
   const [revealed, setRevealed] = useState<Revealed | null>(null)
   const [changing, setChanging] = useState(false)
+  /** The learner interacted with the revealed card: no automatic move on. */
+  const [held, setHeld] = useState(false)
   const nextRef = useRef<HTMLButtonElement>(null)
   const left = useRef(false)
   const shownOnce = useRef(false)
@@ -103,6 +114,23 @@ export function AnswerCard({
   useEffect(() => {
     if (revealed) nextRef.current?.focus()
   }, [revealed])
+
+  const autoMoving = !!revealed && !changing && !held && shouldAutoAdvance(autoAdvance, revealed.result?.verdict ?? null, canGrade)
+
+  useEffect(() => {
+    if (!autoMoving || !revealed) return
+    const grade = revealed.grade
+    const t = setTimeout(() => leave(grade), AUTO_ADVANCE_MS)
+    // Any tap or key cancels it (a grade key or Next still moves on, by its own handler).
+    const hold = () => setHeld(true)
+    window.addEventListener('pointerdown', hold, true)
+    window.addEventListener('keydown', hold, true)
+    return () => {
+      clearTimeout(t)
+      window.removeEventListener('pointerdown', hold, true)
+      window.removeEventListener('keydown', hold, true)
+    }
+  }, [autoMoving, revealed, leave])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -183,7 +211,7 @@ export function AnswerCard({
       ) : (
         <>
           <button ref={nextRef} type="button" className={btnPrimary} disabled={!canGrade} onClick={() => leave(revealed.grade)}>
-            Next <span className="ml-2 text-xs opacity-60">Enter</span>
+            Next <span className="ml-2 text-xs font-normal">Enter</span>
           </button>
           {changing ? (
             <GradeButtons
@@ -198,6 +226,7 @@ export function AnswerCard({
             <GradeSummary
               grade={revealed.grade}
               timeMs={timeMs}
+              autoMs={autoMoving ? AUTO_ADVANCE_MS : undefined}
               disabled={!canGrade}
               onChange={() => setChanging(true)}
               onRight={canClaimRight ? () => leave(3) : undefined}

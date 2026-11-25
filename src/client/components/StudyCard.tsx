@@ -161,6 +161,7 @@ export function GradeButtons({
 export function GradeSummary({
   grade,
   timeMs,
+  autoMs,
   disabled,
   onChange,
   onRight,
@@ -168,6 +169,8 @@ export function GradeSummary({
   grade: Grade
   /** Answer time (think + type), null for "Show answer". */
   timeMs: number | null
+  /** Auto mode is about to move on in this many ms: a thin bar fills along the bottom. */
+  autoMs?: number
   disabled: boolean
   onChange: () => void
   /** "I was right" (Good), offered when the answer was judged wrong or a typo. */
@@ -175,7 +178,8 @@ export function GradeSummary({
 }) {
   const small = 'inline-flex h-11 shrink-0 items-center rounded-lg px-3 text-sm font-medium disabled:opacity-40'
   return (
-    <div data-testid="grade-summary" className={`flex h-16 items-center gap-2 rounded-xl border-2 px-3 ${GRADE_STYLES[grade]}`}>
+    <div data-testid="grade-summary" className={`relative flex h-16 items-center gap-2 overflow-hidden rounded-xl border-2 px-3 ${GRADE_STYLES[grade]}`}>
+      {autoMs !== undefined && <AutoProgress ms={autoMs} />}
       <p className="min-w-0 flex-1 text-left text-lg font-semibold">
         <span className="sr-only">Grade: </span>
         <span data-testid="auto-grade">
@@ -192,5 +196,24 @@ export function GradeSummary({
         Change
       </button>
     </div>
+  )
+}
+
+/** A bar filling over `ms` (Auto mode's countdown); absolutely placed, so nothing moves. */
+function AutoProgress({ ms }: { ms: number }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof el.animate !== 'function') return
+    const a = el.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: ms, easing: 'linear', fill: 'forwards' })
+    return () => a.cancel()
+  }, [ms])
+  return (
+    <span
+      ref={ref}
+      data-testid="auto-progress"
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-current opacity-60"
+    />
   )
 }

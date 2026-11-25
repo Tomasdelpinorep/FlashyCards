@@ -3,7 +3,8 @@
  * The learner types (or says) the answer; components/AnswerCard.tsx checks it, flips and picks
  * the grade (overridable, keys 1-4). Grading is optimistic: the next card shows at once, the review
  * goes to the outbox (lib/outbox.ts), and learning steps due again soon return to the session
- * queue (lib/session.ts).
+ * queue (lib/session.ts). The "Auto" switch in the header (lib/handsFree.ts) moves on by itself
+ * after a correct answer; with the mic switch on, Train runs hands-free.
  */
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -15,6 +16,7 @@ import { NoDecks } from '../components/NoDecks'
 import { AnswerCard } from '../components/AnswerCard'
 import { btnSecondary, card as cardClass, ErrorText, muted, Screen } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
+import { autoSwitch, useSwitch } from '../lib/handsFree'
 import { enqueueReview, useMe, useReviewQueue, useUpdateMe } from '../lib/queries'
 import { currentCard, gradeCard, startSession, type Session } from '../lib/session'
 import { stopSpeaking } from '../lib/tts'
@@ -35,6 +37,7 @@ export function Train() {
   const [session, setSession] = useState<Session | null>(null)
   const [now, setNow] = useState(() => Date.now())
   const [flipped, setFlipped] = useState(false)
+  const auto = useSwitch(autoSwitch)
   const [nextDue, setNextDue] = useState<number | null>(null)
   // Direction and start time of the card on screen, fixed when it appears (Mixed picks at random).
   const shown = useRef<{ key: string; direction: FaceDirection; at: number } | null>(null)
@@ -135,9 +138,12 @@ export function Train() {
       title="Train"
       fill
       action={
-        <Link to="/" className="-mr-2 inline-flex min-h-11 items-center px-2 text-sm font-medium text-zinc-500 underline dark:text-zinc-400">
-          Done
-        </Link>
+        <div className="flex items-center gap-2">
+          <AutoSwitch on={auto} onToggle={() => autoSwitch.set(!auto)} />
+          <Link to="/" className="-mr-2 inline-flex min-h-11 items-center px-2 text-sm font-medium text-zinc-500 underline dark:text-zinc-400">
+            Done
+          </Link>
+        </div>
       }
     >
       <div role="radiogroup" aria-label="Direction" className="grid shrink-0 grid-cols-3 gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-900">
@@ -170,6 +176,7 @@ export function Train() {
             labels={labels}
             canGrade={!!srs}
             autoplay={!!settings?.ttsAutoplay}
+            autoAdvance={auto}
             onReveal={onReveal}
             onDone={grade}
           />
@@ -192,6 +199,30 @@ export function Train() {
         />
       )}
     </Screen>
+  )
+}
+
+/** "Auto": move on by itself after a correct answer (a switch, remembered on this device). */
+function AutoSwitch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      aria-label="Auto mode: move on by itself"
+      onClick={onToggle}
+      className="inline-flex min-h-11 items-center gap-2 px-1 text-sm font-medium text-zinc-600 dark:text-zinc-300"
+    >
+      <span aria-hidden="true">Auto</span>
+      <span
+        aria-hidden="true"
+        className={`relative inline-block h-6 w-10 rounded-full border transition-colors ${
+          on ? 'border-green-700 bg-green-700 dark:border-green-500 dark:bg-green-600' : 'border-zinc-400 bg-zinc-200 dark:border-zinc-600 dark:bg-zinc-800'
+        }`}
+      >
+        <span className={`absolute top-0.5 h-4.5 w-4.5 rounded-full bg-white shadow transition-[left] ${on ? 'left-[1.1rem]' : 'left-0.5'}`} />
+      </span>
+    </button>
   )
 }
 

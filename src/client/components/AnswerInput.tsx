@@ -6,9 +6,12 @@
  * - Enter reports the final check whatever the verdict (the card then flips).
  * - A 1.5 s pause, leaving the box, or the end of speech only shows an inline hint when the
  *   answer is not right yet: flipping on a wrong answer needs Enter or "Show answer".
- * - Speech: interim transcripts fill the box and flip on an exact match, but start no pause
- *   timer (that would hint mid-utterance); the final result gets the soft check. Every
- *   recognition error is shown (lib/speech.ts speechErrorMessage).
+ * - Speech: the mic button is a switch (lib/handsFree.ts micSwitch) that stays on from card to
+ *   card and across reloads. While on, an unanswered card listens by itself, again after an
+ *   empty result (MIC_MAX_EMPTY in a row pause it: "Mic paused"), not while the tab is hidden;
+ *   typing still works. Interim transcripts fill the box and flip on an exact match, but start
+ *   no pause timer (that would hint mid-utterance); the final result gets the soft check. Any
+ *   other recognition error is shown (lib/speech.ts speechErrorMessage) and turns the switch off.
  * - Timing (src/shared/answerTiming.ts): thinkMs = box ready -> first keystroke or speech start,
  *   typeMs = first input -> the reported result (null when spoken); time on a hidden page
  *   does not count (lib/answerTiming.ts VisibleClock).
@@ -19,6 +22,7 @@ import { capTiming, type Timing } from '../../shared/answerTiming'
 import { isLanguageCode, LANGUAGES } from '../../shared/languages'
 import { browserLacksSpeechService, isSpeechSupported, speechErrorMessage, startListening } from '../lib/speech'
 import { VisibleClock } from '../lib/answerTiming'
+import { MIC_PAUSED, micAfterEnd, micSwitch, useSwitch } from '../lib/handsFree'
 import { input as inputClass } from './ui'
 
 export const PAUSE_MS = 1500
@@ -51,6 +55,10 @@ export function AnswerInput({
 }) {
   const [value, setValue] = useState('')
   const [hint, setHint] = useState<string | null>(null)
+  const micOn = useSwitch(micSwitch)
+  const [visible, setVisible] = useState(() => typeof document === 'undefined' || !document.hidden)
+  const [restart, setRestart] = useState(0)
+  const empties = useRef(0)
   const [listening, setListening] = useState(false)
   const [hearing, setHearing] = useState(false)
   const [micError, setMicError] = useState<string | null>(micBlocked)
@@ -117,53 +125,98 @@ export function AnswerInput({
     report(checkAnyAnswer([value], expected, lang, 'final'), false)
   }
 
-  const toggleMic = () => {
-    if (listening) {
-      stopRef.current?.()
-      return
-    }
-    if (!isSpeechSupported()) {
-      setSpeechOk(false)
-      return
-    }
-    setMicError(null)
-    setHint(null)
-    setHearing(false)
-    if (pause.current) clearTimeout(pause.current)
-    setListening(true)
+  // The mic switch (lib/handsFree.ts): while on, an unanswered card listens by itself.
+  const active = micOn && speechOk && !micBlocked && visible
+
+  useEffect(() => {
+    const onVisibility = () => setVisible(!document.hidden)
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [])
+
+  useEffect(() => {
+    if (!active || done.current) return
+    let cancelled = false
     let ended = false
+    let heard = false
+    let fatal = false
+    setListening(true)
+    setHearing(false)
     const stop = startListening({
       lang: config?.ttsLang ?? lang,
       onInterim: (t) => {
-        if (t) change(t, false)
+        if (!t || cancelled) return
+        heard = true
+        change(t, false)
       },
       onSpeech: () => {
+        if (cancelled) return
         markInput()
         setHearing(true)
       },
       onFinal: (all) => {
-        if (all.length === 0) return
+        if (all.length === 0 || cancelled) return
+        heard = true
         setValue(all[0]!)
         const live = checkAnyAnswer(all, expected, lang, 'live')
         if (live.verdict === 'correct') report(live, true)
         else soft(all, true)
       },
       onError: (code) => {
+        // Nothing heard ('no-speech'): the end handler listens again, or pauses.
+        if (cancelled || code === 'no-speech' || code === 'aborted') return
+        fatal = true
+        if (code === 'unsupported') setSpeechOk(false)
         const m = speechErrorMessage(code, langName, browserLacksSpeechService())
-        if (!m) return
-        if (m.blocked) micBlocked = m.text
-        setMicError(m.text)
+        if (m?.blocked) micBlocked = m.text
+        if (m) setMicError(m.text)
+        micSwitch.set(false)
       },
       onEnd: () => {
         ended = true
+        if (cancelled) return
         stopRef.current = null
         setListening(false)
         setHearing(false)
-        if (!done.current) inputRef.current?.focus()
+        if (done.current || fatal) return
+        const next = micAfterEnd(empties.current, heard)
+        empties.current = next.streak
+        if (next.action === 'pause') {
+          setMicError(MIC_PAUSED)
+          micSwitch.set(false)
+        } else setRestart((n) => n + 1)
       },
     })
     // A recognizer that failed to start has already ended (synchronously).
     if (!ended) stopRef.current = stop
+    return () => {
+      cancelled = true
+      stopRef.current = null
+      setListening(false)
+      setHearing(false)
+      stop()
+    }
+    // Reruns only when switched, shown / hidden, or to listen again; the handlers read this
+    // card's props, which don't change while it is mounted (remounted per card).
+  }, [active, restart])
+
+  const toggleMic = () => {
+    if (micOn) {
+      micSwitch.set(false)
+      setMicError(null)
+      inputRef.current?.focus()
+      return
+    }
+    if (!isSpeechSupported()) {
+      setSpeechOk(false)
+      return
+    }
+    empties.current = 0
+    setMicError(null)
+    setHint(null)
+    if (pause.current) clearTimeout(pause.current)
+    micSwitch.set(true)
+    inputRef.current?.focus()
   }
 
   const status = listening ? (hearing ? 'Hearing you…' : 'Listening… speak now') : ''
@@ -204,12 +257,15 @@ export function AnswerInput({
           <button
             ref={micRef}
             type="button"
-            aria-pressed={listening}
-            aria-label={listening ? 'Stop listening' : 'Say the answer'}
-            disabled={!!micBlocked && !listening}
+            aria-pressed={micOn}
+            aria-label="Answer by voice"
+            title={micOn ? 'Voice input on' : 'Voice input off'}
+            disabled={!!micBlocked && !micOn}
             onClick={toggleMic}
             className={`inline-flex h-11 min-w-11 shrink-0 items-center justify-center self-center rounded-xl border disabled:opacity-40 ${
-              listening ? 'border-red-400 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-950 dark:text-red-300' : 'border-zinc-300 dark:border-zinc-700'
+              micOn
+                ? `border-red-700 bg-red-700 text-white dark:border-red-500 dark:bg-red-600 ${listening ? 'ring-2 ring-red-300 ring-offset-1 dark:ring-red-800' : ''}`
+                : 'border-zinc-300 dark:border-zinc-700'
             }`}
           >
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
