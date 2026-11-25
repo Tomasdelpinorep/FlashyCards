@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { articleColor, highlightSegments } from '../../shared/display'
 
 export const btnPrimary =
-  'inline-flex h-12 w-full items-center justify-center rounded-xl bg-zinc-900 px-4 font-medium text-white active:scale-[0.99] disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900'
+  'inline-flex h-12 w-full items-center justify-center rounded-xl bg-accent px-4 font-medium text-on-accent active:scale-[0.99] disabled:opacity-40'
 export const btnSecondary =
   'inline-flex h-12 w-full items-center justify-center rounded-xl border border-zinc-300 px-4 font-medium active:scale-[0.99] disabled:opacity-40 dark:border-zinc-700'
 export const btnSmall =

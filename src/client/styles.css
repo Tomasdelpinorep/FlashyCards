@@ -1,1 +1,104 @@
 @import 'tailwindcss';
+
+/*
+ * Themes (src/client/lib/theme.ts, docs/DECISIONS.md "Themes").
+ * <html> gets data-theme="<id>" and, for dark themes (and System on a dark OS), data-dark.
+ * `dark:` follows data-dark instead of prefers-color-scheme. The extra themes remap Tailwind's
+ * zinc scale (and white for the light ones) so the existing classes recolour without touching
+ * components; status colours that would fall below WCAG AA on a theme are nudged too.
+ */
+@custom-variant dark (&:where([data-dark], [data-dark] *));
+
+/* The primary action colour (primary buttons, switches, the selected theme). */
+@theme inline {
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+}
+
+:root {
+  --accent: var(--color-zinc-900);
+  --on-accent: var(--color-white);
+  color-scheme: light;
+  background-color: var(--color-white);
+}
+:root[data-dark] {
+  --accent: var(--color-zinc-100);
+  --on-accent: var(--color-zinc-900);
+  color-scheme: dark;
+  background-color: var(--color-zinc-950);
+}
+
+/* Sepia: warm, paper-like light theme. */
+:root[data-theme='sepia'] {
+  --color-white: #f4ecd8;
+  --color-zinc-50: #f8f2e4;
+  --color-zinc-100: #ebe0c6;
+  --color-zinc-200: #e0d2b2;
+  --color-zinc-300: #cbb994;
+  --color-zinc-400: #a8936f;
+  --color-zinc-500: #6b5639;
+  --color-zinc-600: #5c4930;
+  --color-zinc-700: #4d3c27;
+  --color-zinc-800: #433422;
+  --color-zinc-900: #36291a;
+  --color-zinc-950: #241a10;
+  --accent: #7a4a24;
+  --on-accent: #f4ecd8;
+}
+
+/* Solarized Light (Ethan Schoonover): base3 background, base02/base03 text, blue accent. */
+:root[data-theme='solarized'] {
+  --color-white: #fdf6e3;
+  --color-zinc-50: #fdf6e3;
+  --color-zinc-100: #eee8d5;
+  --color-zinc-200: #e3dcc5;
+  --color-zinc-300: #d2c9ae;
+  --color-zinc-400: #93a1a1;
+  --color-zinc-500: #53676e;
+  --color-zinc-600: #475c63;
+  --color-zinc-700: #36494f;
+  --color-zinc-800: #0e3c47;
+  --color-zinc-900: #073642;
+  --color-zinc-950: #002b36;
+  /* #268bd2 darkened just enough for AA with base3 text on it. */
+  --accent: #1f72ad;
+  --on-accent: #fdf6e3;
+}
+
+/* Nord (Arctic Ice Studio): Polar Night backgrounds, Snow Storm text, Frost accent. */
+:root[data-theme='nord'] {
+  --color-zinc-50: #eceff4;
+  --color-zinc-100: #e5e9f0;
+  --color-zinc-200: #d8dee9;
+  --color-zinc-300: #c6cdd9;
+  --color-zinc-400: #bac2d0;
+  --color-zinc-500: #8892a6;
+  --color-zinc-600: #616e88;
+  --color-zinc-700: #4c566a;
+  --color-zinc-800: #434c5e;
+  --color-zinc-900: #3b4252;
+  --color-zinc-950: #2e3440;
+  --color-red-400: #ffa3a3;
+  --color-blue-400: #8ec5ff;
+  --accent: #88c0d0;
+  --on-accent: #2e3440;
+}
+
+/* Dracula: background #282a36, current line #44475a, comment #6272a4, purple accent. */
+:root[data-theme='dracula'] {
+  --color-zinc-50: #ffffff;
+  --color-zinc-100: #f8f8f2;
+  --color-zinc-200: #e6e6ef;
+  --color-zinc-300: #cfd0e0;
+  --color-zinc-400: #b4b8d6;
+  --color-zinc-500: #8790bd;
+  --color-zinc-600: #6272a4;
+  --color-zinc-700: #565970;
+  --color-zinc-800: #44475a;
+  --color-zinc-900: #343746;
+  --color-zinc-950: #282a36;
+  --color-red-400: #ff9aa2;
+  --color-blue-400: #8ec5ff;
+  --accent: #bd93f9;
+  --on-accent: #282a36;
+}

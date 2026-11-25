@@ -165,6 +165,10 @@ export function HowTo() {
             <B>Hide the sentence on the front</B>: shows only the word until you reveal the answer, which makes it harder.
           </li>
           <li>
+            <B>Theme</B>: the app's colours (System follows your device's light or dark mode, or pick Light, Dark, Sepia, Solarized
+            Light, Nord or Dracula); saved on this device only.
+          </li>
+          <li>
             <B>Skip the N most common words</B>: where “Add new words” starts in the frequency list, for this deck.
           </li>
           <li>Create and delete decks, and see the word list credits under About.</li>

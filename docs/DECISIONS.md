@@ -759,3 +759,23 @@
   safe, and curated.test.ts checks the newest seed file. A word removed from the data stays in
   the cache (harmless: it is no longer listed in lemmas.json, but suggest may still offer it if
   it is in the word list; delete its entry in that migration if that matters).
+
+## Themes
+
+- **Per-device theme** (Settings → Theme): System (default), Light, Dark, Sepia, Solarized Light,
+  Nord, Dracula. Stored in localStorage `flashy.theme.v1` (not in the account: a phone and a
+  laptop can differ); unreadable or unknown values fall back to System.
+- **`dark:` is selector-based**: `@custom-variant dark (&:where([data-dark], [data-dark] *))`.
+  `<html>` gets `data-theme="<id>"` and `data-dark` for Dark/Nord/Dracula and for System on a dark
+  OS (lib/theme.ts follows `prefers-color-scheme` changes).
+- **Themes remap Tailwind's palette variables** in styles.css (`--color-zinc-*`, `--color-white`
+  for the light ones, and `--color-red-400`/`--color-blue-400` on Nord/Dracula where the defaults
+  miss AA), so components keep their zinc classes. The primary colour is a new `accent` /
+  `on-accent` pair (primary buttons, switches, the selected theme): zinc-900/white or
+  zinc-100/zinc-900 by default, the theme's accent otherwise. Solarized's blue is darkened
+  (#1f72ad) so base3 text on it passes AA. e2e/themes.spec.ts runs axe on Settings, Home and
+  Train (answering, wrong answer, grade buttons) in every theme.
+- **No flash**: public/theme-init.js, a classic blocking script in `<head>`, applies the stored
+  theme and `<meta name="theme-color">` before first paint. It is external rather than inline so
+  a future CSP needs no `'unsafe-inline'` (there is no CSP today). It duplicates the theme ids and
+  backgrounds of lib/themeInfo.ts; test/client/theme.test.ts fails when they drift.

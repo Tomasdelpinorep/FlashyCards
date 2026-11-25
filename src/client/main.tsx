@@ -4,7 +4,10 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
 import App from './App'
 import { ApiError } from './lib/api'
+import { startTheme } from './lib/theme'
 import './styles.css'
+
+startTheme()
 
 const queryClient = new QueryClient({
   defaultOptions: {

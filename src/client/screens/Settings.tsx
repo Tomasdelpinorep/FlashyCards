@@ -4,6 +4,7 @@ import { CreateDeckForm } from '../components/CreateDeckForm'
 import type { DeckDTO, UserSettings } from '../../shared/schemas'
 import { btnSecondary, btnSmall, card, ErrorText, input, muted, Screen } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
+import { THEMES, useTheme } from '../lib/theme'
 import { useDeleteDeck, useMe, useUpdateDeck, useUpdateMe } from '../lib/queries'
 
 /** Account, study preferences, the current deck's settings, decks, new deck, About. */
@@ -21,6 +22,8 @@ export function Settings() {
       </section>
 
       {me.data && <StudyToggles settings={me.data.user.settings} />}
+
+      <ThemePicker />
 
       {deck && <DeckSettingsForm key={deck.id} deck={deck} />}
 
@@ -95,7 +98,7 @@ function StudyToggles({ settings }: { settings: UserSettings }) {
             <input
               type="checkbox"
               role="switch"
-              className="h-6 w-11 shrink-0 cursor-pointer appearance-none rounded-full bg-zinc-300 transition-colors before:block before:h-5 before:w-5 before:translate-x-0.5 before:rounded-full before:bg-white before:shadow before:transition-transform checked:bg-zinc-900 checked:before:translate-x-5.5 disabled:opacity-50 dark:bg-zinc-700 dark:checked:bg-zinc-100 dark:before:bg-zinc-900 dark:checked:before:bg-zinc-900"
+              className="h-6 w-11 shrink-0 cursor-pointer appearance-none rounded-full bg-zinc-300 transition-colors before:block before:h-5 before:w-5 before:translate-x-0.5 before:rounded-full before:bg-white before:shadow before:transition-transform checked:bg-accent checked:before:translate-x-5.5 disabled:opacity-50 dark:bg-zinc-700 dark:before:bg-zinc-900 dark:checked:before:bg-zinc-900"
               checked={checked}
               disabled={update.isPending}
               onChange={(e) => update.mutate({ settings: { [t.key]: e.target.checked } })}
@@ -104,6 +107,48 @@ function StudyToggles({ settings }: { settings: UserSettings }) {
         )
       })}
       <ErrorText error={update.error} />
+    </section>
+  )
+}
+
+/** The colour theme of this device (stored locally, not in the account). */
+function ThemePicker() {
+  const [theme, setTheme] = useTheme()
+  return (
+    <section className={card}>
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-2 font-semibold">Theme</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {THEMES.map((t) => (
+            <label
+              key={t.id}
+              className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-zinc-300 px-3 py-2 text-sm font-medium has-checked:border-accent has-checked:ring-1 has-checked:ring-accent has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent dark:border-zinc-700"
+            >
+              <input
+                type="radio"
+                name="theme"
+                value={t.id}
+                className="sr-only"
+                checked={theme === t.id}
+                onChange={() => setTheme(t.id)}
+              />
+              <span
+                aria-hidden="true"
+                className="relative h-6 w-6 shrink-0 overflow-hidden rounded-full border border-zinc-400"
+                style={{
+                  background: t.id === 'system' ? 'linear-gradient(135deg, #ffffff 50%, #09090b 50%)' : t.bg,
+                }}
+              >
+                {t.id !== 'system' && (
+                  <span className="absolute right-0.5 bottom-0.5 h-2.5 w-2.5 rounded-full" style={{ background: t.accent }} />
+                )}
+              </span>
+              <span className="min-w-0">{t.label}</span>
+            </label>
+          ))}
+        </div>
+        <p className={muted}>System follows your device's light or dark mode. Saved on this device only.</p>
+      </fieldset>
     </section>
   )
 }
