@@ -84,7 +84,8 @@ export function HowTo() {
 
       <Section title="Train">
         <p>
-          Tap <B>Train</B> on Home to review the words that are due. Type the answer (or tap the microphone and say it). A right
+          Tap <B>Train</B> on Home to review the words that are due. Type the answer (or tap the microphone and say it; voice input
+          works best in Chrome or Edge). A right
           answer turns the card over by itself; otherwise press Enter, or tap <B>Show answer</B> if you don't know. Nouns need their
           article (<B>der Hund</B>, not just Hund). Capitals don't matter, and you can write ae, oe, ue and ss for ä, ö, ü and ß. One
           small typo in a longer word counts as <B>{GRADE_LABELS[2]}</B>. The app picks the grade, and you can change it:
@@ -109,7 +110,8 @@ export function HowTo() {
         </p>
         <p>
           The switch at the top sets the direction: the language you're learning first, your own language first, or Mixed. On the
-          back of a card, <B>Listen</B> reads the word and sentence aloud. When nothing is due you'll see <B>All done</B>, and{' '}
+          back of a card, <B>Listen</B> reads the word and sentence aloud, and <B>Pronunciation video</B> opens a YouTube search for
+          videos of a native speaker saying the word. When nothing is due you'll see <B>All done</B>, and{' '}
           <B>Practice anyway</B> lets you review early.
         </p>
         <p className={muted}>With a keyboard: Enter checks the answer and moves on, and 1 to 4 pick {Object.values(GRADE_LABELS).join(', ')}.</p>

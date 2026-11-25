@@ -19,7 +19,7 @@ import type { Grade } from '../../shared/srs'
 import { speak, stopSpeaking } from '../lib/tts'
 import { AnswerInput, type AnswerResult } from './AnswerInput'
 import { CardBack, CardFront, GradeButtons } from './StudyCard'
-import { btnPrimary, btnSecondary, card as cardClass } from './ui'
+import { btnPrimary, btnSecondary, studyCard, studyFooter } from './ui'
 
 export const AUTO_ADVANCE_MS = 1200
 
@@ -142,7 +142,8 @@ export function AnswerCard({
 
   return (
     <>
-      <section data-testid="study-card" className={`${cardClass} flex min-h-64 flex-col justify-center gap-4 text-center`}>
+      <section data-testid="study-card" aria-label="Card" tabIndex={0} className={studyCard}>
+        <div className="my-auto flex flex-col gap-4">
         {!revealed ? (
           <CardFront faces={faces} lang={targetLang} />
         ) : (
@@ -151,14 +152,22 @@ export function AnswerCard({
               {result?.verdict === 'correct' ? '✓ Correct' : status}
             </p>
             {result && result.verdict !== 'correct' && result.input.trim() && <AnswerDiff input={result.input} expected={result.shown} />}
-            <CardBack back={faces.back} lang={targetLang} onSpeak={() => speak([faces.speech.word, faces.speech.sentence], ttsLang)} />
+            <CardBack
+              back={faces.back}
+              word={faces.speech.word}
+              lang={targetLang}
+              onSpeak={() => speak([faces.speech.word, faces.speech.sentence], ttsLang)}
+            />
           </>
         )}
+        </div>
       </section>
       <p className="sr-only" aria-live="polite">
         {status}
       </p>
 
+      {/* Tall enough for either state, so the card keeps its size when it flips. */}
+      <div className={`${studyFooter} min-h-40`}>
       {!revealed ? (
         <>
           <AnswerInput expected={expected} lang={lang} kind={lang === targetLang ? 'word' : 'meaning'} onResult={reveal} />
@@ -180,6 +189,7 @@ export function AnswerCard({
           />
         </>
       )}
+      </div>
     </>
   )
 }

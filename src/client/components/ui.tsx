@@ -13,10 +13,25 @@ export const input =
 export const card = 'rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800'
 export const muted = 'text-sm text-zinc-500 dark:text-zinc-400'
 
-export function Screen({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) {
+/** The study card of Learn and Train: fills the space of a `fill` Screen and scrolls inside. */
+export const studyCard = `${card} flex min-h-40 flex-1 flex-col overflow-y-auto text-center`
+/** The buttons under a study card, anchored at the bottom of a `fill` Screen. */
+export const studyFooter = 'flex shrink-0 flex-col justify-end gap-2'
+
+/**
+ * A screen with its title. `fill` (Learn, Train) pins it to the viewport between the top and the
+ * TabBar, so a study card takes the free height and the buttons under it never move.
+ */
+export function Screen({ title, children, action, fill }: { title: string; children: ReactNode; action?: ReactNode; fill?: boolean }) {
   return (
-    <div className="flex flex-col gap-4">
-      <header className="flex min-h-11 items-center justify-between gap-3">
+    <div
+      className={
+        fill
+          ? 'fixed inset-x-0 top-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] mx-auto flex w-full max-w-[480px] flex-col gap-4 overflow-y-auto px-4 pt-6 pb-3'
+          : 'flex flex-col gap-4'
+      }
+    >
+      <header className="flex min-h-11 shrink-0 items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         {action}
       </header>

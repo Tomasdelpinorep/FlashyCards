@@ -1,7 +1,10 @@
-/** Study card pieces shared by Train and Learn: the card faces and the four grade buttons. */
+/** Study card pieces shared by Train and Learn: the card faces, Listen and the four grade buttons. */
+import { useState } from 'react'
 import type { CardFaces } from '../../shared/display'
+import { isLanguageCode, LANGUAGES } from '../../shared/languages'
 import { GRADE_LABELS, GRADES, type Grade } from '../../shared/srs'
-import { ttsSupported } from '../lib/tts'
+import { pronunciationVideoUrl } from '../lib/pronunciation'
+import { ttsSupported, useHasVoice } from '../lib/tts'
 import { muted, Sentence, Word } from './ui'
 
 const GRADE_STYLES: Record<Grade, string> = {
@@ -32,7 +35,18 @@ export function CardFront({ faces, lang }: { faces: CardFaces; lang: string }) {
 }
 
 /** The full card: word with coloured article, forms, translation, sentences, "Also in your deck", Listen. */
-export function CardBack({ back, lang, onSpeak }: { back: CardFaces['back']; lang: string; onSpeak: () => void }) {
+export function CardBack({
+  back,
+  word,
+  lang,
+  onSpeak,
+}: {
+  back: CardFaces['back']
+  /** The spoken word (faces.speech.word, with the article), for the pronunciation video. */
+  word: string
+  lang: string
+  onSpeak: () => Promise<boolean>
+}) {
   return (
     <>
       <div>
@@ -47,19 +61,53 @@ export function CardBack({ back, lang, onSpeak }: { back: CardFaces['back']; lan
         <Sentence text={back.exampleSource} className={muted} />
       </div>
       {back.alsoInDeck.length > 0 && <p className={muted}>Also in your deck: {back.alsoInDeck.map((o) => o.display).join(', ')}</p>}
-      {ttsSupported() && (
-        <button
-          type="button"
-          className="mx-auto inline-flex h-11 items-center rounded-lg border border-zinc-300 px-3 text-sm font-medium dark:border-zinc-700"
-          onClick={(e) => {
-            e.stopPropagation()
-            onSpeak()
-          }}
-        >
-          Listen
-        </button>
-      )}
+      <ListenRow word={word} lang={lang} onSpeak={onSpeak} />
     </>
+  )
+}
+
+/**
+ * Listen (browser TTS) and a "Pronunciation video" link (a YouTube search). Without a voice for
+ * the language the device stays silent and says so instead.
+ */
+export function ListenRow({ word, lang, onSpeak }: { word: string; lang: string; onSpeak: () => Promise<boolean> }) {
+  const config = isLanguageCode(lang) ? LANGUAGES[lang] : null
+  const name = config?.name ?? lang
+  const voiceOk = useHasVoice(config?.ttsLang ?? lang)
+  const [silent, setSilent] = useState(false)
+  const tts = ttsSupported()
+  const noVoice = tts && (!voiceOk || silent)
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+        {tts && (
+          <button
+            type="button"
+            disabled={noVoice}
+            className="inline-flex h-11 items-center rounded-lg border border-zinc-300 px-3 text-sm font-medium disabled:opacity-40 dark:border-zinc-700"
+            onClick={(e) => {
+              e.stopPropagation()
+              void onSpeak().then((ok) => setSilent(!ok))
+            }}
+          >
+            Listen
+          </button>
+        )}
+        <a
+          href={pronunciationVideoUrl(word, lang)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex min-h-11 items-center text-sm font-medium text-zinc-600 underline dark:text-zinc-300"
+        >
+          Pronunciation video<span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      </div>
+      {noVoice && (
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          No {name} voice on this device — use the video, install {name} speech in your system settings, or try Chrome or Edge.
+        </p>
+      )}
+    </div>
   )
 }
 

@@ -59,10 +59,20 @@ test.describe('learn new', () => {
     await expect(card).toContainText('dog')
     await expect(card).not.toContainText('der Hund')
     await expectAccessible(page, 'learn intro step 1')
+    const primary = page.getByRole('button', { name: /Show the word|Got it/ })
+    const before = { button: await primary.boundingBox(), card: await card.boundingBox() }
     await page.keyboard.press('ArrowRight')
     await expect(step).toHaveText('Step 2 of 2')
     await expect(card).toContainText('der Hund')
     await expect(card).toContainText('Plural: die Hunde')
+    // Revealing the word neither grows the card nor moves the buttons.
+    expect(await primary.boundingBox()).toEqual(before.button)
+    expect(await card.boundingBox()).toEqual(before.card)
+    await expect(card.getByRole('link', { name: /Pronunciation video/ })).toHaveAttribute(
+      'href',
+      'https://www.youtube.com/results?search_query=how%20to%20pronounce%20der%20Hund%20German%20Pronunciation',
+    )
+    await expect(card.getByRole('link', { name: /Pronunciation video/ })).toHaveAttribute('target', '_blank')
     await expectAccessible(page, 'learn intro step 2')
     await page.keyboard.press('ArrowRight')
     await expect(step).toHaveText('Step 1 of 2')

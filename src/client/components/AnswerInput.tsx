@@ -6,19 +6,22 @@
  * - Enter reports the final check whatever the verdict (the card then flips).
  * - A 1.5 s pause, leaving the box, or the end of speech only shows an inline hint when the
  *   answer is not right yet: flipping on a wrong answer needs Enter or "Show answer".
+ * - Speech: interim transcripts fill the box and flip on an exact match, but start no pause
+ *   timer (that would hint mid-utterance); the final result gets the soft check. Every
+ *   recognition error is shown (lib/speech.ts speechErrorMessage).
  */
 import { useEffect, useRef, useState } from 'react'
 import { checkAnyAnswer, type CheckResult, type Expected } from '../../shared/answerCheck'
 import { isLanguageCode, LANGUAGES } from '../../shared/languages'
-import { isSpeechSupported, startListening } from '../lib/speech'
+import { browserLacksSpeechService, isSpeechSupported, speechErrorMessage, startListening } from '../lib/speech'
 import { input as inputClass } from './ui'
 
 export const PAUSE_MS = 1500
 
 export type AnswerResult = CheckResult & { input: string }
 
-/** Once the browser refuses the microphone, the mic stays off for this page session. */
-let micBlocked = false
+/** Once the browser refuses the microphone (or has no speech service), the mic stays off for this page session. */
+let micBlocked: string | null = null
 
 const HINTS: Partial<Record<CheckResult['verdict'], string>> = {
   typo: 'Almost — check the spelling',
@@ -44,12 +47,14 @@ export function AnswerInput({
   const [value, setValue] = useState('')
   const [hint, setHint] = useState<string | null>(null)
   const [listening, setListening] = useState(false)
-  const [micError, setMicError] = useState<string | null>(micBlocked ? 'Microphone blocked — allow it in the browser settings' : null)
+  const [hearing, setHearing] = useState(false)
+  const [micError, setMicError] = useState<string | null>(micBlocked)
   const [speechOk, setSpeechOk] = useState(() => isSpeechSupported())
   const done = useRef(false)
   const pause = useRef<ReturnType<typeof setTimeout> | null>(null)
   const stopRef = useRef<(() => void) | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const micRef = useRef<HTMLButtonElement>(null)
 
   const config = isLanguageCode(lang) ? LANGUAGES[lang] : null
   const langName = config?.name ?? lang
@@ -80,13 +85,14 @@ export function AnswerInput({
     else setHint(HINTS[r.verdict] ?? null)
   }
 
-  const change = (v: string) => {
+  /** `timer`: start the pause check (typing only; speech gets its check on the final result). */
+  const change = (v: string, timer = true) => {
     setValue(v)
     setHint(null)
     if (pause.current) clearTimeout(pause.current)
     const r = checkAnyAnswer([v], expected, lang, 'live')
     if (r.verdict === 'correct') return report(r)
-    if (v.trim()) pause.current = setTimeout(() => soft([v]), PAUSE_MS)
+    if (timer && v.trim()) pause.current = setTimeout(() => soft([v]), PAUSE_MS)
   }
 
   const submit = () => {
@@ -104,12 +110,17 @@ export function AnswerInput({
       return
     }
     setMicError(null)
+    setHint(null)
+    setHearing(false)
+    if (pause.current) clearTimeout(pause.current)
     setListening(true)
-    stopRef.current = startListening({
+    let ended = false
+    const stop = startListening({
       lang: config?.ttsLang ?? lang,
       onInterim: (t) => {
-        if (t) change(t)
+        if (t) change(t, false)
       },
+      onSpeech: () => setHearing(true),
       onFinal: (all) => {
         if (all.length === 0) return
         setValue(all[0]!)
@@ -117,19 +128,25 @@ export function AnswerInput({
         if (live.verdict === 'correct') report(live)
         else soft(all)
       },
-      onError: (e) => {
-        if (e === 'blocked') {
-          micBlocked = true
-          setMicError('Microphone blocked — allow it in the browser settings')
-        } else if (e === 'no-speech') setMicError('Didn’t catch that — try again')
+      onError: (code) => {
+        const m = speechErrorMessage(code, langName, browserLacksSpeechService())
+        if (!m) return
+        if (m.blocked) micBlocked = m.text
+        setMicError(m.text)
       },
       onEnd: () => {
+        ended = true
         stopRef.current = null
         setListening(false)
-        inputRef.current?.focus()
+        setHearing(false)
+        if (!done.current) inputRef.current?.focus()
       },
     })
+    // A recognizer that failed to start has already ended (synchronously).
+    if (!ended) stopRef.current = stop
   }
+
+  const status = listening ? (hearing ? 'Hearing you…' : 'Listening… speak now') : ''
 
   return (
     <div className="flex flex-col gap-2">
@@ -151,7 +168,11 @@ export function AnswerInput({
           placeholder={needsArticle ? 'With the article' : undefined}
           autoFocus
           onChange={(e) => change(e.target.value)}
-          onBlur={() => soft([value])}
+          onBlur={(e) => {
+            // Tapping the mic (or listening) is not leaving the box.
+            if (listening || e.relatedTarget === micRef.current) return
+            soft([value])
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
@@ -161,10 +182,11 @@ export function AnswerInput({
         />
         {speechOk && (
           <button
+            ref={micRef}
             type="button"
             aria-pressed={listening}
             aria-label={listening ? 'Stop listening' : 'Say the answer'}
-            disabled={micBlocked}
+            disabled={!!micBlocked && !listening}
             onClick={toggleMic}
             className={`inline-flex h-11 min-w-11 shrink-0 items-center justify-center self-center rounded-xl border disabled:opacity-40 ${
               listening ? 'border-red-400 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-950 dark:text-red-300' : 'border-zinc-300 dark:border-zinc-700'
@@ -177,9 +199,12 @@ export function AnswerInput({
           </button>
         )}
       </div>
-      {(hint || micError) && <p aria-hidden="true" className="text-sm font-medium text-amber-800 dark:text-amber-300">{hint ?? micError}</p>}
+      {/* Always one line tall, so the buttons under the box don't move when a hint shows. */}
+      <p aria-hidden="true" className={`min-h-5 text-sm font-medium ${hint || micError ? 'text-amber-800 dark:text-amber-300' : 'text-zinc-600 dark:text-zinc-300'}`}>
+        {hint ?? micError ?? status}
+      </p>
       <p className="sr-only" aria-live="polite">
-        {hint ?? micError ?? (listening ? 'Listening' : '')}
+        {hint ?? micError ?? status}
       </p>
     </div>
   )

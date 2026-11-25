@@ -133,13 +133,14 @@ export function Train() {
   return (
     <Screen
       title="Train"
+      fill
       action={
         <Link to="/" className="-mr-2 inline-flex min-h-11 items-center px-2 text-sm font-medium text-zinc-500 underline dark:text-zinc-400">
           Done
         </Link>
       }
     >
-      <div role="radiogroup" aria-label="Direction" className="grid grid-cols-3 gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-900">
+      <div role="radiogroup" aria-label="Direction" className="grid shrink-0 grid-cols-3 gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-900">
         {modes.map(([m, label]) => (
           <button
             key={m}
@@ -172,7 +173,7 @@ export function Train() {
             onReveal={onReveal}
             onDone={grade}
           />
-          <p className={`${muted} text-center`}>
+          <p className={`${muted} shrink-0 text-center`}>
             {session.queue.length + session.again.length} left{session.reviewed > 0 ? ` · ${session.reviewed} reviewed` : ''}
           </p>
         </>

@@ -18,7 +18,7 @@ import { loadSrs, previewIntervals, type Grade, type Srs } from '../../shared/sr
 import { NoDecks } from '../components/NoDecks'
 import { AnswerCard } from '../components/AnswerCard'
 import { LearnIntroCard } from '../components/LearnIntroCard'
-import { btnPrimary, btnSecondary, card as cardClass, ErrorText, muted, Screen } from '../components/ui'
+import { btnPrimary, btnSecondary, card as cardClass, ErrorText, muted, Screen, studyCard, studyFooter } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
 import {
   alreadyKnow,
@@ -275,6 +275,7 @@ export function Learn() {
   return (
     <Screen
       title="Learn"
+      fill
       action={
         <Link to="/" className="-mr-2 inline-flex min-h-11 items-center px-2 text-sm font-medium text-zinc-500 underline dark:text-zinc-400">
           Done
@@ -286,7 +287,7 @@ export function Learn() {
 
       {session && step?.kind === 'intro' && intro && (
         <>
-          <div className="flex items-center justify-between">
+          <div className="flex shrink-0 items-center justify-between">
             <p className={muted}>New word</p>
             <p className={muted} data-testid="intro-step">
               Step {introStep + 1} of 2
@@ -294,8 +295,10 @@ export function Learn() {
           </div>
           <section
             data-testid="intro-card"
-            className={`${cardClass} flex min-h-72 touch-pan-y flex-col justify-center gap-4 text-center`}
+            className={`${studyCard} touch-pan-y`}
             aria-live="polite"
+            aria-label="New word"
+            tabIndex={0}
             onPointerDown={(e) => {
               swipe.current = { x: e.clientX, y: e.clientY }
             }}
@@ -320,6 +323,7 @@ export function Learn() {
               onSpeak={() => speak([intro.speech.word, intro.speech.sentence], ttsLang)}
             />
           </section>
+          <div className={studyFooter}>
           <div className="grid grid-cols-[auto_1fr] gap-2">
             <button
               type="button"
@@ -337,12 +341,13 @@ export function Learn() {
           <button type="button" className={btnSecondary} onClick={onAlreadyKnow}>
             I already know this
           </button>
+          </div>
         </>
       )}
 
       {session && step?.kind === 'check' && faces && (
         <>
-          <p className={`${muted} text-center`}>Quick check</p>
+          <p className={`${muted} shrink-0 text-center`}>Quick check</p>
           <AnswerCard
             key={`${stepKey}:${direction}`}
             card={checkCard!}
@@ -359,7 +364,7 @@ export function Learn() {
       )}
 
       {session && step && step.kind !== 'done' && (
-        <p className={`${muted} text-center`}>
+        <p className={`${muted} shrink-0 text-center`}>
           {left} left{studied > 0 ? ` · ${session.learned.length} learned` : ''}
           {session.alreadyKnew > 0 ? ` · ${session.alreadyKnew} already known` : ''}
         </p>

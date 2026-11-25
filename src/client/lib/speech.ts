@@ -4,6 +4,10 @@
  * browser has no recognizer (Firefox, some iOS versions).
  */
 
+import { speechServiceMissing } from './speechErrors'
+
+export { speechErrorMessage } from './speechErrors'
+
 type RecognitionAlternative = { transcript: string }
 type RecognitionResult = { isFinal: boolean; length: number; [i: number]: RecognitionAlternative }
 type RecognitionEvent = { results: { length: number; [i: number]: RecognitionResult } }
@@ -15,6 +19,7 @@ type Recognition = {
   onresult: ((e: RecognitionEvent) => void) | null
   onerror: ((e: { error: string }) => void) | null
   onend: (() => void) | null
+  onspeechstart?: (() => void) | null
   start(): void
   stop(): void
   abort(): void
@@ -32,7 +37,10 @@ export function isSpeechSupported(): boolean {
   return ctor() !== null
 }
 
-export type SpeechError = 'blocked' | 'no-speech' | 'other'
+export function browserLacksSpeechService(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return speechServiceMissing(navigator as unknown as Parameters<typeof speechServiceMissing>[0])
+}
 
 export type ListenOptions = {
   lang: string
@@ -40,7 +48,10 @@ export type ListenOptions = {
   onInterim: (transcript: string) => void
   /** All alternatives of the final result (best first); empty when nothing was heard. */
   onFinal: (transcripts: string[]) => void
-  onError: (error: SpeechError) => void
+  /** The raw error code ('network', 'not-allowed', ...; see speechErrorMessage). */
+  onError: (code: string) => void
+  /** The recognizer hears speech. */
+  onSpeech?: () => void
   /** Recognition stopped (after a final result, an error or stop()). */
   onEnd?: () => void
 }
@@ -49,7 +60,7 @@ export type ListenOptions = {
 export function startListening(opts: ListenOptions): () => void {
   const C = ctor()
   if (!C) {
-    opts.onError('other')
+    opts.onError('unsupported')
     opts.onEnd?.()
     return () => {}
   }
@@ -74,8 +85,9 @@ export function startListening(opts: ListenOptions): () => void {
   }
   r.onerror = (e) => {
     finished = true
-    opts.onError(e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'blocked' : e.error === 'no-speech' ? 'no-speech' : 'other')
+    opts.onError(e.error)
   }
+  r.onspeechstart = () => opts.onSpeech?.()
   r.onend = () => {
     if (!finished) opts.onFinal([])
     opts.onEnd?.()
@@ -83,8 +95,9 @@ export function startListening(opts: ListenOptions): () => void {
   try {
     r.start()
   } catch {
-    opts.onError('other')
+    opts.onError('start-failed')
     opts.onEnd?.()
+    return () => {}
   }
   return () => {
     try {

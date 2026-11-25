@@ -118,10 +118,16 @@ test.describe('train', () => {
     await expect.poll(async () => (await api.me()).user.settings.studyDirection).toBe('source-target')
     await shot('train-front-source-target')
 
-    // Show answer (give up), then 4 = Easy from the keyboard.
-    await page.getByRole('button', { name: 'Show answer' }).click()
+    // Show answer (give up), then 4 = Easy from the keyboard. Flipping keeps the card's size
+    // and the bottom of the buttons in place.
+    const showAnswer = page.getByRole('button', { name: 'Show answer' })
+    const front = { card: await card.boundingBox(), show: await showAnswer.boundingBox() }
+    await showAnswer.click()
     const grades = page.getByRole('group', { name: 'How well did you know it?' })
     await expect(grades.getByRole('button', { name: /Easy/ })).toBeEnabled()
+    expect(await card.boundingBox()).toEqual(front.card)
+    const g = await grades.boundingBox()
+    expect(Math.round(g!.y + g!.height)).toBe(Math.round(front.show!.y + front.show!.height))
     await shot('train-back')
     await page.keyboard.press('4')
     await expect(page.getByText(/ · 2 reviewed$/)).toBeVisible()

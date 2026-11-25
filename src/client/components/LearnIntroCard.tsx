@@ -7,7 +7,7 @@
 import type { ReactNode } from 'react'
 import { formsLine, verbTable, type IntroFaces } from '../../shared/display'
 import type { CardDTO } from '../../shared/schemas'
-import { ttsSupported } from '../lib/tts'
+import { ListenRow } from './StudyCard'
 import { muted, Sentence, Word } from './ui'
 
 export function LearnIntroCard({
@@ -21,10 +21,10 @@ export function LearnIntroCard({
   intro: IntroFaces
   step: 0 | 1
   targetLang: string
-  onSpeak: () => void
+  onSpeak: () => Promise<boolean>
 }) {
   return (
-    <>
+    <div className="my-auto flex flex-col gap-4">
       <div>
         <p className={step === 0 ? 'text-3xl font-semibold tracking-tight' : 'text-lg text-zinc-600 dark:text-zinc-300'}>{intro.translation}</p>
         {step === 0 && <Sentence text={intro.exampleSource} className="mt-3 text-lg text-zinc-600 dark:text-zinc-300" />}
@@ -45,21 +45,10 @@ export function LearnIntroCard({
             <Sentence text={intro.exampleSource} className={muted} />
           </div>
           {intro.alsoInDeck.length > 0 && <p className={muted}>Also in your deck: {intro.alsoInDeck.map((o) => o.display).join(', ')}</p>}
-          {ttsSupported() && (
-            <button
-              type="button"
-              className="mx-auto inline-flex h-11 items-center rounded-lg border border-zinc-300 px-3 text-sm font-medium dark:border-zinc-700"
-              onClick={(e) => {
-                e.stopPropagation()
-                onSpeak()
-              }}
-            >
-              Listen
-            </button>
-          )}
+          <ListenRow word={intro.speech.word} lang={targetLang} onSpeak={onSpeak} />
         </>
       )}
-    </>
+    </div>
   )
 }
 
