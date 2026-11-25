@@ -61,6 +61,35 @@ describe('checkAnswer', () => {
     expect(verdict('small', big, 'en')).toBe('wrong')
   })
 
+  it('phrases: punctuation, apostrophes and the ellipsis are ignored, commas do not split', () => {
+    const moment: Expected = { primary: 'Einen Moment, bitte.', alternatives: [], isNoun: false, article: null, isPhrase: true }
+    expect(verdict('einen moment bitte', moment)).toBe('correct')
+    expect(verdict('Einen Moment, bitte!', moment)).toBe('correct')
+    expect(verdict('bitte', moment)).toBe('wrong')
+    expect(verdict('Einen Moment', moment)).toBe('wrong')
+    const leid: Expected = { primary: 'Es tut mir leid.', alternatives: [], isNoun: false, article: null, isPhrase: true }
+    expect(verdict('es tut mir leid', leid, 'de', 'live')).toBe('correct')
+    expect(verdict('Es tut mir lied', leid)).toBe('typo')
+    const gefallen: Expected = { primary: 'Wie gefällt dir …?', alternatives: [], isNoun: false, article: null, isPhrase: true }
+    for (const a of ['wie gefällt dir', 'Wie gefaellt dir ...?', 'Wie gefällt dir …?', 'wie gefällt dir?']) expect(verdict(a, gefallen)).toBe('correct')
+    const sorry: Expected = { primary: 'I’m sorry', alternatives: ['I am sorry'], isNoun: false, article: null, isPhrase: true }
+    for (const a of ["I'm sorry", 'Im sorry.', 'i am sorry!']) expect(verdict(a, sorry, 'en')).toBe('correct')
+    const repeat: Expected = { primary: 'could you please repeat that?', alternatives: ['could you repeat that, please?'], isNoun: false, article: null, isPhrase: true }
+    expect(verdict('Could you repeat that please', repeat, 'en')).toBe('correct')
+    expect(verdict('please', repeat, 'en')).toBe('wrong')
+  })
+
+  it('a trailing ellipsis is ignored for any answer', () => {
+    expect(verdict('how do you like', { primary: 'how do you like …', alternatives: [], isNoun: false, article: null }, 'en')).toBe('correct')
+  })
+
+  it('the German reflexive pronoun is optional', () => {
+    const anmelden: Expected = { primary: 'sich anmelden', alternatives: [], isNoun: false, article: null }
+    expect(verdict('sich anmelden', anmelden)).toBe('correct')
+    expect(verdict('anmelden', anmelden)).toBe('correct')
+    expect(verdict('sich fühlen', { primary: 'fühlen', alternatives: [], isNoun: false, article: null })).toBe('correct')
+  })
+
   it('an empty answer is wrong (final) or pending (live)', () => {
     expect(verdict('', hund)).toBe('wrong')
     expect(verdict('   ', hund, 'de', 'live')).toBe('pending')
@@ -118,5 +147,11 @@ describe('expectedFor', () => {
       lang: 'de',
       expected: { primary: 'der Hund', alternatives: [], isNoun: true, article: 'der' },
     })
+  })
+  it('a phrase is checked as a phrase both ways', () => {
+    const phrase = { display: 'Das macht nichts.', translation: 'that doesn’t matter', extraTranslations: [], content: { pos: 'phrase', altTranslations: ['never mind'], grammar: { article: null } } }
+    expect(expectedFor(phrase, 'source-target', langs).expected).toMatchObject({ primary: 'Das macht nichts.', isNoun: false, isPhrase: true })
+    expect(expectedFor(phrase, 'target-source', langs).expected).toMatchObject({ primary: 'that doesn’t matter', isPhrase: true })
+    expect(checkAnswer('das macht nichts', expectedFor(phrase, 'source-target', langs).expected, 'de', 'final').verdict).toBe('correct')
   })
 })

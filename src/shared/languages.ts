@@ -100,7 +100,8 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
       ['ß', 'ss'],
     ],
     requireArticleForNouns: true,
-    answerStripPrefixes: [],
+    // The reflexive pronoun is optional in answers: "anmelden" = "sich anmelden".
+    answerStripPrefixes: ['sich '],
     articles: ['der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einen', 'einem', 'einer', 'eines'],
     glossStripPrefixes: ['der ', 'die ', 'das ', 'ein ', 'eine '],
     importHeaderWords: ['deutsch', 'german', 'wort', 'wörter', 'begriff', 'übersetzung', 'bedeutung', 'vokabel', 'vokabeln'],

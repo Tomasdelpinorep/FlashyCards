@@ -137,11 +137,14 @@ export function withArticle(lemma: string, article: string | null | undefined): 
   return lemma
 }
 
-/** The colour token of a word's leading article in `lang` (der blue, die red, das green), if any. */
+/**
+ * The colour token of a word's leading article in `lang` (der blue, die red, das green), if any.
+ * Only an article plus one word counts: "Das macht nichts." is a phrase, not a neuter noun.
+ */
 export function articleColor(lang: string, word: string): { article: string; rest: string; color: 'blue' | 'red' | 'green' } | null {
   const colors = isLanguageCode(lang) ? LANGUAGES[lang].genderColors : undefined
   const space = word.indexOf(' ')
-  if (!colors || space <= 0) return null
+  if (!colors || space <= 0 || /[\s.!?…,;:]/u.test(word.slice(space + 1).trim())) return null
   const article = word.slice(0, space)
   const color = colors[article.toLowerCase()]
   return color ? { article, rest: word.slice(space), color } : null

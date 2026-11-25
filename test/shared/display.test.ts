@@ -87,6 +87,9 @@ describe('display helpers', () => {
     expect(articleColor('de', 'die Katze')?.color).toBe('red')
     expect(articleColor('de', 'das Haus')?.color).toBe('green')
     expect(articleColor('de', 'gehen')).toBeNull()
+    expect(articleColor('de', 'die Hunde')?.color).toBe('red')
+    expect(articleColor('de', 'Das macht nichts.')).toBeNull() // a phrase, not a neuter noun
+    expect(articleColor('de', 'der Hund?')).toBeNull()
     expect(articleColor('en', 'the dog')).toBeNull()
     expect(withArticle('Hund', 'der')).toBe('der Hund')
     expect(withArticle('der Hund', 'der')).toBe('der Hund')

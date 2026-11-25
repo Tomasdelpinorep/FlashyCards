@@ -1,7 +1,7 @@
 /** scripts/curated-to-sql.ts on small fixtures (the real dictionary: curated.test.ts). */
 import { DatabaseSync } from 'node:sqlite'
 import { describe, expect, it } from 'vitest'
-import { curatedToSql } from '../../scripts/curated-to-sql'
+import { curatedDeltaSql, curatedToSql } from '../../scripts/curated-to-sql'
 import { buildCurated } from '../../src/worker/ai/curated.de'
 import { DEV_LEXICON_DE, type DevEntry } from '../../src/worker/ai/devLexicon.de'
 import { createTestD1 } from '../helpers/d1'
@@ -69,6 +69,55 @@ describe('curatedToSql', () => {
     expect(() => curatedToSql([kind!], ['Kind', 'Zwetschge'])).toThrow(/"Zwetschge" has no entry/)
     expect(() => curatedToSql([{ ...kind!, grammar: { ...kind!.grammar!, article: 'der' } }], ['Kind'])).toThrow(/post-validation changes grammar/)
     expect(() => curatedToSql([{ ...kind!, translation: '' }], ['Kind'])).toThrow(/Kind/)
+  })
+
+  it('a delta has only the new entries and the alias rows that are new or moved; base + delta = the whole', () => {
+    const base = { entries: pick('Kind', 'fahren'), lemmas: ['Kind', 'fahren'] }
+    const next = { entries: [...pick('Kind', 'fahren'), gehen], lemmas: ['Kind', 'fahren'] }
+    const d = curatedDeltaSql(base, next, 'UPDATE cards SET gen_error = NULL WHERE 0;')
+    expect(d).toMatchObject({ entries: 1 })
+    expect(d.sql).toContain("'cur-de-gehen'")
+    expect(d.sql).not.toContain("'cur-de-kind'")
+    expect(d.sql.trimEnd().endsWith('UPDATE cards SET gen_error = NULL WHERE 0;')).toBe(true)
+    const staged = apply(curatedToSql(base.entries, base.lemmas).sql)
+    expect(staged.prepare("SELECT entry_id FROM entry_aliases WHERE alias_key = 'go'").get()).toMatchObject({ entry_id: 'cur-de-fahren' })
+    staged.exec(d.sql)
+    const aliases = (db: DatabaseSync) => db.prepare('SELECT input_side, alias_key, entry_id FROM entry_aliases ORDER BY 1, 2').all().map((r) => ({ ...r }))
+    expect(aliases(staged)).toEqual(aliases(apply(curatedToSql(next.entries, next.lemmas).sql)))
+    expect(staged.prepare("SELECT entry_id FROM entry_aliases WHERE alias_key = 'go'").get()).toMatchObject({ entry_id: 'cur-de-gehen' })
+    expect(() => curatedDeltaSql(next, base)).toThrow(/entry "gehen" was removed/)
+  })
+
+  it('key variants: no final punctuation, ASCII apostrophes, no "sich "; a variant yields to a real target key', () => {
+    const [kind] = pick('Kind')
+    const sorry: DevEntry = {
+      ...kind!,
+      lemma: 'Es tut mir leid.',
+      pos: 'phrase',
+      translation: 'I’m sorry',
+      alt_translations: [],
+      grammar: { ...kind!.grammar!, gender: null, article: null, plural: null, genitive: null },
+      example_target: '[[Es tut mir leid]], dass ich zu spät komme.',
+      example_source: '[[I’m sorry]] I’m late.',
+    }
+    const [lernen] = pick('lernen')
+    const sichLernen: DevEntry = { ...lernen!, lemma: 'sich lernen' }
+    const keys = (sql: string) => apply(sql).prepare("SELECT input_side || ':' || alias_key AS k, entry_id FROM entry_aliases ORDER BY 1").all().map((r) => ({ ...r }))
+    const without = keys(curatedToSql([sorry], []).sql)
+    expect(without.map((r) => r.k)).toEqual(['source:i’m sorry', 'target:es tut mir leid.'])
+    const out = curatedToSql([sorry, lernen!, sichLernen], [], { keyVariants: true })
+    const rows = keys(out.sql)
+    expect(rows).toEqual(
+      expect.arrayContaining([
+        { k: "source:i'm sorry", entry_id: 'cur-de-es tut mir leid.' },
+        { k: 'target:es tut mir leid', entry_id: 'cur-de-es tut mir leid.' },
+        { k: 'target:lernen', entry_id: 'cur-de-lernen' }, // the real key beats sich lernen's variant, silently
+        { k: 'target:sich lernen', entry_id: 'cur-de-sich lernen' },
+      ]),
+    )
+    const aliased = keys(curatedToSql([lernen!], [], { targetAliases: { 'sich lernen': 'lernen' } }).sql)
+    expect(aliased).toContainEqual({ k: 'target:sich lernen', entry_id: 'cur-de-lernen' })
+    expect(() => curatedToSql([lernen!], [], { targetAliases: { x: 'Zwetschge' } })).toThrow(/no entry "Zwetschge"/)
   })
 
   it('buildCurated rejects duplicate lemma keys', () => {

@@ -532,8 +532,9 @@ export function validateItem(item: GeneratedItem, group: Pick<MissGroup, 'input'
   if (!lemma || !translation) return { kind: 'invalid', reason: 'incomplete item' }
 
   const grammar = item.grammar ? fixVerbTables(fixGender(item.grammar, target.genderArticles)) : null
-  // "der Hund" -> "Hund": the article lives in grammar.article.
-  for (const a of target.articles) {
+  // "der Hund" -> "Hund": the article lives in grammar.article. A phrase keeps its first word
+  // ("Das macht nichts.").
+  for (const a of item.pos === 'phrase' ? [] : target.articles) {
     if (lemma.toLowerCase().startsWith(`${a} `) && lemma.length > a.length + 1) {
       lemma = lemma.slice(a.length + 1)
       break

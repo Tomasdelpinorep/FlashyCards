@@ -4,6 +4,8 @@
  * those cards; /suggest only offers curated words. The cache is seeded with scripts/curated-to-sql.ts
  * output for a small fixture (the real 0003_seed_de.sql is covered by curated.test.ts).
  */
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { termKey } from '../../src/shared/normalize'
 import type { CardDTO, CardListResponse, DeckStats, GenerateResponse, LearnQueueResponse, MeResponse, SuggestResponse } from '../../src/shared/schemas'
@@ -93,6 +95,54 @@ describe('no AI: the curated cache', () => {
       { input_term: 'Quark', status: 'pending', gen_error: null },
       { input_term: 'Zwetschge', status: 'failed', gen_error: 'needs_meaning' },
     ])
+  })
+})
+
+describe('the A2 dictionary additions (migrations/0005_seed_de_a2.sql)', () => {
+  const migration = (file: string) => readFileSync(join(__dirname, '..', '..', 'migrations', file), 'utf8')
+
+  it('re-queues cards waiting for a meaning; /generate serves the new words and re-marks the rest', async () => {
+    const ctx = setup({}, { generator: null })
+    ctx.sqlite.exec(migration('0003_seed_de.sql'))
+    const deck = await deckOf(ctx)
+    await importText(ctx, deck, 'müde\nanmelden\nEs tut mir leid\nZwetschge\nQuark')
+    expect(await generate(ctx, deck)).toMatchObject({ processed: 5, needsMeaning: 5 })
+    // A failed card that already has a user meaning is left alone.
+    ctx.sqlite.prepare(`UPDATE cards SET override_json = '{}' WHERE input_term = 'Quark'`).run()
+
+    ctx.sqlite.exec(migration('0005_seed_de_a2.sql'))
+    const rows = () => ctx.sqlite.prepare('SELECT input_term, status, gen_error, gen_attempts, gen_claimed_at FROM cards ORDER BY input_term').all()
+    expect(rows()).toEqual([
+      { input_term: 'Es tut mir leid', status: 'pending', gen_error: null, gen_attempts: 0, gen_claimed_at: null },
+      { input_term: 'Quark', status: 'failed', gen_error: 'needs_meaning', gen_attempts: 1, gen_claimed_at: null },
+      { input_term: 'Zwetschge', status: 'pending', gen_error: null, gen_attempts: 0, gen_claimed_at: null },
+      { input_term: 'anmelden', status: 'pending', gen_error: null, gen_attempts: 0, gen_claimed_at: null },
+      { input_term: 'müde', status: 'pending', gen_error: null, gen_attempts: 0, gen_claimed_at: null },
+    ])
+
+    expect(await generate(ctx, deck)).toMatchObject({ processed: 4, fromCache: 3, generated: 0, needsMeaning: 1, remaining: 0 })
+    const by = (t: string, list: CardDTO[]) => list.find((c) => c.inputTerm === t)!
+    const list = await cards(ctx, deck)
+    expect(by('müde', list)).toMatchObject({ status: 'ready', display: 'müde', translation: 'tired' })
+    expect(by('anmelden', list)).toMatchObject({ status: 'ready', display: 'sich anmelden', translation: 'to register' })
+    expect(by('Es tut mir leid', list)).toMatchObject({ status: 'ready', display: 'Es tut mir leid.', content: { pos: 'phrase' } })
+    expect(by('Zwetschge', list)).toMatchObject({ status: 'failed', genError: 'needs_meaning' })
+  })
+
+  it('the whole A2 import list (148 lines, phrases included) is ready at import', async () => {
+    const ctx = setup({}, { generator: null, seed: true })
+    const deck = await deckOf(ctx)
+    const text = readFileSync(join(__dirname, '..', 'fixtures', 'german-a2-words.txt'), 'utf8')
+    expect(await importText(ctx, deck, text)).toMatchObject({ added: 148, duplicates: [], invalid: [] })
+    expect(await stats(ctx, deck)).toMatchObject({ ready: 148, pending: 0, failed: 0 })
+    const entryOf = ctx.sqlite.prepare('SELECT e.lemma, e.translation FROM cards c JOIN entries e ON e.id = c.entry_id WHERE c.input_term = ?')
+    const lemma = (t: string) => ({ ...(entryOf.get(t) as object) })
+    expect(lemma('Das macht nichts.')).toEqual({ lemma: 'Das macht nichts.', translation: 'that doesn’t matter' })
+    expect(lemma('Einen Moment, bitte.')).toMatchObject({ lemma: 'Einen Moment, bitte.' })
+    expect(lemma('die Küche')).toEqual({ lemma: 'Küche', translation: 'kitchen' })
+    expect(lemma('sich fühlen')).toMatchObject({ lemma: 'fühlen' })
+    expect(lemma('sich anmelden')).toMatchObject({ lemma: 'sich anmelden' })
+    expect(lemma('wegen')).toMatchObject({ lemma: 'wegen' }) // already in 0003
   })
 })
 

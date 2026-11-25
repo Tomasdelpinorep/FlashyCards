@@ -722,7 +722,7 @@
 ## No-AI dictionary (curated en→de, user-entered meanings)
 - **Decision (owner):** no runtime AI for now. The German content is a hand-written, proofread
   dictionary: `data/seed/de/batch-{1,2,3}.json` (417 entries) + `src/worker/ai/devLexicon.de.ts`
-  (203), together `CURATED_DE` (`src/worker/ai/curated.de.ts`, bundled into the Worker; throws on a
+  (203), together `CURATED_DE_BASE`, plus batch-4 (103, see "A2 additions") = `CURATED_DE` (`src/worker/ai/curated.de.ts`, bundled into the Worker; throws on a
   duplicate lemma key). It covers the 600 lemmas of `data/seed/de/lemmas.json`. The fake generator
   falls back to it (its hard-coded test words Hund/Katze/Haus/gehen/essen stay first; those are not
   part of `CURATED_DE`, so the seeded rows are the curated ones).
@@ -753,12 +753,42 @@
   the translation of such a card.
 - **Suggest:** `suggestSkipLemmas` (ich sie der du es wir er ein ja ihr nein sich man) and
   `suggestCuratedOnly` in `languages.ts`; a pair without curated entries uses the whole list.
-- **Changing the dictionary later** (e.g. swapping film-heavy words): edit the data, `npm run
-  seed:sql`, commit. Once 0003 has run remotely, write a new migration instead (`npm run seed:sql
-  -- 0004`; D1 never re-runs an applied migration); the upsert makes re-applying the full seed
-  safe, and curated.test.ts checks the newest seed file. A word removed from the data stays in
-  the cache (harmless: it is no longer listed in lemmas.json, but suggest may still offer it if
-  it is in the word list; delete its entry in that migration if that matters).
+- **Changing the dictionary later:** seed migrations are *stages* (`SEED_STAGES` in
+  `scripts/curated-to-sql.ts`). 0003 stays the base dictionary (`CURATED_DE_BASE`); a later stage
+  holds only the entries and alias rows that are new or point elsewhere (`curatedDeltaSql`, same
+  upsert / INSERT OR REPLACE). `npm run seed:sql` rewrites every stage file; curated.test.ts checks
+  each file against a regeneration and that 0003 + 0005 give the same tables as the whole
+  dictionary at once. Removing an entry or alias key needs a hand-written migration.
+
+## A2 additions (batch-4, migration 0005)
+- **103 new entries** in `data/seed/de/batch-4.json` (34 nouns, 33 verbs, 18 adjectives/adverbs,
+  18 phrases), so the owner's 148-line A2 import list (`test/fixtures/german-a2-words.txt`) is all
+  Ready. "sich fühlen" is no new entry: the existing fühlen entry covers it (its note), via an
+  extra target alias (`A2_TARGET_ALIASES`). leihen: primary "to lend" (the bare verb's meaning),
+  "to borrow" an alternative (the note explains sich etwas leihen).
+- **Phrases** use `pos: 'phrase'`, no grammar but a note. validateItem keeps a phrase's first word
+  even when it is an article ("Das macht nichts.", "Einen Moment, bitte."); articleColor colours
+  only "article + one word", so a phrase is not shown as a neuter noun. The answer check
+  (`Expected.isPhrase`, from pos) ignores punctuation, apostrophes and "…" anywhere and does not
+  split a phrase on commas; a trailing "…" is ignored for every answer.
+- **Key variants** (stages after 0003): every alias key also without final punctuation/ellipsis
+  ("es tut mir leid", "wie gefällt dir"), with ASCII apostrophes ("i'm sorry"; this also adds
+  "o'clock" etc. for older entries), and reflexive lemmas without "sich " ("anmelden"). A variant
+  never beats a real key and yields silently on the target side. Answers: German
+  `answerStripPrefixes: ['sich ']`, so "anmelden" = "sich anmelden" both ways.
+- **Collisions** (35 new source-side conflicts). Hand picks (`A2_SOURCE_WINNERS`): rubbish → Müll
+  (not Mist), on time → pünktlich (not rechtzeitig), usually → meistens (not sonst). By the rule,
+  older entries keep: begin/to begin and start → anfangen, change → ändern, save → retten (sparen
+  is "to save (money)"), together → zusammen, quiet → ruhig, open → offen (to open → öffnen), rest
+  → Rest (to rest → sich ausruhen), catch → fangen, fetch → holen, book → Buch, take → nehmen,
+  last → letzte (to last → dauern), opportunity → Chance, happy → glücklich, hard → hart.
+  New entries win: difficult → schwierig (over schwer's alternative), hurt/to hurt → wehtun (over
+  verletzen's alternative), inside → drinnen, pick up → abholen, reach → erreichen. "cold" →
+  Erkältung (no kalt entry exists yet).
+- **Re-queue:** 0005 ends with an UPDATE that turns en→de cards with `status='failed'`,
+  `gen_error='needs_meaning'` and no `override_json` back into pending (attempts and lease
+  cleared); the next /generate serves dictionary hits as ready and marks the rest needs_meaning
+  again (noAi.test.ts).
 
 ## Themes
 

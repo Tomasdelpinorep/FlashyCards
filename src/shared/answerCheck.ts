@@ -5,6 +5,8 @@
  *
  * - Forgiving: case, extra spaces, trailing punctuation, and the language's folds
  *   (ae = ä, ss = ß, a = á ...) on both sides; gloss prefixes ("to go" = "go").
+ * - Phrases ("Es tut mir leid.", "Einen Moment, bitte."): punctuation and apostrophes anywhere
+ *   are ignored, and the answer is not split on commas.
  * - Nouns in languages with requireArticleForNouns need the article: "Hund" -> missing-article,
  *   "die Hund" -> wrong-article (checked before the typo distance, so never "typo").
  * - live (while typing): only an exact normalized match is "correct", anything else "pending".
@@ -25,6 +27,8 @@ export type Expected = {
   isNoun: boolean
   /** The noun's article ("der"), if any. */
   article: string | null
+  /** A set phrase: compared whole, ignoring punctuation (no "," / ";" split). */
+  isPhrase?: boolean
 }
 
 export type Verdict = 'correct' | 'typo' | 'missing-article' | 'wrong-article' | 'wrong' | 'pending'
@@ -52,11 +56,16 @@ function fold(lang: string, s: string): string {
   return t
 }
 
-/** Lowercase, NFC, single spaces, no surrounding punctuation or quotes. */
+/** Lowercase, NFC, single spaces, no surrounding punctuation, quotes or ellipsis. */
 function basic(s: string): string {
   let t = collapseWhitespace(s.normalize('NFC').toLowerCase())
-  t = t.replace(/[’']/g, "'").replace(/[.!?¡¿,;:"“”„«»]+$/u, '').replace(/^[¡¿"“”„«»]+/u, '')
+  t = t.replace(/[’']/g, "'").replace(/[\s.!?¡¿,;:"“”„«»…]+$/u, '').replace(/^[\s¡¿"“”„«»…]+/u, '')
   return collapseWhitespace(t)
+}
+
+/** A phrase without any punctuation or apostrophes ("I’m sorry." = "im sorry"). */
+function phraseText(s: string): string {
+  return collapseWhitespace(s.replace(/'/g, '').replace(/[.!?¡¿,;:"“”„«»…()–—-]+/gu, ' '))
 }
 
 function stripPrefix(lang: string, s: string): string {
@@ -85,17 +94,17 @@ function splitArticle(lang: string, s: string, useArticles: boolean): { article:
   return { article: null, rest: s }
 }
 
-function toForm(lang: string, raw: string, useArticles: boolean): Form {
-  const b = stripPrefix(lang, basic(raw))
+function toForm(lang: string, raw: string, useArticles: boolean, phrase = false): Form {
+  const b = stripPrefix(lang, phrase ? phraseText(basic(raw)) : basic(raw))
   const { article, rest } = splitArticle(lang, b, useArticles)
   return { article, rest: fold(lang, rest), letters: [...rest.replace(/[^\p{L}]/gu, '')].length, text: raw.trim() }
 }
 
-/** Accepted answers: each split on "," and ";", "(...)" notes dropped. */
+/** Accepted answers: each split on "," and ";" (not a phrase), "(...)" notes dropped. */
 function candidateTexts(expected: Expected): string[] {
   const out: string[] = []
   for (const s of [expected.primary, ...expected.alternatives]) {
-    for (const part of s.split(/[,;]/)) {
+    for (const part of expected.isPhrase ? [s] : s.split(/[,;]/)) {
       const t = collapseWhitespace(part.replace(/\([^()]*\)/gu, ' '))
       if (t && !out.includes(t)) out.push(t)
     }
@@ -124,8 +133,9 @@ export function damerau(a: string, b: string, max = 2): number {
 export function checkAnswer(input: string, expected: Expected, lang: string, mode: CheckMode): CheckResult {
   const shown = expected.primary
   const useArticles = !!(expected.isNoun && expected.article && langOf(lang)?.requireArticleForNouns)
-  const candidates = candidateTexts(expected).map((t) => toForm(lang, t, useArticles))
-  const inp = toForm(lang, input, useArticles)
+  const phrase = !!expected.isPhrase
+  const candidates = candidateTexts(expected).map((t) => toForm(lang, t, useArticles, phrase))
+  const inp = toForm(lang, input, useArticles, phrase)
   const empty = inp.rest === '' && inp.article === null
 
   if (!empty) {
@@ -241,11 +251,12 @@ export function expectedFor(
   direction: FaceDirection,
   langs: { sourceLang: LanguageCode | string; targetLang: LanguageCode | string },
 ): { expected: Expected; lang: string } {
+  const phrase = card.content?.pos === 'phrase' ? { isPhrase: true } : {}
   if (direction === 'target-source') {
     const primary = card.translation ?? card.extraTranslations[0] ?? card.display
     return {
       lang: langs.sourceLang,
-      expected: { primary, alternatives: [...(card.content?.altTranslations ?? []), ...card.extraTranslations], isNoun: false, article: null },
+      expected: { primary, alternatives: [...(card.content?.altTranslations ?? []), ...card.extraTranslations], isNoun: false, article: null, ...phrase },
     }
   }
   return {
@@ -255,6 +266,7 @@ export function expectedFor(
       alternatives: [],
       isNoun: card.content?.pos === 'noun',
       article: card.content?.grammar?.article ?? null,
+      ...phrase,
     },
   }
 }
