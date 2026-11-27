@@ -37,7 +37,7 @@ function HowToEn() {
   return (
     <>
       <p className="text-sm">
-        Flashcards helps you learn vocabulary in another language, a few words at a time. You add words, the app prepares a translation
+        FlashyCards helps you learn vocabulary in another language, a few words at a time. You add words, the app prepares a translation
         and an example sentence for each one, and then it shows you each word again just before you're likely to forget it.
       </p>
 
@@ -240,7 +240,7 @@ function HowToEs() {
   return (
     <>
       <p className="text-sm">
-        Flashcards te ayuda a aprender vocabulario de otro idioma, unas pocas palabras cada vez. Tú añades palabras, la app prepara
+        FlashyCards te ayuda a aprender vocabulario de otro idioma, unas pocas palabras cada vez. Tú añades palabras, la app prepara
         una traducción y una frase de ejemplo para cada una, y luego te vuelve a mostrar cada palabra justo antes de que se te olvide.
       </p>
 

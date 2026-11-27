@@ -9,7 +9,7 @@ import { messages, useT } from '../lib/i18n'
 
 const M = messages(
   {
-    title: 'Flashcards',
+    title: 'FlashyCards',
     deck: 'Deck',
     duplicates: (n: number) => `${n === 1 ? '1 word was' : `${n} words were`} already in your deck ·`,
     view: 'View',
@@ -36,7 +36,7 @@ const M = messages(
     limitReached: (n: number) => `Daily limit reached · Learn ${n} more`,
   },
   {
-    title: 'Flashcards',
+    title: 'FlashyCards',
     deck: 'Mazo',
     duplicates: (n) => `${n === 1 ? '1 palabra ya estaba' : `${n} palabras ya estaban`} en tu mazo ·`,
     view: 'Ver',

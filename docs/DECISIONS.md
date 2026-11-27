@@ -887,3 +887,15 @@
   top/height handle).
 - **Verified:** e2e `keyboard.spec.ts` emulates the Android behaviour (focus the box, shrink the
   viewport to 430 px). A real keyboard, and iOS Safari, can only be checked on a device.
+
+## App icon and name
+
+- The app is installable because it has a web app manifest (`public/manifest.webmanifest`,
+  "M8+M9"): Chrome offers "Install" for an HTTPS site with a manifest, a name and icons.
+- Name: **FlashyCards** (manifest, `<title>`, iOS title, Home, About, How-to).
+- Icon: Real Betis green (#0bb363) with a gold card behind a white "Hallo" card
+  (`public/icon.svg`). `scripts/gen-icons.ts` renders the PNGs (192, 512, Apple 180, maskable 512
+  with a green full-bleed background). The manifest lists only the PNGs, so the installed icon
+  doesn't depend on the phone's fonts; the SVG stays the browser-tab favicon.
+- An already installed app picks up a new icon/name when Chrome next checks the manifest (can take
+  a day); uninstalling and installing again shows it at once. iOS keeps the icon it was added with.
