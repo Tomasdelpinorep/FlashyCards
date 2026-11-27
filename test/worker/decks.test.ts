@@ -56,6 +56,7 @@ describe('GET /api/me', () => {
       ttsAutoplay: false,
       studyDirection: 'target-source',
       hideSentenceOnFront: false,
+      uiLang: 'en',
     })
   })
 })

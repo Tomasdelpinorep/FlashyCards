@@ -5,15 +5,59 @@ import { NoDecks } from '../components/NoDecks'
 import { btnSecondary, btnSmall, ErrorText, input, muted, Screen, Word } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
 import { useCards, useDeleteCard, type CardStatusFilter } from '../lib/queries'
-import { badgeBase, STATUS_BADGE, wordRowText } from '../lib/wordRow'
+import { messages, useT, useUiLang } from '../lib/i18n'
+import { badgeBase, STATUS_BADGE, statusLabel, wordRowText } from '../lib/wordRow'
 
-const FILTERS: { value: CardStatusFilter | ''; label: string }[] = [
-  { value: '', label: 'All' },
-  { value: 'pending', label: 'Preparing' },
-  { value: 'ready', label: 'Ready' },
-  { value: 'failed', label: 'Needs meaning' },
-  { value: 'suspended', label: 'Suspended' },
-  { value: 'duplicate', label: 'Duplicates' },
+const M = messages(
+  {
+    title: 'Words',
+    addWords: 'Add words',
+    search: 'Search',
+    searchWords: 'Search words',
+    filter: 'Filter by status',
+    all: 'All',
+    pending: 'Preparing',
+    ready: 'Ready',
+    failed: 'Needs meaning',
+    suspended: 'Suspended',
+    duplicate: 'Duplicates',
+    loading: 'Loading…',
+    noMatch: 'No words match.',
+    noWords: 'No words yet. Add some!',
+    confirmDelete: (word: string) => `Delete “${word}”?`,
+    loadMore: 'Load more',
+    delete: 'Delete',
+    deleteWord: (word: string) => `Delete ${word}`,
+  },
+  {
+    title: 'Palabras',
+    addWords: 'Añadir palabras',
+    search: 'Buscar',
+    searchWords: 'Buscar palabras',
+    filter: 'Filtrar por estado',
+    all: 'Todas',
+    pending: 'Preparando',
+    ready: 'Listas',
+    failed: 'Falta el significado',
+    suspended: 'Suspendidas',
+    duplicate: 'Duplicadas',
+    loading: 'Cargando…',
+    noMatch: 'Ninguna palabra coincide.',
+    noWords: 'Todavía no hay palabras. ¡Añade algunas!',
+    confirmDelete: (word) => `¿Eliminar “${word}”?`,
+    loadMore: 'Cargar más',
+    delete: 'Eliminar',
+    deleteWord: (word) => `Eliminar ${word}`,
+  },
+)
+
+const FILTERS: { value: CardStatusFilter | ''; key: 'all' | CardStatusFilter }[] = [
+  { value: '', key: 'all' },
+  { value: 'pending', key: 'pending' },
+  { value: 'ready', key: 'ready' },
+  { value: 'failed', key: 'failed' },
+  { value: 'suspended', key: 'suspended' },
+  { value: 'duplicate', key: 'duplicate' },
 ]
 
 function useDebounced<T>(value: T, ms: number): T {
@@ -26,6 +70,7 @@ function useDebounced<T>(value: T, ms: number): T {
 }
 
 export function Words() {
+  const t = useT(M)
   const { deck } = useCurrentDeck()
   const [params, setParams] = useSearchParams()
   const status = (FILTERS.find((f) => f.value === params.get('status'))?.value || undefined) as CardStatusFilter | undefined
@@ -45,7 +90,7 @@ export function Words() {
 
   if (!deck) {
     return (
-      <Screen title="Words">
+      <Screen title={t.title}>
         <NoDecks />
       </Screen>
     )
@@ -54,28 +99,28 @@ export function Words() {
   const list = cards.data?.pages.flatMap((p) => p.cards) ?? []
   return (
     <Screen
-      title="Words"
+      title={t.title}
       action={
         <Link to="/add" className={btnSmall}>
-          Add words
+          {t.addWords}
         </Link>
       }
     >
       <input
         type="search"
         className={input}
-        placeholder="Search"
-        aria-label="Search words"
+        placeholder={t.search}
+        aria-label={t.searchWords}
         value={q}
         onChange={(e) => {
           setQ(e.target.value)
           setParam('q', e.target.value.trim())
         }}
       />
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by status">
+      <div className="flex flex-wrap gap-2" role="group" aria-label={t.filter}>
         {FILTERS.map((f) => (
           <button
-            key={f.label}
+            key={f.key}
             type="button"
             aria-pressed={(status ?? '') === f.value}
             onClick={() => setParam('status', f.value)}
@@ -85,15 +130,15 @@ export function Words() {
                 : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400'
             }`}
           >
-            {f.label}
+            {t[f.key]}
           </button>
         ))}
       </div>
 
       <ErrorText error={cards.error ?? remove.error} />
-      {cards.isPending && <p className={muted}>Loading…</p>}
+      {cards.isPending && <p className={muted}>{t.loading}</p>}
       {cards.isSuccess && list.length === 0 && (
-        <p className={`${muted} py-8 text-center`}>{debouncedQ || status ? 'No words match.' : 'No words yet. Add some!'}</p>
+        <p className={`${muted} py-8 text-center`}>{debouncedQ || status ? t.noMatch : t.noWords}</p>
       )}
 
       <ul className="flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -105,7 +150,7 @@ export function Words() {
             highlighted={c.id === highlight}
             deleting={remove.isPending && remove.variables === c.id}
             onDelete={() => {
-              if (confirm(`Delete “${c.display}”?`)) remove.mutate(c.id)
+              if (confirm(t.confirmDelete(c.display))) remove.mutate(c.id)
             }}
           />
         ))}
@@ -113,7 +158,7 @@ export function Words() {
 
       {cards.hasNextPage && (
         <button type="button" className={btnSecondary} disabled={cards.isFetchingNextPage} onClick={() => void cards.fetchNextPage()}>
-          {cards.isFetchingNextPage ? 'Loading…' : 'Load more'}
+          {cards.isFetchingNextPage ? t.loading : t.loadMore}
         </button>
       )}
     </Screen>
@@ -133,7 +178,9 @@ function CardRow({
   deleting: boolean
   onDelete: () => void
 }) {
-  const { title, hint, subtitle } = wordRowText(card)
+  const t = useT(M)
+  const ui = useUiLang()
+  const { title, hint, subtitle } = wordRowText(card, ui)
   const badge = STATUS_BADGE[card.status]
   return (
     <li
@@ -148,11 +195,11 @@ function CardRow({
         <p className={`truncate ${muted} ${card.status === 'failed' ? 'text-red-700 dark:text-red-400' : ''}`}>{subtitle}</p>
       </Link>
       <span className={`${badgeBase} shrink-0 whitespace-nowrap ${badge.className}`} data-testid="status-badge">
-        {badge.label}
+        {statusLabel(card.status, ui)}
       </span>
       {card.status !== 'duplicate' && (
-        <button type="button" className={`${btnSmall} shrink-0`} onClick={onDelete} disabled={deleting} aria-label={`Delete ${card.display}`}>
-          {deleting ? '…' : 'Delete'}
+        <button type="button" className={`${btnSmall} shrink-0`} onClick={onDelete} disabled={deleting} aria-label={t.deleteWord(card.display)}>
+          {deleting ? '…' : t.delete}
         </button>
       )}
     </li>

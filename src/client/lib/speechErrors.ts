@@ -1,4 +1,28 @@
 /** Speech recognition error messages and browser detection (pure; used by lib/speech.ts). */
+import type { UiLanguage } from '../../shared/languages'
+
+const TEXT = {
+  en: {
+    noSpeech: 'Didn’t catch that — try again',
+    needsChrome: 'Voice input needs Chrome or Edge',
+    unreachable: 'Speech service unreachable — check your connection or VPN',
+    blocked: 'Microphone blocked — allow it in the browser settings',
+    blockedOrChrome: 'Microphone blocked — allow it, or use Chrome or Edge',
+    noMic: 'No microphone found',
+    langUnsupported: (lang: string) => `Your browser can’t recognise ${lang}`,
+    failed: (code: string) => `Speech recognition failed (${code || 'unknown'})`,
+  },
+  es: {
+    noSpeech: 'No te he entendido: inténtalo otra vez',
+    needsChrome: 'La entrada por voz necesita Chrome o Edge',
+    unreachable: 'No se puede conectar con el servicio de voz: revisa tu conexión o la VPN',
+    blocked: 'Micrófono bloqueado: permítelo en los ajustes del navegador',
+    blockedOrChrome: 'Micrófono bloqueado: permítelo o usa Chrome o Edge',
+    noMic: 'No se ha encontrado ningún micrófono',
+    langUnsupported: (lang: string) => `Tu navegador no reconoce el ${lang}`,
+    failed: (code: string) => `Error en el reconocimiento de voz (${code || 'desconocido'})`,
+  },
+} as const
 
 /**
  * Chromium browsers other than Chrome and Edge (Opera, Brave, Vivaldi, ...) expose the recognizer
@@ -21,25 +45,29 @@ export function speechServiceMissing(nav: {
  * What to tell the learner about a recognition error code, or null for none ('aborted': we
  * stopped it). `blocked` marks a refused microphone (the mic then stays off).
  */
-export function speechErrorMessage(code: string, langName: string, serviceMissing: boolean): { text: string; blocked: boolean } | null {
+export function speechErrorMessage(
+  code: string,
+  langName: string,
+  serviceMissing: boolean,
+  ui: UiLanguage = 'en',
+): { text: string; blocked: boolean } | null {
+  const t = TEXT[ui]
   switch (code) {
     case 'aborted':
       return null
     case 'no-speech':
-      return { text: 'Didn’t catch that — try again', blocked: false }
+      return { text: t.noSpeech, blocked: false }
     case 'network':
-      return serviceMissing
-        ? { text: 'Voice input needs Chrome or Edge', blocked: true }
-        : { text: 'Speech service unreachable — check your connection or VPN', blocked: false }
+      return serviceMissing ? { text: t.needsChrome, blocked: true } : { text: t.unreachable, blocked: false }
     case 'service-not-allowed':
-      return serviceMissing ? { text: 'Voice input needs Chrome or Edge', blocked: true } : { text: 'Microphone blocked — allow it in the browser settings', blocked: true }
+      return serviceMissing ? { text: t.needsChrome, blocked: true } : { text: t.blocked, blocked: true }
     case 'not-allowed':
-      return { text: serviceMissing ? 'Microphone blocked — allow it, or use Chrome or Edge' : 'Microphone blocked — allow it in the browser settings', blocked: true }
+      return { text: serviceMissing ? t.blockedOrChrome : t.blocked, blocked: true }
     case 'audio-capture':
-      return { text: 'No microphone found', blocked: false }
+      return { text: t.noMic, blocked: false }
     case 'language-not-supported':
-      return { text: `Your browser can’t recognise ${langName}`, blocked: false }
+      return { text: t.langUnsupported(langName), blocked: false }
     default:
-      return { text: `Speech recognition failed (${code || 'unknown'})`, blocked: false }
+      return { text: t.failed(code), blocked: false }
   }
 }

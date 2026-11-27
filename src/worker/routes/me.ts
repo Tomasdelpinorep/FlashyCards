@@ -4,6 +4,7 @@ import { listDecks, toDeckDTO } from '../db/decks'
 import { toUserDTO, updateUser, userSettings } from '../db/users'
 import type { AppEnv } from '../env'
 import { validate } from '../middleware/errors'
+import { switchAppLanguage } from '../services/switchLanguage'
 
 export const meRoutes = new Hono<AppEnv>()
   .get('/me', async (c) => {
@@ -14,9 +15,14 @@ export const meRoutes = new Hono<AppEnv>()
   .patch('/me', validate('json', UpdateMeSchema), async (c) => {
     const user = c.get('user')
     const body = c.req.valid('json')
-    const updated = await updateUser(c.env.DB, user.id, {
-      displayName: body.displayName,
-      settings: body.settings ? { ...userSettings(user), ...body.settings } : undefined,
-    })
-    return c.json({ user: toUserDTO(updated) })
+    const current = userSettings(user)
+    let settings = body.settings ? { ...current, ...body.settings } : undefined
+    // A new app language also converts the decks (services/switchLanguage.ts), saving the settings with them.
+    if (settings && settings.uiLang !== current.uiLang) {
+      await switchAppLanguage(c.env.DB, user.id, settings)
+      settings = undefined
+    }
+    const updated = await updateUser(c.env.DB, user.id, { displayName: body.displayName, settings })
+    const decks = await listDecks(c.env.DB, user.id)
+    return c.json({ user: toUserDTO(updated), decks: decks.map(toDeckDTO) } satisfies MeResponse)
   })

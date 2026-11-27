@@ -14,6 +14,7 @@
  * ts-fsrs creates schedulers asynchronously (the model is loaded lazily), so call `loadSrs()`
  * once and use the synchronous `Srs` it resolves to.
  */
+import type { UiLanguage } from './languages'
 import { DefaultScheduler, type Rating } from 'ts-fsrs'
 
 export type Grade = 1 | 2 | 3 | 4
@@ -202,23 +203,31 @@ async function createSrs(config: SrsConfig): Promise<Srs> {
 // ---------- interval labels ----------
 
 /** "<1m", "10m", "3h", "3d", "2mo", "1y" for a duration in ms. */
-export function formatInterval(ms: number): string {
+export function formatInterval(ms: number, ui: UiLanguage = 'en'): string {
+  const u = INTERVAL_UNITS[ui]
   const minutes = ms / 60_000
-  if (minutes < 1) return '<1m'
-  if (minutes < 60) return `${Math.round(minutes)}m`
+  if (minutes < 1) return `<1${u.m}`
+  if (minutes < 60) return `${Math.round(minutes)}${u.m}`
   const hours = minutes / 60
-  if (hours < 24) return `${Math.round(hours)}h`
+  if (hours < 24) return `${Math.round(hours)}${u.h}`
   const days = ms / DAY_MS
-  if (days < 30) return `${Math.round(days)}d`
-  if (days < 365) return `${Math.max(1, Math.round(days / 30))}mo`
-  const years = days / 365
-  return `${Math.round(years * 10) / 10}y`.replace('.0y', 'y')
+  if (days < 30) return `${Math.round(days)}${u.d}`
+  if (days < 365) return `${Math.max(1, Math.round(days / 30))}${u.mo}`
+  const years = Math.round((days / 365) * 10) / 10
+  return `${String(years).replace('.', u.decimal)}${u.y}`
+}
+
+/** Short interval units per app language ("3d" / "3 d"). */
+const INTERVAL_UNITS: Record<UiLanguage, { m: string; h: string; d: string; mo: string; y: string; decimal: string }> = {
+  en: { m: 'm', h: 'h', d: 'd', mo: 'mo', y: 'y', decimal: '.' },
+  es: { m: ' min', h: ' h', d: ' d', mo: ' mes', y: ' a', decimal: ',' },
 }
 
 /** Button labels: how long until the card would be due again for each grade. */
-export function previewIntervals(srs: Srs, id: string, before: SrsFields, now: number): Record<Grade, string> {
+export function previewIntervals(srs: Srs, id: string, before: SrsFields, now: number, ui: UiLanguage = 'en'): Record<Grade, string> {
   const p = srs.preview(id, before, now)
-  return { 1: formatInterval(p[1].due - now), 2: formatInterval(p[2].due - now), 3: formatInterval(p[3].due - now), 4: formatInterval(p[4].due - now) }
+  const f = (g: Grade) => formatInterval(p[g].due - now, ui)
+  return { 1: f(1), 2: f(2), 3: f(3), 4: f(4) }
 }
 
 /** True when a card scheduled `after` comes back within the learn-ahead window (same session). */

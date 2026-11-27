@@ -30,7 +30,7 @@ export async function signToken(
   return jwt.sign(overrides.key ?? privateKey)
 }
 
-type RequestOpts = { method?: string; token?: string; body?: unknown; host?: string }
+type RequestOpts = { method?: string; token?: string; body?: unknown; host?: string; headers?: Record<string, string> }
 
 /**
  * `options.generator`: the generator every request uses (default: a fresh FakeGenerator), `null`
@@ -63,7 +63,7 @@ export function setup(
 
   /** Request against a non-local host (as in production) unless `host` says otherwise. */
   async function request(path: string, opts: RequestOpts = {}) {
-    const headers: Record<string, string> = {}
+    const headers: Record<string, string> = { ...opts.headers }
     if (opts.token) headers['Cf-Access-Jwt-Assertion'] = opts.token
     if (opts.body !== undefined) headers['Content-Type'] = 'application/json'
     const url = `https://${opts.host ?? 'flashcards.example.workers.dev'}${path}`
@@ -76,7 +76,7 @@ export function setup(
   }
 
   /** Request as `email` with a valid token. */
-  async function as(email: string, path: string, opts: { method?: string; body?: unknown } = {}) {
+  async function as(email: string, path: string, opts: { method?: string; body?: unknown; headers?: Record<string, string> } = {}) {
     return request(path, { ...opts, token: await signToken(email) })
   }
 

@@ -21,13 +21,41 @@ import { answerPoints, effectiveCalibration, gradeFromTiming, typeParMs, updateC
 import type { CardFaces, FaceDirection } from '../../shared/display'
 import { isLanguageCode, LANGUAGES } from '../../shared/languages'
 import type { CardDTO } from '../../shared/schemas'
-import { GRADE_LABELS, type Grade } from '../../shared/srs'
+import type { Grade } from '../../shared/srs'
 import { inputKind, loadCalibration, saveCalibration } from '../lib/answerTiming'
 import { AUTO_ADVANCE_MS, shouldAutoAdvance } from '../lib/handsFree'
 import { speak, stopSpeaking } from '../lib/tts'
 import { AnswerInput, type AnswerResult } from './AnswerInput'
-import { CardBack, CardFront, GradeButtons, GradeSummary } from './StudyCard'
+import { CardBack, CardFront, GradeButtons, GradeSummary, useGradeNames } from './StudyCard'
 import { btnPrimary, btnSecondary, studyCard, studyFooter } from './ui'
+import { messages, useT, useUiLang } from '../lib/i18n'
+
+const M = messages(
+  {
+    theAnswerIs: (a: string) => `The answer is ${a}`,
+    correct: '✓ Correct',
+    card: 'Card',
+    announce: (status: string, grade: string) => `${status}. Grade: ${grade}`,
+    showAnswer: 'Show answer',
+    next: 'Next',
+    enter: 'Enter',
+    wasRight: 'I was right',
+    yourAnswer: 'Your answer',
+    correctLabel: 'Correct',
+  },
+  {
+    theAnswerIs: (a) => `La respuesta es ${a}`,
+    correct: '✓ ¡Correcto!',
+    card: 'Tarjeta',
+    announce: (status, grade) => `${status}. Nota: ${grade}`,
+    showAnswer: 'Ver respuesta',
+    next: 'Siguiente',
+    enter: 'Intro',
+    wasRight: 'Tenía razón',
+    yourAnswer: 'Tu respuesta',
+    correctLabel: 'Correcta',
+  },
+)
 
 export { AUTO_ADVANCE_MS }
 
@@ -78,6 +106,9 @@ export function AnswerCard({
   onReveal?: () => void
   onDone: (g: Grade) => void
 }) {
+  const t = useT(M)
+  const ui = useUiLang()
+  const gradeNames = useGradeNames()
   const [revealed, setRevealed] = useState<Revealed | null>(null)
   const [changing, setChanging] = useState(false)
   /** The learner interacted with the revealed card: no automatic move on. */
@@ -161,8 +192,8 @@ export function AnswerCard({
   const result = revealed?.result ?? null
   const status = revealed
     ? result && result.input.trim()
-      ? verdictText(result)
-      : `The answer is ${expected.primary}`
+      ? verdictText(result, ui)
+      : t.theAnswerIs(expected.primary)
     : ''
   const timeMs = result ? result.timing.thinkMs + (result.timing.typeMs ?? 0) : null
   const canClaimRight = !!result && result.verdict !== 'correct'
@@ -175,14 +206,14 @@ export function AnswerCard({
 
   return (
     <>
-      <section data-testid="study-card" aria-label="Card" tabIndex={0} className={studyCard}>
+      <section data-testid="study-card" aria-label={t.card} tabIndex={0} className={studyCard}>
         <div className="my-auto flex flex-col gap-4">
         {!revealed ? (
           <CardFront faces={faces} lang={targetLang} />
         ) : (
           <>
             <p className={`text-lg font-semibold ${tone}`} data-testid="verdict">
-              {result?.verdict === 'correct' ? '✓ Correct' : status}
+              {result?.verdict === 'correct' ? t.correct : status}
             </p>
             {result && result.verdict !== 'correct' && result.input.trim() && <AnswerDiff input={result.input} expected={result.shown} />}
             <CardBack
@@ -196,7 +227,7 @@ export function AnswerCard({
         </div>
       </section>
       <p className="sr-only" aria-live="polite">
-        {revealed ? `${status}. Grade: ${GRADE_LABELS[revealed.grade]}` : ''}
+        {revealed ? t.announce(status, gradeNames[revealed.grade]) : ''}
       </p>
 
       {/* Tall enough for either state, so the card keeps its size when it flips. */}
@@ -205,13 +236,13 @@ export function AnswerCard({
         <>
           <AnswerInput expected={expected} lang={lang} kind={lang === targetLang ? 'word' : 'meaning'} onResult={reveal} />
           <button type="button" className={btnSecondary} onClick={() => reveal(null)}>
-            Show answer
+            {t.showAnswer}
           </button>
         </>
       ) : (
         <>
           <button ref={nextRef} type="button" className={btnPrimary} disabled={!canGrade} onClick={() => leave(revealed.grade)}>
-            Next <span className="ml-2 text-xs font-normal">Enter</span>
+            {t.next} <span className="ml-2 text-xs font-normal">{t.enter}</span>
           </button>
           {changing ? (
             <GradeButtons
@@ -220,7 +251,7 @@ export function AnswerCard({
               onGrade={leave}
               selected={revealed.grade}
               focusSelected
-              names={canClaimRight ? { 3: 'I was right' } : undefined}
+              names={canClaimRight ? { 3: t.wasRight } : undefined}
             />
           ) : (
             <GradeSummary
@@ -241,10 +272,11 @@ export function AnswerCard({
 
 /** "Your answer" with the wrong letters struck through, and the right answer with the missing ones marked. */
 function AnswerDiff({ input, expected }: { input: string; expected: string }) {
+  const t = useT(M)
   const segs = diffChars(input, expected)
   return (
     <dl className="mx-auto grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-left text-base">
-      <dt className="text-sm text-zinc-500 dark:text-zinc-400">Your answer</dt>
+      <dt className="text-sm text-zinc-500 dark:text-zinc-400">{t.yourAnswer}</dt>
       <dd>
         {segs
           .filter((s) => s.op !== 'insert')
@@ -258,7 +290,7 @@ function AnswerDiff({ input, expected }: { input: string; expected: string }) {
             ),
           )}
       </dd>
-      <dt className="text-sm text-zinc-500 dark:text-zinc-400">Correct</dt>
+      <dt className="text-sm text-zinc-500 dark:text-zinc-400">{t.correctLabel}</dt>
       <dd>
         {segs
           .filter((s) => s.op !== 'delete')

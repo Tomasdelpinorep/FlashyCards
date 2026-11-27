@@ -22,8 +22,40 @@ import { capTiming, type Timing } from '../../shared/answerTiming'
 import { isLanguageCode, LANGUAGES } from '../../shared/languages'
 import { browserLacksSpeechService, isSpeechSupported, speechErrorMessage, startListening } from '../lib/speech'
 import { VisibleClock } from '../lib/answerTiming'
-import { MIC_PAUSED, micAfterEnd, micSwitch, useSwitch } from '../lib/handsFree'
+import { MIC_PAUSED_TEXT, micAfterEnd, micSwitch, useSwitch } from '../lib/handsFree'
 import { input as inputClass } from './ui'
+import { messages, useLanguageName, useT, useUiLang } from '../lib/i18n'
+
+const M = messages(
+  {
+    typo: 'Almost — check the spelling',
+    missingArticle: 'Add the article',
+    wrongArticle: 'Check the article',
+    wrong: 'Not quite — keep trying, or press Enter',
+    typeWord: (lang: string) => `Type the ${lang} word`,
+    typeMeaning: (lang: string) => `Type the ${lang} meaning`,
+    withArticle: 'With the article',
+    hearing: 'Hearing you…',
+    listening: 'Listening… speak now',
+    byVoice: 'Answer by voice',
+    voiceOn: 'Voice input on',
+    voiceOff: 'Voice input off',
+  },
+  {
+    typo: 'Casi: revisa la ortografía',
+    missingArticle: 'Añade el artículo',
+    wrongArticle: 'Revisa el artículo',
+    wrong: 'No exactamente: sigue intentándolo o pulsa Intro',
+    typeWord: (lang) => `Escribe la palabra en ${lang}`,
+    typeMeaning: (lang) => `Escribe el significado en ${lang}`,
+    withArticle: 'Con el artículo',
+    hearing: 'Te escucho…',
+    listening: 'Escuchando… habla ahora',
+    byVoice: 'Responder por voz',
+    voiceOn: 'Entrada por voz activada',
+    voiceOff: 'Entrada por voz desactivada',
+  },
+)
 
 export const PAUSE_MS = 1500
 
@@ -32,11 +64,19 @@ export type AnswerResult = CheckResult & { input: string; timing: Timing }
 /** Once the browser refuses the microphone (or has no speech service), the mic stays off for this page session. */
 let micBlocked: string | null = null
 
-const HINTS: Partial<Record<CheckResult['verdict'], string>> = {
-  typo: 'Almost — check the spelling',
-  'missing-article': 'Add the article',
-  'wrong-article': 'Check the article',
-  wrong: 'Not quite — keep trying, or press Enter',
+function hintFor(t: (typeof M)['en'], verdict: CheckResult['verdict']): string | null {
+  switch (verdict) {
+    case 'typo':
+      return t.typo
+    case 'missing-article':
+      return t.missingArticle
+    case 'wrong-article':
+      return t.wrongArticle
+    case 'wrong':
+      return t.wrong
+    default:
+      return null
+  }
 }
 
 export function AnswerInput({
@@ -53,6 +93,9 @@ export function AnswerInput({
   /** A result that should flip the card: a correct answer, or any answer submitted with Enter. */
   onResult: (r: AnswerResult) => void
 }) {
+  const t = useT(M)
+  const ui = useUiLang()
+  const languageName = useLanguageName()
   const [value, setValue] = useState('')
   const [hint, setHint] = useState<string | null>(null)
   const micOn = useSwitch(micSwitch)
@@ -73,8 +116,8 @@ export function AnswerInput({
   const firstInput = useRef<number | null>(null)
 
   const config = isLanguageCode(lang) ? LANGUAGES[lang] : null
-  const langName = config?.name ?? lang
-  const label = `Type the ${langName} ${kind}`
+  const langName = languageName(lang)
+  const label = kind === 'word' ? t.typeWord(langName) : t.typeMeaning(langName)
   const needsArticle = expected.isNoun && !!expected.article && !!config?.requireArticleForNouns
 
   useEffect(() => {
@@ -106,7 +149,7 @@ export function AnswerInput({
     if (done.current || inputs.every((s) => !s.trim())) return
     const r = checkAnyAnswer(inputs, expected, lang, 'final')
     if (r.verdict === 'correct') report(r, spoken)
-    else setHint(HINTS[r.verdict] ?? null)
+    else setHint(hintFor(t, r.verdict))
   }
 
   /** `timer`: start the pause check (typing only; speech gets its check on the final result). */
@@ -144,10 +187,10 @@ export function AnswerInput({
     setHearing(false)
     const stop = startListening({
       lang: config?.ttsLang ?? lang,
-      onInterim: (t) => {
-        if (!t || cancelled) return
+      onInterim: (text) => {
+        if (!text || cancelled) return
         heard = true
-        change(t, false)
+        change(text, false)
       },
       onSpeech: () => {
         if (cancelled) return
@@ -167,7 +210,7 @@ export function AnswerInput({
         if (cancelled || code === 'no-speech' || code === 'aborted') return
         fatal = true
         if (code === 'unsupported') setSpeechOk(false)
-        const m = speechErrorMessage(code, langName, browserLacksSpeechService())
+        const m = speechErrorMessage(code, langName, browserLacksSpeechService(), ui)
         if (m?.blocked) micBlocked = m.text
         if (m) setMicError(m.text)
         micSwitch.set(false)
@@ -182,7 +225,7 @@ export function AnswerInput({
         const next = micAfterEnd(empties.current, heard)
         empties.current = next.streak
         if (next.action === 'pause') {
-          setMicError(MIC_PAUSED)
+          setMicError(MIC_PAUSED_TEXT[ui])
           micSwitch.set(false)
         } else setRestart((n) => n + 1)
       },
@@ -219,7 +262,7 @@ export function AnswerInput({
     inputRef.current?.focus()
   }
 
-  const status = listening ? (hearing ? 'Hearing you…' : 'Listening… speak now') : ''
+  const status = listening ? (hearing ? t.hearing : t.listening) : ''
 
   return (
     <div className="flex flex-col gap-2">
@@ -238,7 +281,7 @@ export function AnswerInput({
           autoCorrect="off"
           spellCheck={false}
           enterKeyHint="done"
-          placeholder={needsArticle ? 'With the article' : undefined}
+          placeholder={needsArticle ? t.withArticle : undefined}
           autoFocus
           onChange={(e) => change(e.target.value)}
           onBlur={(e) => {
@@ -258,8 +301,8 @@ export function AnswerInput({
             ref={micRef}
             type="button"
             aria-pressed={micOn}
-            aria-label="Answer by voice"
-            title={micOn ? 'Voice input on' : 'Voice input off'}
+            aria-label={t.byVoice}
+            title={micOn ? t.voiceOn : t.voiceOff}
             disabled={!!micBlocked && !micOn}
             onClick={toggleMic}
             className={`inline-flex h-11 min-w-11 shrink-0 items-center justify-center self-center rounded-xl border disabled:opacity-40 ${

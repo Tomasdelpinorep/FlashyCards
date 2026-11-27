@@ -4,6 +4,7 @@
  * cards, stops (with a message) when the daily AI limit is reached, and backs off when a call
  * makes no progress (another tab/request holds the lease, or a transient AI error).
  */
+import type { UiLanguage } from '../../shared/languages'
 import { useQueryClient } from '@tanstack/react-query'
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { ApiError } from './api'
@@ -112,6 +113,18 @@ export function isAiUnavailable(err: unknown): boolean {
  */
 export const AI_NOT_CONFIGURED =
   "Word details can't be generated right now. Your words are saved and will be filled in automatically once it's available (next time you open the app)."
+
+/** AI_NOT_CONFIGURED in the app language (AI_NOT_CONFIGURED itself stays the state's marker value). */
+export function aiNotConfiguredText(ui: UiLanguage): string {
+  return ui === 'es'
+    ? 'Ahora mismo no se pueden generar los detalles de las palabras. Tus palabras están guardadas y se completarán solas cuando sea posible (la próxima vez que abras la app).'
+    : AI_NOT_CONFIGURED
+}
+
+/** SUGGEST_UNAVAILABLE in the app language. */
+export function suggestUnavailableText(ui: UiLanguage): string {
+  return ui === 'es' ? 'Ahora mismo no hay sugerencias de palabras nuevas. Puedes seguir añadiendo tus propias palabras en la pestaña Importar.' : SUGGEST_UNAVAILABLE
+}
 
 /** AddWords: /suggest without a word list needs the AI; nothing was added. */
 export const SUGGEST_UNAVAILABLE = "New word suggestions aren't available right now. You can still add your own words in the Import tab."

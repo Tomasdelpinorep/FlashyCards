@@ -1,0 +1,975 @@
+[
+  {
+    "lemma": "Körper",
+    "translation": "cuerpo",
+    "alt_translations": [],
+    "example_source": "El deporte es bueno para el [[cuerpo]].",
+    "note": null
+  },
+  {
+    "lemma": "solcher",
+    "translation": "tal",
+    "alt_translations": ["semejante", "así"],
+    "example_source": "Con [[esa clase de]] gente no hablo.",
+    "note": "Se declina como dieser (solche, solches, solchen). Al hablar es más común so ein: so ein Wetter."
+  },
+  {
+    "lemma": "Mist",
+    "translation": "porquería",
+    "alt_translations": ["mierda", "basura", "estiércol"],
+    "example_source": "¡Eso es una [[porquería]]!",
+    "note": "Coloquial. Mist! = ¡Mierda! So ein Mist! = ¡Qué faena! Sin plural en este sentido."
+  },
+  {
+    "lemma": "böse",
+    "translation": "enfadado",
+    "alt_translations": ["enfadada", "malo", "malvado"],
+    "example_source": "¿Todavía estás [[enfadado]] conmigo?",
+    "note": "jemandem böse sein = estar enfadado con alguien (dativo)."
+  },
+  {
+    "lemma": "Versuch",
+    "translation": "intento",
+    "alt_translations": ["prueba", "experimento"],
+    "example_source": "Ha sido un buen [[intento]].",
+    "note": null
+  },
+  {
+    "lemma": "vorstellen",
+    "translation": "presentar",
+    "alt_translations": ["imaginarse", "imaginar"],
+    "example_source": "¿Puedo [[presentarle]] a mi mujer?",
+    "note": "sich vorstellen = presentarse; sich (dativo) etwas vorstellen = imaginarse algo: Ich kann mir das vorstellen."
+  },
+  {
+    "lemma": "wovon",
+    "translation": "de qué",
+    "alt_translations": [],
+    "example_source": "¿[[De qué]] hablas?",
+    "note": "wo(r)- + preposición pregunta por cosas: wovon, womit, worüber (reden von → wovon)."
+  },
+  {
+    "lemma": "sobald",
+    "translation": "en cuanto",
+    "alt_translations": ["tan pronto como", "nada más"],
+    "example_source": "Te llamo [[en cuanto]] llegue a casa.",
+    "note": "Subordinante: el verbo va al final."
+  },
+  {
+    "lemma": "nochmal",
+    "translation": "otra vez",
+    "alt_translations": ["de nuevo"],
+    "example_source": "¿Puedes decirlo [[otra vez]]?",
+    "note": "Forma corta coloquial de noch einmal."
+  },
+  {
+    "lemma": "Sex",
+    "translation": "sexo",
+    "alt_translations": [],
+    "example_source": "La película no muestra violencia ni [[sexo]].",
+    "note": "Sin plural. Para sexo en el sentido de género se usa das Geschlecht."
+  },
+  {
+    "lemma": "Wohnung",
+    "translation": "piso",
+    "alt_translations": ["apartamento", "vivienda"],
+    "example_source": "Nuestro [[piso]] tiene tres habitaciones.",
+    "note": null
+  },
+  {
+    "lemma": "weh",
+    "translation": "dolorido",
+    "alt_translations": ["que duele", "doloroso"],
+    "example_source": "Me [[duele]] la cabeza.",
+    "note": "Sobre todo en wehtun (weh tun) con dativo: Das tut mir weh = Me duele."
+  },
+  {
+    "lemma": "Krankenhaus",
+    "translation": "hospital",
+    "alt_translations": [],
+    "example_source": "Mi madre está ingresada en el [[hospital]].",
+    "note": "im Krankenhaus liegen = estar ingresado en el hospital."
+  },
+  {
+    "lemma": "Million",
+    "translation": "millón",
+    "alt_translations": [],
+    "example_source": "Berlín tiene casi cuatro [[millones]] de habitantes.",
+    "note": "Sustantivo femenino: eine Million, zwei Millionen."
+  },
+  {
+    "lemma": "Klasse",
+    "translation": "clase",
+    "alt_translations": ["curso", "genial (coloquial)"],
+    "example_source": "Nuestra [[clase]] se va mañana de excursión.",
+    "note": "Coloquial: Klasse! = ¡Genial!"
+  },
+  {
+    "lemma": "hart",
+    "translation": "duro",
+    "alt_translations": ["dura", "severo"],
+    "example_source": "El pan está muy [[duro]].",
+    "note": null
+  },
+  {
+    "lemma": "Sinn",
+    "translation": "sentido",
+    "alt_translations": ["significado"],
+    "example_source": "Eso no tiene [[sentido]].",
+    "note": "Sinn haben / Sinn ergeben = tener sentido; al hablar también es común Sinn machen."
+  },
+  {
+    "lemma": "außerdem",
+    "translation": "además",
+    "alt_translations": ["aparte"],
+    "example_source": "[[Además]], el hotel es muy caro.",
+    "note": "Al principio de la frase, el verbo va justo después."
+  },
+  {
+    "lemma": "verletzen",
+    "translation": "herir",
+    "alt_translations": ["lesionar", "hacer daño", "violar (una norma)"],
+    "example_source": "Se [[lesionó]] jugando al fútbol.",
+    "note": "sich verletzen = hacerse daño, lesionarse."
+  },
+  {
+    "lemma": "ändern",
+    "translation": "cambiar",
+    "alt_translations": ["modificar"],
+    "example_source": "Tenemos que [[cambiar]] nuestro plan.",
+    "note": "sich ändern = cambiar (intransitivo). Cambiar dinero: wechseln; cambiarse de ropa: sich umziehen."
+  },
+  {
+    "lemma": "erfahren",
+    "translation": "enterarse",
+    "alt_translations": ["saber", "experimentar"],
+    "example_source": "¿Cómo te has [[enterado]] de eso?",
+    "note": "El participio es igual que el infinitivo. También adjetivo: erfahren = experimentado."
+  },
+  {
+    "lemma": "tragen",
+    "translation": "llevar",
+    "alt_translations": ["llevar puesto", "cargar", "soportar"],
+    "example_source": "Hoy [[lleva]] un vestido rojo.",
+    "note": "Cambio vocálico en presente: du trägst, er trägt."
+  },
+  {
+    "lemma": "wenigstens",
+    "translation": "al menos",
+    "alt_translations": ["por lo menos"],
+    "example_source": "Llueve, pero [[al menos]] hace calor.",
+    "note": "Con números y cantidades es más habitual mindestens: mindestens zehn Euro."
+  },
+  {
+    "lemma": "vorsichtig",
+    "translation": "cuidadoso",
+    "alt_translations": ["cuidadosa", "prudente", "con cuidado"],
+    "example_source": "[[Ten cuidado]], la carretera resbala.",
+    "note": null
+  },
+  {
+    "lemma": "stolz",
+    "translation": "orgulloso",
+    "alt_translations": ["orgullosa"],
+    "example_source": "Estoy muy [[orgulloso]] de ti.",
+    "note": "stolz auf + acusativo = orgulloso de."
+  },
+  {
+    "lemma": "stark",
+    "translation": "fuerte",
+    "alt_translations": ["intenso", "genial (coloquial)"],
+    "example_source": "El café está demasiado [[fuerte]] para mí.",
+    "note": null
+  },
+  {
+    "lemma": "fallen",
+    "translation": "caer",
+    "alt_translations": ["caerse"],
+    "example_source": "El vaso se ha [[caído]] al suelo.",
+    "note": "Cambio vocálico: du fällst, er fällt. Perfekt con sein."
+  },
+  {
+    "lemma": "besonders",
+    "translation": "especialmente",
+    "alt_translations": ["particularmente", "sobre todo"],
+    "example_source": "La comida estaba [[especialmente]] buena.",
+    "note": "nicht besonders = no muy, no especialmente."
+  },
+  {
+    "lemma": "schicken",
+    "translation": "enviar",
+    "alt_translations": ["mandar"],
+    "example_source": "Mañana te [[mando]] las fotos.",
+    "note": null
+  },
+  {
+    "lemma": "Person",
+    "translation": "persona",
+    "alt_translations": ["personas (plural)"],
+    "example_source": "La mesa es para cuatro [[personas]].",
+    "note": "Siempre femenino, también para un hombre (como en español): Er ist eine nette Person."
+  },
+  {
+    "lemma": "schätzen",
+    "translation": "calcular",
+    "alt_translations": ["estimar", "apreciar", "valorar"],
+    "example_source": "[[Calculo]] que tiene unos cuarenta años.",
+    "note": null
+  },
+  {
+    "lemma": "solange",
+    "translation": "mientras",
+    "alt_translations": ["mientras que", "siempre que"],
+    "example_source": "[[Mientras]] llueva, nos quedamos dentro.",
+    "note": "Subordinante: el verbo va al final. Separado, so lange = tanto tiempo."
+  },
+  {
+    "lemma": "großartig",
+    "translation": "genial",
+    "alt_translations": ["magnífico", "estupendo", "fantástico"],
+    "example_source": "¡Es una idea [[genial]]!",
+    "note": null
+  },
+  {
+    "lemma": "lachen",
+    "translation": "reír",
+    "alt_translations": ["reírse"],
+    "example_source": "¿Por qué te [[ríes]]?",
+    "note": "lachen über + acusativo = reírse de."
+  },
+  {
+    "lemma": "erwarten",
+    "translation": "esperar",
+    "alt_translations": ["aguardar", "contar con"],
+    "example_source": "[[Espero]] una llamada importante.",
+    "note": "Lleva complemento directo, sin preposición. ein Kind erwarten = estar esperando un bebé. Esperar a alguien que llega: warten auf."
+  },
+  {
+    "lemma": "Boden",
+    "translation": "suelo",
+    "alt_translations": ["tierra", "fondo"],
+    "example_source": "Los niños están sentados en el [[suelo]].",
+    "note": null
+  },
+  {
+    "lemma": "Boss",
+    "translation": "jefe",
+    "alt_translations": ["jefa", "jefazo"],
+    "example_source": "Mi [[jefe]] está hoy de mal humor.",
+    "note": "Coloquial; en el trabajo se suele decir der Chef / die Chefin."
+  },
+  {
+    "lemma": "Stimme",
+    "translation": "voz",
+    "alt_translations": ["voto"],
+    "example_source": "Tiene una [[voz]] muy bonita.",
+    "note": null
+  },
+  {
+    "lemma": "still",
+    "translation": "callado",
+    "alt_translations": ["callada", "silencioso", "tranquilo"],
+    "example_source": "¡[[Callaos]], por favor!",
+    "note": "stilles Wasser = agua sin gas."
+  },
+  {
+    "lemma": "Sicherheit",
+    "translation": "seguridad",
+    "alt_translations": ["certeza"],
+    "example_source": "La [[seguridad]] es lo primero.",
+    "note": "El plural solo se usa en finanzas (garantías). mit Sicherheit = seguro, con certeza."
+  },
+  {
+    "lemma": "Mund",
+    "translation": "boca",
+    "alt_translations": [],
+    "example_source": "Abre la [[boca]], por favor.",
+    "note": null
+  },
+  {
+    "lemma": "kämpfen",
+    "translation": "luchar",
+    "alt_translations": ["pelear", "combatir"],
+    "example_source": "[[Lucha]] por sus derechos.",
+    "note": "kämpfen für / gegen / um + acusativo = luchar por / contra / por."
+  },
+  {
+    "lemma": "Zeug",
+    "translation": "cosas",
+    "alt_translations": ["trastos", "chismes"],
+    "example_source": "¡Recoge tus [[cosas]], por favor!",
+    "note": "Coloquial, sin plural. No confundir con der Zeuge (testigo)."
+  },
+  {
+    "lemma": "lustig",
+    "translation": "divertido",
+    "alt_translations": ["divertida", "gracioso", "alegre"],
+    "example_source": "La película fue muy [[divertida]].",
+    "note": "lustig = divertido, gracioso; komisch suele significar raro."
+  },
+  {
+    "lemma": "umbringen",
+    "translation": "matar",
+    "alt_translations": ["asesinar"],
+    "example_source": "¡Este calor me va a [[matar]]!",
+    "note": "Irregular como bringen (brachte, gebracht). Al hablar se usa mucho en sentido figurado."
+  },
+  {
+    "lemma": "hassen",
+    "translation": "odiar",
+    "alt_translations": [],
+    "example_source": "[[Odio]] madrugar.",
+    "note": null
+  },
+  {
+    "lemma": "schlimm",
+    "translation": "malo",
+    "alt_translations": ["grave", "terrible"],
+    "example_source": "Tampoco es tan [[grave]].",
+    "note": "Nicht schlimm! = ¡No pasa nada!"
+  },
+  {
+    "lemma": "unglaublich",
+    "translation": "increíble",
+    "alt_translations": ["alucinante", "asombroso"],
+    "example_source": "¡Las vistas son [[increíbles]]!",
+    "note": "También como intensificador: unglaublich teuer = increíblemente caro."
+  },
+  {
+    "lemma": "Laden",
+    "translation": "tienda",
+    "alt_translations": ["comercio"],
+    "example_source": "La [[tienda]] abre a las ocho.",
+    "note": null
+  },
+  {
+    "lemma": "führen",
+    "translation": "guiar",
+    "alt_translations": ["llevar", "dirigir (un negocio)", "conducir"],
+    "example_source": "Este camino [[lleva]] al lago.",
+    "note": "Tagebuch führen = llevar un diario."
+  },
+  {
+    "lemma": "Meinung",
+    "translation": "opinión",
+    "alt_translations": ["parecer"],
+    "example_source": "En mi [[opinión]], tienes razón.",
+    "note": "Ich bin der Meinung, dass … = Opino que …"
+  },
+  {
+    "lemma": "Mörder",
+    "translation": "asesino",
+    "alt_translations": ["homicida"],
+    "example_source": "En la novela policíaca, la policía encuentra al [[asesino]].",
+    "note": "Femenino: die Mörderin."
+  },
+  {
+    "lemma": "geschehen",
+    "translation": "suceder",
+    "alt_translations": ["ocurrir", "pasar"],
+    "example_source": "¿Qué ha [[sucedido]] aquí?",
+    "note": "Se usa sobre todo en 3.ª persona; más formal que passieren. Perfekt con sein."
+  },
+  {
+    "lemma": "Geschäft",
+    "translation": "negocio",
+    "alt_translations": ["tienda", "comercio", "trato"],
+    "example_source": "La [[tienda]] cierra los domingos.",
+    "note": null
+  },
+  {
+    "lemma": "Idiot",
+    "translation": "idiota",
+    "alt_translations": ["imbécil", "tonto"],
+    "example_source": "¡He sido un [[idiota]]!",
+    "note": "Declinación en -n: den/dem Idioten. Es un insulto, úsalo con cuidado."
+  },
+  {
+    "lemma": "Verzeihung",
+    "translation": "perdón",
+    "alt_translations": ["disculpe", "perdone"],
+    "example_source": "[[Perdone]], ¿dónde está la estación?",
+    "note": "Sin plural. Como sustantivo: perdón (um Verzeihung bitten = pedir perdón)."
+  },
+  {
+    "lemma": "fliegen",
+    "translation": "volar",
+    "alt_translations": ["ir en avión"],
+    "example_source": "En verano [[volamos]] a España.",
+    "note": "Perfekt con sein; con haben solo al pilotar algo: Sie hat das Flugzeug geflogen."
+  },
+  {
+    "lemma": "Team",
+    "translation": "equipo",
+    "alt_translations": [],
+    "example_source": "Nuestro [[equipo]] ganó ayer.",
+    "note": null
+  },
+  {
+    "lemma": "General",
+    "translation": "general",
+    "alt_translations": [],
+    "example_source": "El [[general]] dio la orden.",
+    "note": "Plural también die Generale."
+  },
+  {
+    "lemma": "vorher",
+    "translation": "antes",
+    "alt_translations": ["de antemano", "previamente"],
+    "example_source": "Llámame [[antes]], por favor.",
+    "note": "Es un adverbio; la conjunción «antes de que» es bevor."
+  },
+  {
+    "lemma": "Schluss",
+    "translation": "final",
+    "alt_translations": ["fin", "conclusión"],
+    "example_source": "Al [[final]] de la película todos lloran.",
+    "note": "Schluss machen = terminar por hoy / cortar con alguien. Plural = conclusiones."
+  },
+  {
+    "lemma": "verdienen",
+    "translation": "ganar dinero",
+    "alt_translations": ["ganar", "merecer", "merecerse"],
+    "example_source": "En su nuevo trabajo [[gana]] bien.",
+    "note": "Ganar un partido o un premio es gewinnen."
+  },
+  {
+    "lemma": "perfekt",
+    "translation": "perfecto",
+    "alt_translations": ["perfecta"],
+    "example_source": "¡Tu alemán es casi [[perfecto]]!",
+    "note": "das Perfekt es también el nombre del pretérito perfecto alemán."
+  },
+  {
+    "lemma": "versprechen",
+    "translation": "prometer",
+    "alt_translations": [],
+    "example_source": "Te [[prometo]] que llegaré puntual.",
+    "note": "jemandem (dativo) etwas versprechen. sich versprechen = equivocarse al hablar."
+  },
+  {
+    "lemma": "Handy",
+    "translation": "móvil",
+    "alt_translations": ["teléfono móvil", "celular"],
+    "example_source": "Mi [[móvil]] no tiene batería.",
+    "note": null
+  },
+  {
+    "lemma": "hinten",
+    "translation": "atrás",
+    "alt_translations": ["detrás", "al fondo"],
+    "example_source": "Nos sentamos [[al fondo]] del autobús.",
+    "note": "Lo contrario: vorne. nach hinten = hacia atrás."
+  },
+  {
+    "lemma": "Monat",
+    "translation": "mes",
+    "alt_translations": [],
+    "example_source": "El [[mes]] que viene me voy a Italia.",
+    "note": null
+  },
+  {
+    "lemma": "acht",
+    "translation": "ocho",
+    "alt_translations": [],
+    "example_source": "La clase empieza a las [[ocho]].",
+    "note": "achtzehn = 18, achtzig = 80."
+  },
+  {
+    "lemma": "nötig",
+    "translation": "necesario",
+    "alt_translations": ["necesaria", "preciso"],
+    "example_source": "De verdad que no es [[necesario]].",
+    "note": "etwas nötig haben = necesitar algo."
+  },
+  {
+    "lemma": "Mord",
+    "translation": "asesinato",
+    "alt_translations": ["homicidio", "crimen"],
+    "example_source": "La novela policíaca trata de un [[asesinato]].",
+    "note": null
+  },
+  {
+    "lemma": "heraus",
+    "translation": "fuera",
+    "alt_translations": ["afuera"],
+    "example_source": "¡[[Sal]] de ahí ahora mismo!",
+    "note": "Hacia fuera, en dirección al hablante (hinaus = alejándose). Coloquialmente se acorta a raus."
+  },
+  {
+    "lemma": "unmöglich",
+    "translation": "imposible",
+    "alt_translations": [],
+    "example_source": "Por desgracia, eso es [[imposible]].",
+    "note": "Sobre el comportamiento también «insoportable»: Du bist unmöglich! = ¡Eres imposible!"
+  },
+  {
+    "lemma": "Liebling",
+    "translation": "cariño",
+    "alt_translations": ["amor", "favorito"],
+    "example_source": "¡Buenas noches, [[cariño]]!",
+    "note": "Siempre masculino. Lieblings- = favorito: mein Lieblingsessen."
+  },
+  {
+    "lemma": "tatsächlich",
+    "translation": "realmente",
+    "alt_translations": ["de verdad", "de hecho", "efectivamente"],
+    "example_source": "[[De verdad]] ha aprobado el examen.",
+    "note": "También adjetivo: real, efectivo."
+  },
+  {
+    "lemma": "folgen",
+    "translation": "seguir",
+    "alt_translations": ["obedecer"],
+    "example_source": "[[Sígame]], por favor.",
+    "note": "Rige dativo. Perfekt con sein; en el sentido de «obedecer», con haben."
+  },
+  {
+    "lemma": "bitten",
+    "translation": "pedir",
+    "alt_translations": ["rogar", "solicitar"],
+    "example_source": "¿Puedo [[pedirle]] un favor?",
+    "note": "jemanden um etwas bitten = pedir algo a alguien; para preguntar se usa fragen."
+  },
+  {
+    "lemma": "behalten",
+    "translation": "quedarse con",
+    "alt_translations": ["guardar", "conservar", "recordar"],
+    "example_source": "Puede [[quedarse con]] el cambio.",
+    "note": "El participio es igual que el infinitivo. Cambio vocálico: du behältst, er behält."
+  },
+  {
+    "lemma": "Nähe",
+    "translation": "cercanía",
+    "alt_translations": ["proximidad", "cerca (in der Nähe)"],
+    "example_source": "¿Hay una farmacia [[cerca]] de aquí?",
+    "note": "Sin plural. in der Nähe von + dativo = cerca de."
+  },
+  {
+    "lemma": "plötzlich",
+    "translation": "de repente",
+    "alt_translations": ["repentino", "de pronto"],
+    "example_source": "[[De repente]] se fue la luz.",
+    "note": "También adjetivo: ein plötzlicher Regen = un chaparrón repentino."
+  },
+  {
+    "lemma": "jemals",
+    "translation": "alguna vez",
+    "alt_translations": ["nunca (en negativas)"],
+    "example_source": "¿Has estado [[alguna vez]] en Japón?",
+    "note": "Se usa en preguntas y negaciones; je significa lo mismo."
+  },
+  {
+    "lemma": "verkaufen",
+    "translation": "vender",
+    "alt_translations": [],
+    "example_source": "[[Vendemos]] nuestro coche viejo.",
+    "note": null
+  },
+  {
+    "lemma": "gefährlich",
+    "translation": "peligroso",
+    "alt_translations": ["peligrosa"],
+    "example_source": "Aquí es [[peligroso]] bañarse.",
+    "note": null
+  },
+  {
+    "lemma": "anfangen",
+    "translation": "empezar",
+    "alt_translations": ["comenzar", "iniciar"],
+    "example_source": "La película [[empieza]] a las ocho.",
+    "note": "mit etwas anfangen = empezar (a hacer) algo. Cambio vocálico: du fängst an."
+  },
+  {
+    "lemma": "Hotel",
+    "translation": "hotel",
+    "alt_translations": [],
+    "example_source": "Nuestro [[hotel]] está justo en la playa.",
+    "note": null
+  },
+  {
+    "lemma": "Meister",
+    "translation": "maestro",
+    "alt_translations": ["campeón", "maestro artesano"],
+    "example_source": "El Bayern vuelve a ser [[campeón]] de Alemania.",
+    "note": "También es un título profesional: Meister = maestro artesano. Femenino: die Meisterin."
+  },
+  {
+    "lemma": "Kampf",
+    "translation": "lucha",
+    "alt_translations": ["pelea", "combate", "batalla"],
+    "example_source": "Ha sido una [[lucha]] dura.",
+    "note": null
+  },
+  {
+    "lemma": "Antwort",
+    "translation": "respuesta",
+    "alt_translations": ["contestación"],
+    "example_source": "Todavía estoy esperando una [[respuesta]].",
+    "note": null
+  },
+  {
+    "lemma": "obwohl",
+    "translation": "aunque",
+    "alt_translations": ["a pesar de que", "pese a que"],
+    "example_source": "[[Aunque]] llueve, vamos a dar un paseo.",
+    "note": "Subordinante: el verbo va al final."
+  },
+  {
+    "lemma": "sieben",
+    "translation": "siete",
+    "alt_translations": [],
+    "example_source": "Una semana tiene [[siete]] días.",
+    "note": "siebzehn = 17, siebzig = 70 (sin -en-)."
+  },
+  {
+    "lemma": "komisch",
+    "translation": "raro",
+    "alt_translations": ["extraño", "rara", "gracioso"],
+    "example_source": "La leche sabe [[rara]].",
+    "note": "Normalmente significa «raro»; para «gracioso» es más claro lustig."
+  },
+  {
+    "lemma": "gewinnen",
+    "translation": "ganar",
+    "alt_translations": [],
+    "example_source": "¿Quién ha [[ganado]] el partido?",
+    "note": null
+  },
+  {
+    "lemma": "bezahlen",
+    "translation": "pagar",
+    "alt_translations": [],
+    "example_source": "¿Puedo [[pagar]] con tarjeta?",
+    "note": "etwas bezahlen = pagar algo (sin preposición). Participio sin ge-: bezahlt."
+  },
+  {
+    "lemma": "unterwegs",
+    "translation": "de camino",
+    "alt_translations": ["en camino", "fuera de casa", "de viaje"],
+    "example_source": "Ya estoy [[de camino]].",
+    "note": null
+  },
+  {
+    "lemma": "dumm",
+    "translation": "tonto",
+    "alt_translations": ["tonta", "estúpido", "bobo"],
+    "example_source": "Fue una idea [[tonta]].",
+    "note": null
+  },
+  {
+    "lemma": "Ärger",
+    "translation": "lío",
+    "alt_translations": ["problemas", "enfado", "disgusto"],
+    "example_source": "Si no, te vas a meter en un [[lío]] con tu padre.",
+    "note": "Sin plural. Ärger bekommen/kriegen = meterse en problemas."
+  },
+  {
+    "lemma": "Bild",
+    "translation": "imagen",
+    "alt_translations": ["cuadro", "foto", "dibujo"],
+    "example_source": "El [[cuadro]] está colgado en el salón.",
+    "note": null
+  },
+  {
+    "lemma": "dagegen",
+    "translation": "en contra",
+    "alt_translations": ["en cambio", "por el contrario"],
+    "example_source": "Yo estoy [[en contra]].",
+    "note": "Hast du etwas dagegen? = ¿Te importa? También contraste: Er dagegen trinkt Kaffee = Él, en cambio, toma café."
+  },
+  {
+    "lemma": "Leiche",
+    "translation": "cadáver",
+    "alt_translations": ["cuerpo"],
+    "example_source": "En la novela policíaca encuentran un [[cadáver]].",
+    "note": null
+  },
+  {
+    "lemma": "verheiratet",
+    "translation": "casado",
+    "alt_translations": ["casada"],
+    "example_source": "¿Está usted [[casado]]?",
+    "note": "verheiratet mit + dativo = casado con."
+  },
+  {
+    "lemma": "Agent",
+    "translation": "agente",
+    "alt_translations": ["espía"],
+    "example_source": "Trabaja como [[agente]] para los servicios secretos.",
+    "note": "Declinación en -n: den/dem Agenten. Femenino: die Agentin."
+  },
+  {
+    "lemma": "Traum",
+    "translation": "sueño",
+    "alt_translations": [],
+    "example_source": "Esta noche he tenido un [[sueño]] raro.",
+    "note": "Sueño de dormir (tener sueño) es müde sein; Traum es solo lo que se sueña."
+  },
+  {
+    "lemma": "Entscheidung",
+    "translation": "decisión",
+    "alt_translations": [],
+    "example_source": "Fue la [[decisión]] correcta.",
+    "note": "eine Entscheidung treffen = tomar una decisión."
+  },
+  {
+    "lemma": "Regel",
+    "translation": "regla",
+    "alt_translations": ["norma"],
+    "example_source": "Eso va contra las [[normas]].",
+    "note": "in der Regel = por regla general, normalmente."
+  },
+  {
+    "lemma": "Fenster",
+    "translation": "ventana",
+    "alt_translations": [],
+    "example_source": "¿Puedes abrir la [[ventana]], por favor?",
+    "note": null
+  },
+  {
+    "lemma": "fangen",
+    "translation": "atrapar",
+    "alt_translations": ["coger", "pillar", "capturar"],
+    "example_source": "El gato ha [[cazado]] un ratón.",
+    "note": "Cambio vocálico: du fängst, er fängt."
+  },
+  {
+    "lemma": "fort",
+    "translation": "lejos",
+    "alt_translations": ["fuera", "desaparecido"],
+    "example_source": "Mi llave ha [[desaparecido]].",
+    "note": "Significa lo mismo que weg, algo más formal. und so fort = etcétera."
+  },
+  {
+    "lemma": "ständig",
+    "translation": "constante",
+    "alt_translations": ["constantemente", "permanente", "continuo"],
+    "example_source": "[[Siempre]] llega tarde.",
+    "note": "Muy a menudo como adverbio: constantemente, todo el rato."
+  },
+  {
+    "lemma": "Gefahr",
+    "translation": "peligro",
+    "alt_translations": ["riesgo", "amenaza"],
+    "example_source": "El niño ya está fuera de [[peligro]].",
+    "note": null
+  },
+  {
+    "lemma": "absolut",
+    "translation": "absoluto",
+    "alt_translations": ["absolutamente", "absoluta", "totalmente"],
+    "example_source": "Eso es [[absolutamente]] cierto.",
+    "note": null
+  },
+  {
+    "lemma": "Augenblick",
+    "translation": "momento",
+    "alt_translations": ["instante"],
+    "example_source": "¡Un [[momento]], por favor!",
+    "note": null
+  },
+  {
+    "lemma": "Bescheid",
+    "translation": "aviso",
+    "alt_translations": ["información", "notificación"],
+    "example_source": "[[Avísame]] cuando llegues, por favor.",
+    "note": "Bescheid sagen/geben = avisar; Bescheid wissen = estar al tanto. El plural solo para notificaciones oficiales."
+  },
+  {
+    "lemma": "herum",
+    "translation": "alrededor",
+    "alt_translations": ["por ahí"],
+    "example_source": "Damos la vuelta [[alrededor]] del lago.",
+    "note": "A menudo um … herum. Coloquialmente rum."
+  },
+  {
+    "lemma": "Gedanke",
+    "translation": "pensamiento",
+    "alt_translations": ["idea"],
+    "example_source": "Es una buena [[idea]].",
+    "note": "Genitivo irregular des Gedankens; si no, -n: den/dem Gedanken. sich Gedanken machen = preocuparse."
+  },
+  {
+    "lemma": "Ziel",
+    "translation": "objetivo",
+    "alt_translations": ["meta", "destino"],
+    "example_source": "Hemos alcanzado nuestro [[objetivo]].",
+    "note": null
+  },
+  {
+    "lemma": "benutzen",
+    "translation": "usar",
+    "alt_translations": ["utilizar"],
+    "example_source": "¿Puedo [[usar]] tu móvil?",
+    "note": "En el sur de Alemania y en Austria también benützen."
+  },
+  {
+    "lemma": "Bewegung",
+    "translation": "movimiento",
+    "alt_translations": ["ejercicio"],
+    "example_source": "Necesitas hacer más [[ejercicio]].",
+    "note": null
+  },
+  {
+    "lemma": "wünschen",
+    "translation": "desear",
+    "alt_translations": ["querer"],
+    "example_source": "¡Te [[deseo]] lo mejor en tu cumpleaños!",
+    "note": "sich (dativo) etwas wünschen = desear algo, pedirlo como regalo: Ich wünsche mir ein Fahrrad."
+  },
+  {
+    "lemma": "zahlen",
+    "translation": "pagar",
+    "alt_translations": [],
+    "example_source": "Queremos [[pagar]], por favor.",
+    "note": "En el restaurante: Zahlen, bitte! = ¡La cuenta, por favor! Significa casi lo mismo que bezahlen."
+  },
+  {
+    "lemma": "Anfang",
+    "translation": "principio",
+    "alt_translations": ["comienzo", "inicio"],
+    "example_source": "A [[principios]] de mayo nos vamos de vacaciones.",
+    "note": "Anfang + mes sin artículo: Anfang Mai = a principios de mayo; am Anfang = al principio."
+  },
+  {
+    "lemma": "legen",
+    "translation": "poner",
+    "alt_translations": ["colocar", "dejar", "tumbar"],
+    "example_source": "[[Pongo]] el libro en la mesa.",
+    "note": "legen = poner (en horizontal), con acusativo (wohin?); liegen = estar tumbado, con dativo (wo?)."
+  },
+  {
+    "lemma": "Anwalt",
+    "translation": "abogado",
+    "alt_translations": ["letrado"],
+    "example_source": "Tengo que hablar con mi [[abogado]].",
+    "note": "Femenino: die Anwältin."
+  },
+  {
+    "lemma": "offen",
+    "translation": "abierto",
+    "alt_translations": ["abierta", "franco", "sincero"],
+    "example_source": "La tienda está [[abierta]] hasta las 20:00.",
+    "note": null
+  },
+  {
+    "lemma": "arm",
+    "translation": "pobre",
+    "alt_translations": [],
+    "example_source": "Mucha gente en la ciudad es [[pobre]].",
+    "note": "No confundir con der Arm (brazo). Du Armer! = ¡Pobrecito!"
+  },
+  {
+    "lemma": "Bier",
+    "translation": "cerveza",
+    "alt_translations": [],
+    "example_source": "¡Una [[cerveza]], por favor!",
+    "note": null
+  },
+  {
+    "lemma": "Partner",
+    "translation": "pareja",
+    "alt_translations": ["compañero", "socio"],
+    "example_source": "Mi [[pareja]] cocina esta noche.",
+    "note": "Femenino: die Partnerin."
+  },
+  {
+    "lemma": "Klappe",
+    "translation": "tapa",
+    "alt_translations": ["trampilla", "pico (boca, vulgar)"],
+    "example_source": "La [[tapa]] del buzón se atasca.",
+    "note": "Coloquial: Halt die Klappe! = ¡Cierra el pico! (grosero)."
+  },
+  {
+    "lemma": "süß",
+    "translation": "dulce",
+    "alt_translations": ["mono", "rico"],
+    "example_source": "¡Vuestro bebé es tan [[mono]]!",
+    "note": null
+  },
+  {
+    "lemma": "Finger",
+    "translation": "dedo",
+    "alt_translations": [],
+    "example_source": "Me he cortado el [[dedo]].",
+    "note": "Finger es solo el de la mano; el del pie es der Zeh."
+  },
+  {
+    "lemma": "Ehe",
+    "translation": "matrimonio",
+    "alt_translations": [],
+    "example_source": "Su [[matrimonio]] ya dura treinta años.",
+    "note": "La boda en sí es die Hochzeit."
+  },
+  {
+    "lemma": "Rolle",
+    "translation": "papel",
+    "alt_translations": ["rol", "rollo"],
+    "example_source": "Hace el [[papel]] de la madre.",
+    "note": "Das spielt keine Rolle = No importa. Papel (material) es das Papier."
+  },
+  {
+    "lemma": "Hochzeit",
+    "translation": "boda",
+    "alt_translations": ["casamiento"],
+    "example_source": "La [[boda]] es en junio.",
+    "note": "El matrimonio como relación es die Ehe. «Ya es hora» = höchste Zeit."
+  },
+  {
+    "lemma": "wach",
+    "translation": "despierto",
+    "alt_translations": ["despierta"],
+    "example_source": "¿Ya estás [[despierto]]?",
+    "note": null
+  },
+  {
+    "lemma": "wozu",
+    "translation": "para qué",
+    "alt_translations": ["por qué"],
+    "example_source": "¿[[Para qué]] necesitas el dinero?",
+    "note": "wo(r)- + zu; pregunta por la finalidad."
+  },
+  {
+    "lemma": "Chef",
+    "translation": "jefe",
+    "alt_translations": ["jefa", "director", "encargado"],
+    "example_source": "Mi [[jefe]] no está hoy en la oficina.",
+    "note": "Falso amigo: un chef (cocinero) es der Koch. Femenino: die Chefin."
+  },
+  {
+    "lemma": "Information",
+    "translation": "información",
+    "alt_translations": [],
+    "example_source": "Muchas gracias por la [[información]].",
+    "note": "En alemán es contable y se usa mucho en plural: die Informationen."
+  },
+  {
+    "lemma": "erledigen",
+    "translation": "encargarse de",
+    "alt_translations": ["hacer", "resolver", "despachar"],
+    "example_source": "Hoy todavía tengo que [[hacer]] muchas cosas.",
+    "note": "erledigt sein (coloquial) = estar hecho polvo."
+  },
+  {
+    "lemma": "hoffentlich",
+    "translation": "ojalá",
+    "alt_translations": ["espero que"],
+    "example_source": "[[Ojalá]] no llueva mañana.",
+    "note": "Ojo: en español va con subjuntivo; en alemán, frase normal en indicativo."
+  },
+  {
+    "lemma": "tanzen",
+    "translation": "bailar",
+    "alt_translations": [],
+    "example_source": "Nos gusta [[bailar]] juntos.",
+    "note": null
+  },
+  {
+    "lemma": "ansehen",
+    "translation": "mirar",
+    "alt_translations": ["ver", "echar un vistazo"],
+    "example_source": "¿Por qué me [[miras]] así?",
+    "note": "sich (dativo) etwas ansehen = ver / echar un vistazo: Wir sehen uns einen Film an."
+  }
+]

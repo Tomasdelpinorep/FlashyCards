@@ -1,4 +1,5 @@
 /** The colour themes and the pure rules of src/client/lib/theme.ts (no DOM, unit-tested). */
+import type { UiLanguage } from '../../shared/languages'
 
 export const THEME_KEY = 'flashy.theme.v1'
 
@@ -24,6 +25,20 @@ export const THEMES = [
 ] as const satisfies readonly ThemeInfo[]
 
 export type ThemeId = (typeof THEMES)[number]['id']
+
+/** Spanish labels for the themes with a descriptive name; named themes (Nord, Dracula, Betis) keep theirs. */
+const ES_LABELS: Partial<Record<ThemeId, string>> = {
+  system: 'Sistema',
+  light: 'Claro',
+  dark: 'Oscuro',
+  sepia: 'Sepia',
+  solarized: 'Solarized claro',
+}
+
+/** A theme's label in the app language (`label` in THEMES is the English one). */
+export function themeLabel(id: ThemeId, ui: UiLanguage = 'en'): string {
+  return (ui === 'es' ? ES_LABELS[id] : undefined) ?? byId(id).label
+}
 
 const byId = (id: ThemeId): ThemeInfo => THEMES.find((t) => t.id === id)!
 

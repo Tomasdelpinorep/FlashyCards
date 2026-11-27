@@ -20,10 +20,52 @@ import { autoSwitch, useSwitch } from '../lib/handsFree'
 import { enqueueReview, useMe, useReviewQueue, useUpdateMe } from '../lib/queries'
 import { currentCard, gradeCard, startSession, type Session } from '../lib/session'
 import { stopSpeaking } from '../lib/tts'
+import { messages, useT, useUiLang } from '../lib/i18n'
+
+const M = messages(
+  {
+    title: 'Train',
+    done: 'Done',
+    mixed: 'Mixed',
+    direction: 'Direction',
+    loading: 'Loading…',
+    left: (n: number) => `${n} left`,
+    reviewed: (n: number) => ` · ${n} reviewed`,
+    autoLabel: 'Auto mode: move on by itself',
+    auto: 'Auto',
+    now: 'now',
+    inTime: (d: string) => `in ${d}`,
+    allDone: 'All done',
+    nextCard: (when: string) => ` · Next card ${when}`,
+    summary: (n: number, pct: number) => `${n} ${n === 1 ? 'card' : 'cards'} reviewed · ${pct}% correct`,
+    nothing: 'Nothing to review yet. Words you study will show up here.',
+    practice: 'Practice anyway',
+  },
+  {
+    title: 'Repasar',
+    done: 'Hecho',
+    mixed: 'Mixto',
+    direction: 'Dirección',
+    loading: 'Cargando…',
+    left: (n) => (n === 1 ? '1 restante' : `${n} restantes`),
+    reviewed: (n) => ` · ${n} ${n === 1 ? 'repasada' : 'repasadas'}`,
+    autoLabel: 'Modo automático: pasa solo a la siguiente',
+    auto: 'Auto',
+    now: 'ahora',
+    inTime: (d) => `en ${d}`,
+    allDone: 'Todo hecho',
+    nextCard: (when) => ` · Siguiente tarjeta ${when}`,
+    summary: (n, pct) => `${n} ${n === 1 ? 'tarjeta repasada' : 'tarjetas repasadas'} · ${pct}% correctas`,
+    nothing: 'Todavía no hay nada que repasar. Aquí aparecerán las palabras que estudies.',
+    practice: 'Practicar de todos modos',
+  },
+)
 
 const TICK_MS = 15_000
 
 export function Train() {
+  const tr = useT(M)
+  const ui = useUiLang()
   const { deck } = useCurrentDeck()
   const me = useMe()
   const updateMe = useUpdateMe()
@@ -78,10 +120,10 @@ export function Train() {
   const direction = shown.current?.direction ?? 'target-source'
 
   const faces = useMemo(
-    () => (current ? cardFaces(current, direction, { hideSentenceOnFront: settings?.hideSentenceOnFront }) : null),
-    [current, direction, settings?.hideSentenceOnFront],
+    () => (current ? cardFaces(current, direction, { hideSentenceOnFront: settings?.hideSentenceOnFront, ui }) : null),
+    [current, direction, settings?.hideSentenceOnFront, ui],
   )
-  const labels = useMemo(() => (current && srs ? previewIntervals(srs, current.id, current.srs, Date.now()) : null), [current, srs])
+  const labels = useMemo(() => (current && srs ? previewIntervals(srs, current.id, current.srs, Date.now(), ui) : null), [current, srs, ui])
 
   const targetLang = deck?.targetLang ?? ''
   const sourceLang = deck?.sourceLang ?? ''
@@ -119,7 +161,7 @@ export function Train() {
 
   if (!deck) {
     return (
-      <Screen title="Train">
+      <Screen title={tr.title}>
         <NoDecks />
       </Screen>
     )
@@ -130,23 +172,23 @@ export function Train() {
   const modes: [StudyDirection, string][] = [
     ['target-source', `${t}→${s}`],
     ['source-target', `${s}→${t}`],
-    ['mixed', 'Mixed'],
+    ['mixed', tr.mixed],
   ]
 
   return (
     <Screen
-      title="Train"
+      title={tr.title}
       fill
       action={
         <div className="flex items-center gap-2">
           <AutoSwitch on={auto} onToggle={() => autoSwitch.set(!auto)} />
           <Link to="/" className="-mr-2 inline-flex min-h-11 items-center px-2 text-sm font-medium text-zinc-500 underline dark:text-zinc-400">
-            Done
+            {tr.done}
           </Link>
         </div>
       }
     >
-      <div role="radiogroup" aria-label="Direction" className="grid shrink-0 grid-cols-3 gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-900">
+      <div role="radiogroup" aria-label={tr.direction} className="grid shrink-0 grid-cols-3 gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-900">
         {modes.map(([m, label]) => (
           <button
             key={m}
@@ -162,7 +204,7 @@ export function Train() {
       </div>
 
       <ErrorText error={query.error ?? srsError ?? updateMe.error} />
-      {(query.isPending || !session) && !query.error && <p className={muted}>Loading…</p>}
+      {(query.isPending || !session) && !query.error && <p className={muted}>{tr.loading}</p>}
 
       {session && current && faces && (
         <>
@@ -181,7 +223,8 @@ export function Train() {
             onDone={grade}
           />
           <p className={`${muted} shrink-0 text-center`}>
-            {session.queue.length + session.again.length} left{session.reviewed > 0 ? ` · ${session.reviewed} reviewed` : ''}
+            {tr.left(session.queue.length + session.again.length)}
+            {session.reviewed > 0 ? tr.reviewed(session.reviewed) : ''}
           </p>
         </>
       )}
@@ -204,16 +247,17 @@ export function Train() {
 
 /** "Auto": move on by itself after a correct answer (a switch, remembered on this device). */
 function AutoSwitch({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  const t = useT(M)
   return (
     <button
       type="button"
       role="switch"
       aria-checked={on}
-      aria-label="Auto mode: move on by itself"
+      aria-label={t.autoLabel}
       onClick={onToggle}
       className="inline-flex min-h-11 items-center gap-2 px-1 text-sm font-medium text-zinc-600 dark:text-zinc-300"
     >
-      <span aria-hidden="true">Auto</span>
+      <span aria-hidden="true">{t.auto}</span>
       <span
         aria-hidden="true"
         className={`relative inline-block h-6 w-10 rounded-full border transition-colors ${
@@ -239,20 +283,23 @@ function AllDone({
   canPracticeAhead: boolean
   onPractice: () => void
 }) {
-  const next = nextDue === null ? null : nextDue <= now ? 'now' : `in ${formatInterval(nextDue - now)}`
+  const t = useT(M)
+  const ui = useUiLang()
+  const next = nextDue === null ? null : nextDue <= now ? t.now : t.inTime(formatInterval(nextDue - now, ui))
   const accuracy = session.reviewed > 0 ? Math.round((100 * session.correct) / session.reviewed) : null
   return (
     <section className={`${cardClass} flex flex-col gap-3 text-center`}>
-      <p className="text-xl font-semibold">All done{next ? ` · Next card ${next}` : ''}</p>
+      <p className="text-xl font-semibold">{t.allDone}
+        {next ? t.nextCard(next) : ''}</p>
       {accuracy !== null && (
         <p className={muted}>
-          {session.reviewed} {session.reviewed === 1 ? 'card' : 'cards'} reviewed · {accuracy}% correct
+          {t.summary(session.reviewed, accuracy)}
         </p>
       )}
-      {!canPracticeAhead && session.reviewed === 0 && <p className={muted}>Nothing to review yet. Words you study will show up here.</p>}
+      {!canPracticeAhead && session.reviewed === 0 && <p className={muted}>{t.nothing}</p>}
       {canPracticeAhead && (
         <button type="button" className={btnSecondary} onClick={onPractice}>
-          Practice anyway
+          {t.practice}
         </button>
       )}
     </section>

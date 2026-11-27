@@ -7,7 +7,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { hasValidMarkers } from '../../src/shared/display'
 import { termKey } from '../../src/shared/normalize'
-import { CURATED_DE, CURATED_DE_BASE } from '../../src/worker/ai/curated.de'
+import { CURATED_DE, CURATED_DE_BASE, CURATED_ES_DE, withSpanish } from '../../src/worker/ai/curated.de'
 import { FakeGenerator } from '../../src/worker/ai/fake'
 import { ItemSchema, PERSON_KEYS } from '../../src/worker/ai/schema'
 import { fullSeedSql, readSeedLemmas, seedSqlPath, seedStagesSql } from '../../scripts/curated-to-sql'
@@ -51,18 +51,22 @@ describe('curated dictionary (de)', () => {
 
   it('every committed seed migration equals its regenerated SQL (run npm run seed:sql)', async () => {
     const stages = await seedStagesSql()
-    expect(stages.map((s) => s.file)).toEqual(['0003_seed_de.sql', '0005_seed_de_a2.sql'])
+    expect(stages.map((s) => s.file)).toEqual(['0003_seed_de.sql', '0005_seed_de_a2.sql', '0006_seed_es_de.sql'])
     for (const { file, result } of stages) expect(readFileSync(seedSqlPath(file), 'utf8').replace(/\r\n/g, '\n')).toBe(result.sql)
     // 0003 has to stay the base dictionary; 0005 adds only the new entries.
     expect(stages[0]!.result.entries).toBe(CURATED_DE_BASE.length)
     expect(stages[1]!.result.entries).toBe(CURATED_DE.length - CURATED_DE_BASE.length)
+    // 0006 is the whole es -> de dictionary.
+    expect(stages[2]!.result.entries).toBe(CURATED_ES_DE.length)
   })
 
   it('the seed migrations together give the same entries and aliases as the whole dictionary at once', async () => {
     const dump = (sqlite: ReturnType<typeof createTestD1>['sqlite']) => ({
-      entries: sqlite.prepare('SELECT * FROM entries ORDER BY id').all().map((r) => ({ ...r })),
+      entries: sqlite.prepare("SELECT * FROM entries WHERE source_lang = 'en' ORDER BY id").all().map((r) => ({ ...r })),
       aliases: sqlite
-        .prepare('SELECT a.input_side, a.alias_key, e.lemma_key FROM entry_aliases a JOIN entries e ON e.id = a.entry_id ORDER BY 1, 2')
+        .prepare(
+          "SELECT a.input_side, a.alias_key, e.lemma_key FROM entry_aliases a JOIN entries e ON e.id = a.entry_id WHERE a.source_lang = 'en' ORDER BY 1, 2",
+        )
         .all()
         .map((r) => ({ ...r })),
     })
@@ -108,5 +112,53 @@ describe('curated dictionary (de)', () => {
       ['Zwetschge', 'target'],
     ])
     expect(items[4]!.pos).toBe('other') // unknown words keep the placeholder entry
+  })
+})
+
+describe('curated dictionary (es -> de)', () => {
+  it('has the same German side as the en -> de dictionary, in the same order', () => {
+    expect(CURATED_ES_DE).toHaveLength(CURATED_DE.length)
+    CURATED_ES_DE.forEach((es, i) => {
+      const en = CURATED_DE[i]!
+      expect({ lemma: es.lemma, pos: es.pos, cefr: es.cefr, example_target: es.example_target }).toEqual({
+        lemma: en.lemma,
+        pos: en.pos,
+        cefr: en.cefr,
+        example_target: en.example_target,
+      })
+      expect({ ...es.grammar, note: null }).toEqual({ ...en.grammar, note: null })
+    })
+  })
+
+  it.each(CURATED_ES_DE.map((e) => [e.lemma!, e] as const))('%s has a Spanish meaning and example', (_, e) => {
+    expect(e.translation?.trim()).toBeTruthy()
+    // Commas and semicolons split typed answers; a slash is not a valid answer either.
+    expect(e.translation).not.toMatch(/[,;/]/)
+    expect(e.alt_translations.length).toBeLessThanOrEqual(3)
+    expect(hasValidMarkers(e.example_source)).toBe(true)
+    // Nouns are stored without their article ("casa", not "la casa").
+    if (e.pos === 'noun') expect(e.translation).not.toMatch(/^(el|la|los|las|un|una) /)
+  })
+
+  it('rejects a Spanish file that does not line up with its German entries', () => {
+    const german = CURATED_DE.slice(0, 2)
+    const side = (lemma: string) => ({ lemma, translation: 'x', alt_translations: [], example_source: null, note: null })
+    expect(() => withSpanish(german, [side(german[0]!.lemma!)], 'f.json')).toThrow(/1 Spanish items for 2/)
+    expect(() => withSpanish(german, [side(german[1]!.lemma!), side(german[0]!.lemma!)], 'f.json')).toThrow(/item 0/)
+  })
+
+  it('resolves the Spanish words to their German entries after seeding', () => {
+    const db = createTestD1({ seed: true }).sqlite
+    const lookup = db.prepare(
+      `SELECT e.lemma FROM entry_aliases a JOIN entries e ON e.id = a.entry_id
+       WHERE a.source_lang = 'es' AND a.target_lang = 'de' AND a.input_side = ? AND a.alias_key = ?`,
+    )
+    const lemma = (side: string, key: string) => (lookup.get(side, key) as { lemma: string } | undefined)?.lemma
+    expect(lemma('source', termKey('es', 'perro'))).toBe('Hund')
+    expect(lemma('source', termKey('es', 'jefe'))).toBe('Chef')
+    expect(lemma('source', termKey('es', 'tío'))).toBe('Onkel')
+    expect(lemma('target', termKey('de', 'Hund'))).toBe('Hund')
+    const count = db.prepare("SELECT COUNT(*) AS n FROM entries WHERE source_lang = 'es' AND target_lang = 'de'").get() as { n: number }
+    expect(count.n).toBe(CURATED_ES_DE.length)
   })
 })

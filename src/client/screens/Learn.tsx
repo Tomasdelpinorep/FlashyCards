@@ -37,6 +37,69 @@ import {
 import { getOutbox } from '../lib/outbox'
 import { enqueueReview, fetchReviewQueue, keys, useDeckStats, useLearnQueue, useMe } from '../lib/queries'
 import { speak, stopSpeaking } from '../lib/tts'
+import { messages, useT, useUiLang } from '../lib/i18n'
+
+const words = (n: number) => (n === 1 ? 'word' : 'words')
+const palabras = (n: number) => (n === 1 ? 'palabra' : 'palabras')
+
+const M = messages(
+  {
+    title: 'Learn',
+    done: 'Done',
+    loading: 'Loading…',
+    newWord: 'New word',
+    step: (n: number) => `Step ${n} of 2`,
+    back: 'Back',
+    showWord: 'Show the word',
+    gotIt: 'Got it',
+    alreadyKnow: 'I already know this',
+    quickCheck: 'Quick check',
+    left: (n: number) => `${n} left`,
+    learned: (n: number) => ` · ${n} learned`,
+    alreadyKnown: (n: number) => ` · ${n} already known`,
+    niceWork: 'Nice work',
+    wordsLearned: (n: number) => `${n} ${words(n)} learned`,
+    comeBack: "They'll come back in Train when they're due.",
+    trainNow: 'Train now',
+    home: 'Home',
+    noneReady: 'No new words ready',
+    nothingNow: 'Nothing new to learn right now',
+    pending: (n: number) => `${n === 1 ? '1 word is' : `${n} words are`} still being prepared.`,
+    addWords: 'Add words',
+    limit: 'Daily limit reached',
+    newToday: (n: number, ready: number) => `${n} new ${words(n)} today · ${ready} ready`,
+    learnMore: (n: number) => `Learn ${n} more`,
+    trainInstead: 'Train instead',
+  },
+  {
+    title: 'Aprender',
+    done: 'Hecho',
+    loading: 'Cargando…',
+    newWord: 'Palabra nueva',
+    step: (n) => `Paso ${n} de 2`,
+    back: 'Atrás',
+    showWord: 'Ver la palabra',
+    gotIt: 'Entendido',
+    alreadyKnow: 'Ya me la sé',
+    quickCheck: 'Comprobación rápida',
+    left: (n) => (n === 1 ? '1 restante' : `${n} restantes`),
+    learned: (n) => ` · ${n} ${n === 1 ? 'aprendida' : 'aprendidas'}`,
+    alreadyKnown: (n) => ` · ${n} ya ${n === 1 ? 'conocida' : 'conocidas'}`,
+    niceWork: '¡Buen trabajo!',
+    wordsLearned: (n) => `${n} ${palabras(n)} ${n === 1 ? 'aprendida' : 'aprendidas'}`,
+    comeBack: 'Volverán en Repasar cuando les toque.',
+    trainNow: 'Repasar ahora',
+    home: 'Inicio',
+    noneReady: 'No hay palabras nuevas listas',
+    nothingNow: 'Ahora mismo no hay nada nuevo que aprender',
+    pending: (n) => (n === 1 ? 'Todavía se está preparando 1 palabra.' : `Todavía se están preparando ${n} palabras.`),
+    addWords: 'Añadir palabras',
+    limit: 'Límite diario alcanzado',
+    newToday: (n, ready) => `${n} ${palabras(n)} ${n === 1 ? 'nueva' : 'nuevas'} hoy · ${ready} ${ready === 1 ? 'lista' : 'listas'}`,
+    learnMore: (n) => `Aprender ${n} más`,
+    trainInstead: 'Repasar en su lugar',
+  },
+)
 
 const TICK_MS = 15_000
 
@@ -54,6 +117,8 @@ function parseExtra(v: string | null): number | undefined {
 }
 
 export function Learn() {
+  const t = useT(M)
+  const ui = useUiLang()
   const { deck } = useCurrentDeck()
   const me = useMe()
   const qc = useQueryClient()
@@ -149,13 +214,13 @@ export function Learn() {
   const ttsLang = isLanguageCode(targetLang) ? LANGUAGES[targetLang].ttsLang : targetLang
 
   const introCard = step?.kind === 'intro' ? step.card : null
-  const intro = useMemo(() => (introCard ? introFaces(introCard) : null), [introCard])
+  const intro = useMemo(() => (introCard ? introFaces(introCard, ui) : null), [introCard, ui])
   const checkCard = step?.kind === 'check' ? step.card : null
   const faces = useMemo(
-    () => (checkCard ? cardFaces(checkCard, direction, { hideSentenceOnFront: settings?.hideSentenceOnFront }) : null),
-    [checkCard, direction, settings?.hideSentenceOnFront],
+    () => (checkCard ? cardFaces(checkCard, direction, { hideSentenceOnFront: settings?.hideSentenceOnFront, ui }) : null),
+    [checkCard, direction, settings?.hideSentenceOnFront, ui],
   )
-  const labels = useMemo(() => (checkCard && srs ? previewIntervals(srs, checkCard.id, checkCard.srs, Date.now()) : null), [checkCard, srs])
+  const labels = useMemo(() => (checkCard && srs ? previewIntervals(srs, checkCard.id, checkCard.srs, Date.now(), ui) : null), [checkCard, srs, ui])
 
   // Autoplay the word when the intro reveals it (once per card).
   const autoplayed = useRef<string | null>(null)
@@ -263,7 +328,7 @@ export function Learn() {
 
   if (!deck) {
     return (
-      <Screen title="Learn">
+      <Screen title={t.title}>
         <NoDecks />
       </Screen>
     )
@@ -274,30 +339,30 @@ export function Learn() {
 
   return (
     <Screen
-      title="Learn"
+      title={t.title}
       fill
       action={
         <Link to="/" className="-mr-2 inline-flex min-h-11 items-center px-2 text-sm font-medium text-zinc-500 underline dark:text-zinc-400">
-          Done
+          {t.done}
         </Link>
       }
     >
       <ErrorText error={query.error ?? srsError ?? me.error} />
-      {(query.isPending || !session) && !query.error && <p className={muted}>Loading…</p>}
+      {(query.isPending || !session) && !query.error && <p className={muted}>{t.loading}</p>}
 
       {session && step?.kind === 'intro' && intro && (
         <>
           <div className="flex shrink-0 items-center justify-between">
-            <p className={muted}>New word</p>
+            <p className={muted}>{t.newWord}</p>
             <p className={muted} data-testid="intro-step">
-              Step {introStep + 1} of 2
+              {t.step(introStep + 1)}
             </p>
           </div>
           <section
             data-testid="intro-card"
             className={`${studyCard} touch-pan-y`}
             aria-live="polite"
-            aria-label="New word"
+            aria-label={t.newWord}
             tabIndex={0}
             onPointerDown={(e) => {
               swipe.current = { x: e.clientX, y: e.clientY }
@@ -327,7 +392,7 @@ export function Learn() {
           <div className="grid grid-cols-[auto_1fr] gap-2">
             <button
               type="button"
-              aria-label="Back"
+              aria-label={t.back}
               className="inline-flex h-12 min-w-12 items-center justify-center rounded-xl border border-zinc-300 px-4 font-medium disabled:opacity-40 dark:border-zinc-700"
               disabled={introStep === 0 && history.length === 0}
               onClick={introBack}
@@ -335,11 +400,11 @@ export function Learn() {
               <span aria-hidden="true">←</span>
             </button>
             <button type="button" className={btnPrimary} onClick={introNext}>
-              {introStep === 0 ? 'Show the word' : 'Got it'} <span aria-hidden="true" className="ml-2">→</span>
+              {introStep === 0 ? t.showWord : t.gotIt} <span aria-hidden="true" className="ml-2">→</span>
             </button>
           </div>
           <button type="button" className={btnSecondary} onClick={onAlreadyKnow}>
-            I already know this
+            {t.alreadyKnow}
           </button>
           </div>
         </>
@@ -347,7 +412,7 @@ export function Learn() {
 
       {session && step?.kind === 'check' && faces && (
         <>
-          <p className={`${muted} shrink-0 text-center`}>Quick check</p>
+          <p className={`${muted} shrink-0 text-center`}>{t.quickCheck}</p>
           <AnswerCard
             key={`${stepKey}:${direction}`}
             card={checkCard!}
@@ -365,24 +430,25 @@ export function Learn() {
 
       {session && step && step.kind !== 'done' && (
         <p className={`${muted} shrink-0 text-center`}>
-          {left} left{studied > 0 ? ` · ${session.learned.length} learned` : ''}
-          {session.alreadyKnew > 0 ? ` · ${session.alreadyKnew} already known` : ''}
+          {t.left(left)}
+          {studied > 0 ? t.learned(session.learned.length) : ''}
+          {session.alreadyKnew > 0 ? t.alreadyKnown(session.alreadyKnew) : ''}
         </p>
       )}
 
       {session && done && studied > 0 && (
         <section className={`${cardClass} flex flex-col gap-3 text-center`} role="status">
-          <p className="text-xl font-semibold">Nice work</p>
+          <p className="text-xl font-semibold">{t.niceWork}</p>
           <p>
-            {session.learned.length} {session.learned.length === 1 ? 'word' : 'words'} learned
-            {session.alreadyKnew > 0 ? ` · ${session.alreadyKnew} already known` : ''}
+            {t.wordsLearned(session.learned.length)}
+            {session.alreadyKnew > 0 ? t.alreadyKnown(session.alreadyKnew) : ''}
           </p>
-          <p className={muted}>They'll come back in Train when they're due.</p>
+          <p className={muted}>{t.comeBack}</p>
           <Link to="/train" className={btnPrimary}>
-            Train now
+            {t.trainNow}
           </Link>
           <Link to="/" className={btnSecondary}>
-            Home
+            {t.home}
           </Link>
         </section>
       )}
@@ -395,31 +461,30 @@ export function Learn() {
 }
 
 function Empty({ info, pending, onLearnMore }: { info: LearnQueueResponse; pending: number; onLearnMore: () => void }) {
+  const t = useT(M)
   if (info.readyNewTotal === 0 || info.remainingToday > 0) {
     return (
       <section className={`${cardClass} flex flex-col gap-3 text-center`}>
-        <p className="text-xl font-semibold">{info.readyNewTotal === 0 ? 'No new words ready' : 'Nothing new to learn right now'}</p>
-        {pending > 0 && <p className={muted}>{pending === 1 ? '1 word is' : `${pending} words are`} still being prepared.</p>}
+        <p className="text-xl font-semibold">{info.readyNewTotal === 0 ? t.noneReady : t.nothingNow}</p>
+        {pending > 0 && <p className={muted}>{t.pending(pending)}</p>}
         <Link to="/add" className={btnPrimary}>
-          Add words
+          {t.addWords}
         </Link>
         <Link to="/" className={btnSecondary}>
-          Home
+          {t.home}
         </Link>
       </section>
     )
   }
   return (
     <section className={`${cardClass} flex flex-col gap-3 text-center`}>
-      <p className="text-xl font-semibold">Daily limit reached</p>
-      <p className={muted}>
-        {info.newToday} new {info.newToday === 1 ? 'word' : 'words'} today · {info.readyNewTotal} ready
-      </p>
+      <p className="text-xl font-semibold">{t.limit}</p>
+      <p className={muted}>{t.newToday(info.newToday, info.readyNewTotal)}</p>
       <button type="button" className={btnPrimary} onClick={onLearnMore}>
-        Learn {LEARN_MORE_STEP} more
+        {t.learnMore(LEARN_MORE_STEP)}
       </button>
       <Link to="/train" className={btnSecondary}>
-        Train instead
+        {t.trainInstead}
       </Link>
     </section>
   )

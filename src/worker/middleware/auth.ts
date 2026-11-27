@@ -1,5 +1,6 @@
 import type { MiddlewareHandler } from 'hono'
 import { createRemoteJWKSet, jwtVerify, type JWTVerifyGetKey } from 'jose'
+import { uiLanguageFromPreferences } from '../../shared/languages'
 import { upsertUser } from '../db/users'
 import type { AppEnv, Bindings } from '../env'
 
@@ -84,7 +85,7 @@ export function createAuthMiddleware(options: AuthOptions = {}): MiddlewareHandl
       }
     }
 
-    c.set('user', await upsertUser(env.DB, email))
+    c.set('user', await upsertUser(env.DB, email, uiLanguageFromPreferences(c.req.header('Accept-Language'))))
     await next()
   }
 }

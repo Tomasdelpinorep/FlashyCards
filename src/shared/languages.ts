@@ -6,11 +6,43 @@
 export const LANGUAGE_CODES = ['en', 'de', 'es'] as const
 export type LanguageCode = (typeof LANGUAGE_CODES)[number]
 
+/**
+ * Languages the app's own text can be shown in (Settings -> Language). The app language is also
+ * the "I speak" (source) language of the user's decks: switching it converts them
+ * (src/worker/services/switchLanguage.ts, docs/DECISIONS.md "App language").
+ */
+export const UI_LANGUAGES = ['en', 'es'] as const
+export type UiLanguage = (typeof UI_LANGUAGES)[number]
+export const DEFAULT_UI_LANGUAGE: UiLanguage = 'en'
+
+export function isUiLanguage(code: string): code is UiLanguage {
+  return (UI_LANGUAGES as readonly string[]).includes(code)
+}
+
+/**
+ * The app language for a browser's preferences (an Accept-Language header or navigator.languages):
+ * the first listed language the app has, else English. "es-AR,es;q=0.9,en;q=0.8" -> 'es'.
+ */
+export function uiLanguageFromPreferences(prefs: string | readonly string[] | null | undefined): UiLanguage {
+  const list = typeof prefs === 'string' ? prefs.split(',') : (prefs ?? [])
+  const ranked = list
+    .map((part, i) => {
+      const [tag = '', ...params] = part.trim().split(';')
+      const q = params.map((p) => p.trim()).find((p) => p.startsWith('q='))
+      return { code: tag.trim().toLowerCase().split('-')[0] ?? '', q: q ? Number(q.slice(2)) : 1, i }
+    })
+    .filter((x) => x.code && x.q > 0)
+    .sort((a, b) => b.q - a.q || a.i - b.i)
+  return ranked.map((x) => x.code).find(isUiLanguage) ?? DEFAULT_UI_LANGUAGE
+}
+
 export interface LanguageConfig {
   /** ISO 639-1 code. */
   code: LanguageCode
-  /** English name, used in UI and AI prompts. */
+  /** English name, used in AI prompts and logs. */
   name: string
+  /** The language's name in each app language ("German" / "alemán"), for the UI. */
+  uiNames: Readonly<Record<UiLanguage, string>>
   /** BCP 47 tag for speechSynthesis; also the speech-recognition language for spoken answers. */
   ttsLang: string
   /** The six persons of a verb table: 1st/2nd/3rd singular, then 1st/2nd/3rd plural. */
@@ -75,6 +107,7 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
   en: {
     code: 'en',
     name: 'English',
+    uiNames: { en: 'English', es: 'inglés' },
     ttsLang: 'en-US',
     personLabels: ['I', 'you', 'he/she', 'we', 'you', 'they'],
     answerFolds: [],
@@ -91,6 +124,7 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
   de: {
     code: 'de',
     name: 'German',
+    uiNames: { en: 'German', es: 'alemán' },
     ttsLang: 'de-DE',
     personLabels: ['ich', 'du', 'er/sie/es', 'wir', 'ihr', 'sie/Sie'],
     answerFolds: [
@@ -130,6 +164,7 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageConfig>> = {
   es: {
     code: 'es',
     name: 'Spanish',
+    uiNames: { en: 'Spanish', es: 'español' },
     ttsLang: 'es-ES',
     personLabels: ['yo', 'tú', 'él/ella', 'nosotros', 'vosotros', 'ellos/ustedes'],
     answerFolds: [
@@ -168,4 +203,9 @@ export function isLanguageCode(code: string): code is LanguageCode {
 
 export function getLanguage(code: LanguageCode): LanguageConfig {
   return LANGUAGES[code]
+}
+
+/** A language's name in the app language; an unknown code is shown as it is. */
+export function languageName(code: string, ui: UiLanguage): string {
+  return isLanguageCode(code) ? LANGUAGES[code].uiNames[ui] : code
 }

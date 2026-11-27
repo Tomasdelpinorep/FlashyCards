@@ -17,6 +17,8 @@ lives in `docs/`:
   `.dev.vars`. `DEV_AUTH_EMAIL` only works on localhost and must never be set in production.
 - Commits: end the message with `Co-Authored-By: Claude <noreply@anthropic.com>` (model name optional).
 - Keep the user-facing How-to page (`src/client/screens/HowTo.tsx`) in sync with features.
+- The app is in English and Spanish: every user-visible string goes through `messages(en, es)` /
+  `useT` (`src/client/lib/i18n.tsx`). The app language is also the decks' source language.
 
 ## Stack
 
@@ -62,7 +64,9 @@ assembled in `src/worker/ai/curated.de.ts` and seeded by migrations 0003 and 000
 add a new batch file in the same format, proofread it (genders, plurals, verb tables, Perfekt
 auxiliaries, separable prefixes, example sentences), resolve English alias collisions with the
 rules in DECISIONS.md, generate a new migration with only the new entries, and add tests like
-`test/worker/curated.test.ts`. Unknown words become "Needs meaning" and the user types the
+`test/worker/curated.test.ts`. Spanish meanings for the same entries live in `data/seed/de/es/*.json` (one item per German entry,
+same order) and are seeded as es→de by migration 0006; a new German batch needs its Spanish file too
+(and a new es stage). Unknown words become "Needs meaning" and the user types the
 meaning; that meaning is stored on their own card only (`cards.override_json`).
 
 ## How the owner likes to work

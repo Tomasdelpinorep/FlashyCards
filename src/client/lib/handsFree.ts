@@ -6,6 +6,7 @@
  */
 import { useSyncExternalStore } from 'react'
 import type { CheckResult } from '../../shared/answerCheck'
+import type { UiLanguage } from '../../shared/languages'
 
 export const MIC_STORAGE_KEY = 'flashy.micOn.v1'
 export const AUTO_STORAGE_KEY = 'flashy.autoMode.v1'
@@ -15,6 +16,8 @@ export const AUTO_ADVANCE_MS = 1000
 /** Consecutive recognitions that heard nothing before the mic switch turns itself off. */
 export const MIC_MAX_EMPTY = 3
 export const MIC_PAUSED = 'Mic paused — tap to resume'
+/** MIC_PAUSED in each app language. */
+export const MIC_PAUSED_TEXT: Readonly<Record<UiLanguage, string>> = { en: MIC_PAUSED, es: 'Micrófono en pausa: tócalo para seguir' }
 
 type StorageLike = Pick<Storage, 'getItem' | 'setItem'>
 

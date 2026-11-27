@@ -1,7 +1,7 @@
 /** Zod schemas and DTO types shared by the Worker and the client. */
 import { z } from 'zod'
 import type { CardContent } from './display'
-import { LANGUAGE_CODES } from './languages'
+import { DEFAULT_UI_LANGUAGE, LANGUAGE_CODES, UI_LANGUAGES } from './languages'
 import type { SrsFields } from './srs'
 
 export const LanguageCodeSchema = z.enum(LANGUAGE_CODES)
@@ -17,6 +17,8 @@ export const UserSettingsSchema = z.object({
   ttsAutoplay: z.boolean(),
   studyDirection: StudyDirectionSchema,
   hideSentenceOnFront: z.boolean(),
+  /** The app language, also the source language of the user's decks (switching converts them). */
+  uiLang: z.enum(UI_LANGUAGES),
 })
 export type UserSettings = z.infer<typeof UserSettingsSchema>
 
@@ -25,6 +27,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   ttsAutoplay: false,
   studyDirection: 'target-source',
   hideSentenceOnFront: false,
+  uiLang: DEFAULT_UI_LANGUAGE,
 }
 
 // ---------- deck settings ----------

@@ -1,4 +1,4 @@
-import { DEFAULT_SOURCE, DEFAULT_TARGET, LANGUAGES } from '../../shared/languages'
+import { DEFAULT_TARGET, DEFAULT_UI_LANGUAGE, languageName, type UiLanguage } from '../../shared/languages'
 import { DEFAULT_DECK_SETTINGS, DeckSettingsSchema, parseSettings, type DeckDTO, type DeckSettings } from '../../shared/schemas'
 
 export type DeckRow = {
@@ -14,11 +14,12 @@ export type DeckRow = {
 export type NewDeck = { name: string; sourceLang: string; targetLang: string; settings: DeckSettings }
 
 /** The deck every user gets when their user row is created (first login): English speaker learning German. */
-export const DEFAULT_DECK: NewDeck = {
-  name: LANGUAGES[DEFAULT_TARGET].name,
-  sourceLang: DEFAULT_SOURCE,
-  targetLang: DEFAULT_TARGET,
-  settings: DEFAULT_DECK_SETTINGS,
+export const DEFAULT_DECK: NewDeck = defaultDeckFor(DEFAULT_UI_LANGUAGE)
+
+/** The first deck of a user whose app language is `ui`: learning German from that language ("Alemán"). */
+export function defaultDeckFor(ui: UiLanguage): NewDeck {
+  const name = languageName(DEFAULT_TARGET, ui)
+  return { name: name.charAt(0).toUpperCase() + name.slice(1), sourceLang: ui, targetLang: DEFAULT_TARGET, settings: DEFAULT_DECK_SETTINGS }
 }
 
 export async function listDecks(db: D1Database, userId: string): Promise<DeckRow[]> {
