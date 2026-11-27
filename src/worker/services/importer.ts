@@ -22,7 +22,7 @@ import {
 } from '../../shared/parseImport'
 import type { DuplicateReport, ImportInput, ImportResponse } from '../../shared/schemas'
 import { lemmaDisplay } from '../db/cards'
-import type { DeckRow } from '../db/decks'
+import { deckSettings, type DeckRow } from '../db/decks'
 import {
   entryGlosses,
   findDuplicate,
@@ -147,7 +147,9 @@ export async function insertRows(
   const mergeStmts = mergeStatements(db, merges, now)
   const statements: D1PreparedStatement[] = [...mergeStmts]
   const insertIndex = statements.length
-  if (planned.length > 0) statements.push(insertStatement(db, deck.id, now, planned, origin))
+  // Imported words skip Learn when the deck says so (suggested words are new vocabulary: always Learn).
+  const skipLearn = origin === 'import' && deckSettings(deck).importToTrain
+  if (planned.length > 0) statements.push(insertStatement(db, deck.id, now, planned, origin, skipLearn))
   const glossPairs = planned.flatMap((p) => (p.entry ? [...p.candidate.glosses].map((g): [string, string] => [p.candidate.id, g]) : []))
   if (glossPairs.length > 0) statements.push(glossInsertStatement(db, glossPairs))
   const results = statements.length > 0 ? await db.batch<{ id: string }>(statements) : []
@@ -215,25 +217,32 @@ export async function insertRows(
 }
 
 const INSERT_COLUMNS =
-  'id, deck_id, entry_id, input_term, input_hint, term_key, input_lang, input_side, hint_key, lemma_key, sense_key, status, extra_translations_json, origin, due, created_at, updated_at'
+  'id, deck_id, entry_id, input_term, input_hint, term_key, input_lang, input_side, hint_key, lemma_key, sense_key, status, extra_translations_json, origin, due, created_at, updated_at, skip_learn'
 
 /**
  * ONE statement for every row: INSERT OR IGNORE ... SELECT ... FROM json_each(?) RETURNING id.
  * Rows are inserted in array (= file) order; a row that conflicts with a live card (or an
  * earlier row of the same statement) is skipped and simply not returned.
  */
-function insertStatement(db: D1Database, deckId: string, now: number, rows: readonly Planned[], origin: 'import' | 'suggested'): D1PreparedStatement {
+function insertStatement(
+  db: D1Database,
+  deckId: string,
+  now: number,
+  rows: readonly Planned[],
+  origin: 'import' | 'suggested',
+  skipLearn: boolean,
+): D1PreparedStatement {
   const data = rows.map((p) => {
     const c = p.candidate
     return [c.id, p.entry?.id ?? null, p.row.term, p.row.hint ?? null, c.termKey, c.inputLang, p.side, c.hintKey, c.lemmaKey, c.senseKey, c.status, JSON.stringify(c.extras)]
   })
   const col = (i: number) => `json_extract(j.value, '$[${i}]')`
-  const values = [col(0), '?2', ...Array.from({ length: 11 }, (_, i) => col(i + 1)), '?4', '?3', '?3', '?3']
+  const values = [col(0), '?2', ...Array.from({ length: 11 }, (_, i) => col(i + 1)), '?4', '?3', '?3', '?3', '?5']
   return db
     .prepare(
       `INSERT OR IGNORE INTO cards (${INSERT_COLUMNS})
        SELECT ${values.join(', ')} FROM json_each(?1) j ORDER BY j.key
        RETURNING id`,
     )
-    .bind(JSON.stringify(data), deckId, now, origin)
+    .bind(JSON.stringify(data), deckId, now, origin, skipLearn ? 1 : 0)
 }

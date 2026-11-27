@@ -62,7 +62,9 @@ function HowToEn() {
             <B>Import</B> takes your own list. Type or paste one word per line, or tap <B>Choose file…</B> to load a .txt, .csv or .tsv
             file. You can add a meaning after a tab, “;” or “|” (for example <span className="font-mono">Hund;dog</span>). Lines starting
             with # are ignored. Under “The words are in”, say which language your list is in, or pick Auto. You'll see a preview first;
-            up to {MAX_IMPORT_ROWS} words at a time.
+            up to {MAX_IMPORT_ROWS} words at a time. Imported words skip Learn and go straight to Train, so you can practise them at
+            once (decks made before this keep sending them to Learn; change it per deck in Settings with “Imported words go straight to
+            Train”).
           </li>
         </ul>
         <p>
@@ -266,6 +268,9 @@ function HowToEs() {
             archivo .txt, .csv o .tsv. Puedes añadir un significado después de un tabulador, “;” o “|” (por ejemplo{' '}
             <span className="font-mono">Hund;perro</span>). Las líneas que empiezan por # se ignoran. En “Las palabras están en”, indica
             en qué idioma está tu lista, o elige Automático. Primero verás una vista previa; hasta {MAX_IMPORT_ROWS} palabras cada vez.
+            Las palabras importadas se saltan Aprender y van directamente a Repasar, así que puedes practicarlas al momento (los mazos
+            creados antes de este cambio las siguen enviando a Aprender; cámbialo por mazo en Ajustes con “Las palabras importadas van
+            directamente a Repasar”).
           </li>
         </ul>
         <p>

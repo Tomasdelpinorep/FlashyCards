@@ -29,6 +29,8 @@ const M = messages(
     noneFound: 'No new words found',
     tryLater: 'Try again in a moment, or import your own words.',
     learnNow: 'Learn them now',
+    trainNow: 'Train them now',
+    toTrainNote: 'Imported words go straight to Train.',
     seeWords: 'See your words',
     back: 'Back',
     addMore: 'Add more',
@@ -74,6 +76,8 @@ const M = messages(
     noneFound: 'No se han encontrado palabras nuevas',
     tryLater: 'Vuelve a intentarlo en un momento, o importa tus propias palabras.',
     learnNow: 'Aprenderlas ahora',
+    trainNow: 'Repasarlas ahora',
+    toTrainNote: 'Las palabras importadas van directamente a Repasar.',
     seeWords: 'Ver tus palabras',
     back: 'Volver',
     addMore: 'Añadir más',
@@ -117,14 +121,20 @@ const SUGGEST_MAX = 50
 const PREVIEW_LIMIT = 8
 
 type Tab = 'suggest' | 'import'
-type TabProps = { deckId: string; sourceLang: LanguageCode; targetLang: LanguageCode; tabs: ReactNode }
+type TabProps = { deckId: string; sourceLang: LanguageCode; targetLang: LanguageCode; tabs: ReactNode; importToTrain: boolean }
 
 export function AddWords() {
   const { deck } = useCurrentDeck()
   const [params] = useSearchParams()
   const [tab, setTab] = useState<Tab>(params.get('tab') === 'import' ? 'import' : 'suggest')
   if (!deck) return <Navigate to="/" replace />
-  const props = { deckId: deck.id, sourceLang: deck.sourceLang as LanguageCode, targetLang: deck.targetLang as LanguageCode, tabs: <Tabs tab={tab} onChange={setTab} /> }
+  const props = {
+    deckId: deck.id,
+    sourceLang: deck.sourceLang as LanguageCode,
+    targetLang: deck.targetLang as LanguageCode,
+    tabs: <Tabs tab={tab} onChange={setTab} />,
+    importToTrain: deck.settings.importToTrain,
+  }
   return tab === 'suggest' ? <SuggestTab key={deck.id} {...props} /> : <ImportTab key={deck.id} {...props} />
 }
 
@@ -182,6 +192,11 @@ function GenerationDuplicates({ targetLang }: { targetLang: LanguageCode }) {
  */
 function canLearn(result: { added: number }, stats: DeckStats | undefined): boolean {
   return result.added > 0 && (!stats || stats.new + stats.pending > 0)
+}
+
+/** Same for "Train them now", in a deck whose imports skip Learn (deck setting importToTrain). */
+function canTrain(result: { added: number }, stats: DeckStats | undefined): boolean {
+  return result.added > 0 && (!stats || stats.dueNow + stats.pending > 0)
 }
 
 const PRESETS = [5, 10, 20] as const
@@ -298,7 +313,7 @@ function SuggestTab({ deckId, targetLang, tabs }: TabProps) {
   )
 }
 
-function ImportTab({ deckId, sourceLang, targetLang, tabs }: TabProps) {
+function ImportTab({ deckId, sourceLang, targetLang, tabs, importToTrain }: TabProps) {
   const t = useT(M)
   const ui = useUiLang()
   const languageName = useLanguageName()
@@ -351,10 +366,10 @@ function ImportTab({ deckId, sourceLang, targetLang, tabs }: TabProps) {
         <ImportSummary result={result} targetLang={targetLang} />
         <GenerationBanner deckId={deckId} stats={stats.data} />
         <GenerationDuplicates targetLang={targetLang} />
-        {canLearn(result, stats.data) ? (
+        {(importToTrain ? canTrain(result, stats.data) : canLearn(result, stats.data)) ? (
           <>
-            <Link to="/learn" className={btnPrimary}>
-              {t.learnNow}
+            <Link to={importToTrain ? '/train' : '/learn'} className={btnPrimary}>
+              {importToTrain ? t.trainNow : t.learnNow}
             </Link>
             <Link to="/words" className={btnSecondary}>
               {t.seeWords}
@@ -403,6 +418,7 @@ function ImportTab({ deckId, sourceLang, targetLang, tabs }: TabProps) {
         />
       </label>
       <p className={muted}>{t.separatorHelp}</p>
+      {importToTrain && <p className={muted}>{t.toTrainNote}</p>}
 
       <div className="flex flex-wrap items-center gap-2">
         <label className={`${btnSmall} cursor-pointer`}>

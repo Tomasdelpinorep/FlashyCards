@@ -50,21 +50,25 @@ export class Api {
     return this.req.get('/api/me').then((r) => this.json<MeResponse>(r))
   }
 
-  /** Back to a first-login state: one "German" en->de deck, default settings. */
+  /**
+   * Back to a first-login state: one "German" en->de deck, default settings. The deck sends
+   * imported words to Learn (importToTrain off, like decks made before that setting), since most
+   * specs import words to study them in Learn; import-to-train.spec.ts turns it on.
+   */
   async reset(): Promise<DeckDTO> {
     const me = await this.me()
     for (const d of me.decks) await this.deleteDeck(d.id)
     await this.updateSettings(DEFAULT_USER_SETTINGS)
-    return this.createDeck('German', 'en', 'de')
+    return this.createDeck('German', 'en', 'de', { importToTrain: false })
   }
 
   updateSettings(settings: Partial<UserSettings>) {
     return this.req.patch('/api/me', { data: { settings } }).then((r) => this.json<unknown>(r))
   }
 
-  createDeck(name: string, sourceLang: string, targetLang: string): Promise<DeckDTO> {
+  createDeck(name: string, sourceLang: string, targetLang: string, settings?: Partial<DeckSettings>): Promise<DeckDTO> {
     return this.req
-      .post('/api/decks', { data: { name, sourceLang, targetLang } })
+      .post('/api/decks', { data: { name, sourceLang, targetLang, ...(settings ? { settings } : {}) } })
       .then((r) => this.json<{ deck: DeckDTO }>(r))
       .then((r) => r.deck)
   }

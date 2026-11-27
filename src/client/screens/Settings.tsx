@@ -37,6 +37,8 @@ const M = messages(
     languageHelp:
       'The app’s language is also the language you learn from: your decks switch to its meanings. Your words and progress are kept, and meanings you typed yourself stay as you typed them.',
     switching: 'Switching…',
+    importToTrain: 'Imported words go straight to Train',
+    importToTrainHelp: 'Words you import skip Learn and are ready to practise in Train at once. Suggested words still go to Learn. Changing this only affects words you import afterwards.',
   },
   {
     title: 'Ajustes',
@@ -64,6 +66,8 @@ const M = messages(
     languageHelp:
       'El idioma de la app es también el idioma desde el que aprendes: tus mazos pasan a sus significados. Tus palabras y tu progreso se conservan, y los significados que escribiste tú se quedan como los escribiste.',
     switching: 'Cambiando…',
+    importToTrain: 'Las palabras importadas van directamente a Repasar',
+    importToTrainHelp: 'Las palabras que importas se saltan Aprender y puedes practicarlas en Repasar al momento. Las palabras sugeridas siguen yendo a Aprender. Cambiarlo solo afecta a las palabras que importes después.',
   },
 )
 
@@ -266,6 +270,35 @@ function ThemePicker() {
   )
 }
 
+const SWITCH_CLASS =
+  'h-6 w-11 shrink-0 cursor-pointer appearance-none rounded-full bg-zinc-300 transition-colors before:block before:h-5 before:w-5 before:translate-x-0.5 before:rounded-full before:bg-white before:shadow before:transition-transform checked:bg-accent checked:before:translate-x-5.5 disabled:opacity-50 dark:bg-zinc-700 dark:before:bg-zinc-900 dark:checked:before:bg-zinc-900'
+
+/** The deck's importToTrain setting (saved at once, like the study switches). */
+function ImportToTrainSwitch({ deck }: { deck: DeckDTO }) {
+  const t = useT(M)
+  const update = useUpdateDeck(deck.id)
+  const saving = update.isPending ? update.variables?.settings?.importToTrain : undefined
+  return (
+    <>
+      <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3 py-1">
+        <span className="min-w-0">
+          <span className="block font-medium">{t.importToTrain}</span>
+          <span className={`block ${muted}`}>{t.importToTrainHelp}</span>
+        </span>
+        <input
+          type="checkbox"
+          role="switch"
+          className={SWITCH_CLASS}
+          checked={saving ?? deck.settings.importToTrain}
+          disabled={update.isPending}
+          onChange={(e) => update.mutate({ settings: { importToTrain: e.target.checked } })}
+        />
+      </label>
+      <ErrorText error={update.error} />
+    </>
+  )
+}
+
 const SKIP_TOP_MAX = 50_000
 
 /** Settings of the current deck (M7: skipTopN; M8 adds the rest). */
@@ -280,6 +313,7 @@ function DeckSettingsForm({ deck }: { deck: DeckDTO }) {
   return (
     <section className={`${card} flex flex-col gap-3`}>
       <h2 className="font-semibold">{deck.name}</h2>
+      <ImportToTrainSwitch deck={deck} />
       <form
         className="flex flex-col gap-2"
         onSubmit={(e) => {

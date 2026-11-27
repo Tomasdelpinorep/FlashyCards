@@ -11,7 +11,13 @@ const BOB = 'bob@example.com'
 type Ctx = ReturnType<typeof setup>
 
 async function deckOf(ctx: Ctx, email = ALICE): Promise<string> {
-  return ((await (await ctx.as(email, '/api/me')).json()) as MeResponse).decks[0]!.id
+  const id = await (async () => {
+    return ((await (await ctx.as(email, '/api/me')).json()) as MeResponse).decks[0]!.id
+  })()
+  // These tests cover the Learn path for imported words: use a deck made before importToTrain
+  // existed (its imports go to Learn). test/worker/importToTrain.test.ts covers the new default.
+  await ctx.as(email, `/api/decks/${id}`, { method: 'PATCH', body: { settings: { importToTrain: false } } })
+  return id
 }
 
 async function importAndGenerate(ctx: Ctx, deck: string, text: string, inputLang: 'target' | 'source' = 'target') {
@@ -167,7 +173,7 @@ describe('an en -> es deck', () => {
   it('imports, generates (fake), learns and reviews without German leaking in', async () => {
     const ctx = setup()
     await deckOf(ctx)
-    const res = await ctx.as(ALICE, '/api/decks', { method: 'POST', body: { name: 'Spanish', sourceLang: 'en', targetLang: 'es' } })
+    const res = await ctx.as(ALICE, '/api/decks', { method: 'POST', body: { name: 'Spanish', sourceLang: 'en', targetLang: 'es', settings: { importToTrain: false } } })
     expect(res.status).toBe(201)
     const deck = ((await res.json()) as { deck: DeckDTO }).deck.id
     await importAndGenerate(ctx, deck, 'perro')

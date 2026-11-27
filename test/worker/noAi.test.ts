@@ -27,7 +27,13 @@ function seeded(): Ctx {
 }
 
 async function deckOf(ctx: Ctx): Promise<string> {
-  return ((await (await ctx.as(ALICE, '/api/me')).json()) as MeResponse).decks[0]!.id
+  const id = await (async () => {
+    return ((await (await ctx.as(ALICE, '/api/me')).json()) as MeResponse).decks[0]!.id
+  })()
+  // These tests cover the Learn path for imported words: use a deck made before importToTrain
+  // existed (its imports go to Learn). test/worker/importToTrain.test.ts covers the new default.
+  await ctx.as(ALICE, `/api/decks/${id}`, { method: 'PATCH', body: { settings: { importToTrain: false } } })
+  return id
 }
 async function importText(ctx: Ctx, deck: string, text: string, inputLang: 'target' | 'source' | 'auto' = 'target') {
   const res = await ctx.as(ALICE, `/api/decks/${deck}/import`, { method: 'POST', body: { text, inputLang } })

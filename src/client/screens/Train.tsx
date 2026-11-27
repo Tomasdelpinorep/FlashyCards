@@ -14,7 +14,7 @@ import type { StudyDirection } from '../../shared/schemas'
 import { formatInterval, loadSrs, previewIntervals, type Grade, type Srs } from '../../shared/srs'
 import { NoDecks } from '../components/NoDecks'
 import { AnswerCard } from '../components/AnswerCard'
-import { btnSecondary, card as cardClass, ErrorText, muted, Screen } from '../components/ui'
+import { btnSecondary, card as cardClass, ErrorText, hideWhileTyping, muted, Screen } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
 import { autoSwitch, useSwitch } from '../lib/handsFree'
 import { enqueueReview, useMe, useReviewQueue, useUpdateMe } from '../lib/queries'
@@ -188,7 +188,7 @@ export function Train() {
         </div>
       }
     >
-      <div role="radiogroup" aria-label={tr.direction} className="grid shrink-0 grid-cols-3 gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-900">
+      <div role="radiogroup" aria-label={tr.direction} className={`grid shrink-0 grid-cols-3 gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-900 ${hideWhileTyping}`}>
         {modes.map(([m, label]) => (
           <button
             key={m}
@@ -222,7 +222,7 @@ export function Train() {
             onReveal={onReveal}
             onDone={grade}
           />
-          <p className={`${muted} shrink-0 text-center`}>
+          <p className={`${muted} shrink-0 text-center ${hideWhileTyping}`}>
             {tr.left(session.queue.length + session.again.length)}
             {session.reviewed > 0 ? tr.reviewed(session.reviewed) : ''}
           </p>

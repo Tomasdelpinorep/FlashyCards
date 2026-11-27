@@ -18,7 +18,7 @@ import { loadSrs, previewIntervals, type Grade, type Srs } from '../../shared/sr
 import { NoDecks } from '../components/NoDecks'
 import { AnswerCard } from '../components/AnswerCard'
 import { LearnIntroCard } from '../components/LearnIntroCard'
-import { btnPrimary, btnSecondary, card as cardClass, ErrorText, muted, Screen, studyCard, studyFooter } from '../components/ui'
+import { btnPrimary, btnSecondary, card as cardClass, ErrorText, hideWhileTyping, muted, Screen, studyCard, studyFooter } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
 import {
   alreadyKnow,
@@ -412,7 +412,7 @@ export function Learn() {
 
       {session && step?.kind === 'check' && faces && (
         <>
-          <p className={`${muted} shrink-0 text-center`}>{t.quickCheck}</p>
+          <p className={`${muted} shrink-0 text-center ${hideWhileTyping}`}>{t.quickCheck}</p>
           <AnswerCard
             key={`${stepKey}:${direction}`}
             card={checkCard!}
@@ -429,7 +429,7 @@ export function Learn() {
       )}
 
       {session && step && step.kind !== 'done' && (
-        <p className={`${muted} shrink-0 text-center`}>
+        <p className={`${muted} shrink-0 text-center ${hideWhileTyping}`}>
           {t.left(left)}
           {studied > 0 ? t.learned(session.learned.length) : ''}
           {session.alreadyKnew > 0 ? t.alreadyKnown(session.alreadyKnew) : ''}

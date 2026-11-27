@@ -851,3 +851,39 @@
   Not translated: server error messages (rare; shown as sent) and the YouTube pronunciation search.
 - **Migration order:** 0006 only adds rows, so it is safe with the old code; the new code works
   without 0006 too (an es deck would just get "Needs meaning").
+
+## Imports go to Train
+
+- **What:** imported words (Add words → Import) skip Learn and are due in Train at once. Suggested
+  words ("Add new words") are new vocabulary and still go to Learn.
+- **Per card, not per deck query:** `cards.skip_learn` (migration 0007, default 0) is set at import
+  time. A never-studied card (state 0) with `skip_learn = 1` is in Train (`IN_TRAIN` in
+  `db/cards.ts`), not in Learn, not in the `new` count, and counts in `dueNow`/`dueToday`. Its
+  first review doesn't use up the daily Learn limit (`NEW_TODAY_SQL` skips it). A word imported
+  without a dictionary meaning goes to Train once the user types the meaning.
+- **Existing decks unchanged:** the deck setting `importToTrain` decides at import time.
+  `DEFAULT_DECK_SETTINGS` (the fallback for settings missing from a stored deck) has it off, so
+  decks made before keep sending imports to Learn; `NEW_DECK_SETTINGS` (POST /decks and a new
+  user's first deck) has it on. Settings → the deck → "Imported words go straight to Train"
+  switches it; it never moves words already imported.
+- **Tests:** worker tests of the Learn path and the e2e baseline deck use importToTrain off (a deck
+  "made before"); `test/worker/importToTrain.test.ts` and `e2e/import-to-train.spec.ts` cover it on.
+- **Migration order:** 0007 only adds a column with a default; the deployed code's inserts name
+  their columns, so it keeps working before the new code is live.
+
+## Typing on a phone (keyboard covering the word)
+
+- **Problem:** Learn and Train are fixed full-height screens with the word in the middle of a tall
+  card and the answer box near the bottom. Opening the on-screen keyboard made the browser scroll
+  the box into view, pushing the word off the top.
+- **Fix:** `lib/keyboard.ts` detects the keyboard from `window.visualViewport`: a text field has
+  focus and the visible height is under 80% of the tallest seen at this width (not while
+  pinch-zoomed; the pure rule is `keyboardState.ts`, unit-tested). While it is open, a `fill`
+  Screen covers exactly the visible area (visualViewport top/height) and goes compact:
+  `hideWhileTyping` hides the header, the direction tabs and the "N left" lines; the card and the
+  footer drop their min-heights; the TabBar is not rendered. The word then sits right above the box.
+- `index.html` sets `interactive-widget=resizes-content`, so Chrome on Android shrinks the page
+  for the keyboard (Safari on iOS ignores it and pans the visible area, which the visualViewport
+  top/height handle).
+- **Verified:** e2e `keyboard.spec.ts` emulates the Android behaviour (focus the box, shrink the
+  viewport to 430 px). A real keyboard, and iOS Safari, can only be checked on a device.
