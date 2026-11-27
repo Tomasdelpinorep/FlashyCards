@@ -20,7 +20,6 @@ import type {
   UpdateCardInput,
   UpdateDeckInput,
   UpdateMeInput,
-  UserDTO,
 } from '../../shared/schemas'
 import { api, unwrap } from './api'
 import { getOutbox } from './outbox'
@@ -187,8 +186,12 @@ export function useRetryFailed(deckId: string) {
 export function useUpdateMe() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (body: UpdateMeInput) => unwrap<{ user: UserDTO }>(api.me.$patch({ json: body })),
-    onSuccess: ({ user }) => qc.setQueryData<MeResponse>(keys.me, (old) => (old ? { ...old, user } : old)),
+    mutationFn: (body: UpdateMeInput) => unwrap<MeResponse>(api.me.$patch({ json: body })),
+    onSuccess: (data, body) => {
+      qc.setQueryData<MeResponse>(keys.me, data)
+      // A new app language converts the decks (meanings, examples): refetch everything else.
+      if (body.settings?.uiLang) void qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== keys.me[0] })
+    },
   })
 }
 

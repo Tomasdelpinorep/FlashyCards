@@ -15,7 +15,7 @@
  */
 import type { FaceDirection } from './display'
 import { collapseWhitespace } from './normalize'
-import { LANGUAGES, isLanguageCode, type LanguageCode } from './languages'
+import { LANGUAGES, isLanguageCode, type LanguageCode, type UiLanguage } from './languages'
 import type { Grade } from './srs'
 
 export type Expected = {
@@ -178,7 +178,21 @@ export function gradeForVerdict(v: Verdict): Grade {
 }
 
 /** The sentence shown and announced for a result. */
-export function verdictText(r: Pick<CheckResult, 'verdict' | 'shown'>): string {
+export function verdictText(r: Pick<CheckResult, 'verdict' | 'shown'>, ui: UiLanguage = 'en'): string {
+  if (ui === 'es') {
+    switch (r.verdict) {
+      case 'correct':
+        return '¡Correcto!'
+      case 'typo':
+        return 'Casi: revisa la ortografía'
+      case 'missing-article':
+        return `Falta el artículo: ${r.shown}`
+      case 'wrong-article':
+        return `Artículo incorrecto: ${r.shown}`
+      default:
+        return `No exactamente. La respuesta es ${r.shown}`
+    }
+  }
   switch (r.verdict) {
     case 'correct':
       return 'Correct'

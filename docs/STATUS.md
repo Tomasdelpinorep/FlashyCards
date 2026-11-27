@@ -1,6 +1,6 @@
 # Project status (handoff)
 
-Last updated: 2026-11-23
+Last updated: 2026-11-27
 
 ## Done (on `main`)
 - **M1–M7 are complete and pushed:**
@@ -28,6 +28,10 @@ Last updated: 2026-11-23
 - **A2 additions** (not pushed; `DECISIONS.md` "A2 additions"): 103 more entries incl. 18 set
   phrases (`data/seed/de/batch-4.json`), shipped as `migrations/0005_seed_de_a2.sql` (only the
   additions; it also re-queues needs_meaning cards). The 148-word A2 test list imports all Ready.
+
+- **App language: English / Español** (branch, PR; `DECISIONS.md` "App language"): the whole UI in
+  Spanish, a Spanish -> German dictionary (723 entries, `migrations/0006_seed_es_de.sql`), and
+  switching the language converts the decks (progress kept). New users start in their browser's language.
 
 ## Next steps, in order
 1. Push the M8+M9 commit. It is committed on `main` but not pushed, and not deployed.

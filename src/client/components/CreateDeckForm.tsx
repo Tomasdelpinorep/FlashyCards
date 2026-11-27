@@ -1,24 +1,50 @@
-import { DEFAULT_SOURCE, DEFAULT_TARGET, type LanguageCode } from '../../shared/languages'
+import { DEFAULT_TARGET, type LanguageCode } from '../../shared/languages'
 import { useState, type FormEvent } from 'react'
 import { useCurrentDeck } from '../lib/deck'
+import { messages, useLanguageName, useT, useUiLang } from '../lib/i18n'
 import { useCreateDeck, useLanguages } from '../lib/queries'
 import { btnPrimary, ErrorText, input, muted } from './ui'
 
-/** Minimal "new deck" form: name plus source and target language from /api/languages. */
+const M = messages(
+  {
+    name: 'Name',
+    namePlaceholder: 'Deck name',
+    learning: "I'm learning",
+    fromLanguage: (lang: string) => `You learn from ${lang}, the app's language (change it in Settings → Language).`,
+    creating: 'Creating…',
+    create: 'Create deck',
+  },
+  {
+    name: 'Nombre',
+    namePlaceholder: 'Nombre del mazo',
+    learning: 'Estoy aprendiendo',
+    fromLanguage: (lang) => `Aprendes desde el ${lang}, el idioma de la app (cámbialo en Ajustes → Idioma).`,
+    creating: 'Creando…',
+    create: 'Crear mazo',
+  },
+)
+
+/**
+ * Minimal "new deck" form: name plus the language to learn. The source ("I speak") language is
+ * the app language (docs/DECISIONS.md "App language").
+ */
 export function CreateDeckForm({ onCreated }: { onCreated?: () => void }) {
+  const t = useT(M)
+  const ui = useUiLang()
+  const langName = useLanguageName()
   const languages = useLanguages()
   const create = useCreateDeck()
   const { selectDeck } = useCurrentDeck()
   const [name, setName] = useState('')
-  const [sourceLang, setSourceLang] = useState<string>(DEFAULT_SOURCE)
-  const [targetLang, setTargetLang] = useState<string>(DEFAULT_TARGET)
-  const same = sourceLang === targetLang
+  const options = (languages.data?.languages ?? []).filter((l) => l.code !== ui)
+  const [picked, setPicked] = useState<string>(DEFAULT_TARGET)
+  const targetLang = options.some((l) => l.code === picked) ? picked : (options[0]?.code ?? DEFAULT_TARGET)
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
-    if (!name.trim() || same) return
+    if (!name.trim() || targetLang === ui) return
     create.mutate(
-      { name: name.trim(), sourceLang: sourceLang as LanguageCode, targetLang: targetLang as LanguageCode },
+      { name: name.trim(), sourceLang: ui, targetLang: targetLang as LanguageCode },
       {
         onSuccess: ({ deck }) => {
           selectDeck(deck.id)
@@ -29,40 +55,26 @@ export function CreateDeckForm({ onCreated }: { onCreated?: () => void }) {
     )
   }
 
-  const options = languages.data?.languages ?? []
   return (
     <form onSubmit={submit} className="flex flex-col gap-3">
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium">Name</span>
-        <input className={input} value={name} maxLength={60} onChange={(e) => setName(e.target.value)} placeholder="Deck name" required />
+        <span className="text-sm font-medium">{t.name}</span>
+        <input className={input} value={name} maxLength={60} onChange={(e) => setName(e.target.value)} placeholder={t.namePlaceholder} required />
       </label>
-      <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium">I speak</span>
-          <select className={input} value={sourceLang} onChange={(e) => setSourceLang(e.target.value)}>
-            {options.map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium">I'm learning</span>
-          <select className={input} value={targetLang} onChange={(e) => setTargetLang(e.target.value)}>
-            {options.map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      {same && <p className={muted}>Pick two different languages.</p>}
-      <p className={muted}>The language pair can't be changed later.</p>
+      <label className="flex flex-col gap-1">
+        <span className="text-sm font-medium">{t.learning}</span>
+        <select className={input} value={targetLang} onChange={(e) => setPicked(e.target.value)}>
+          {options.map((l) => (
+            <option key={l.code} value={l.code}>
+              {langName(l.code)}
+            </option>
+          ))}
+        </select>
+      </label>
+      <p className={muted}>{t.fromLanguage(langName(ui))}</p>
       <ErrorText error={create.error ?? languages.error} />
-      <button type="submit" className={btnPrimary} disabled={!name.trim() || same || create.isPending || !languages.data}>
-        {create.isPending ? 'Creating…' : 'Create deck'}
+      <button type="submit" className={btnPrimary} disabled={!name.trim() || create.isPending || !languages.data}>
+        {create.isPending ? t.creating : t.create}
       </button>
     </form>
   )

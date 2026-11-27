@@ -809,3 +809,45 @@
   theme and `<meta name="theme-color">` before first paint. It is external rather than inline so
   a future CSP needs no `'unsafe-inline'` (there is no CSP today). It duplicates the theme ids and
   backgrounds of lib/themeInfo.ts; test/client/theme.test.ts fails when they drift.
+
+## App language (English / Español)
+
+- **One setting, two jobs.** `users.settings_json.uiLang` (`'en'` | `'es'`, `UI_LANGUAGES` in
+  `src/shared/languages.ts`) is the language of the app's text AND the source ("I speak")
+  language of the user's decks. The new-deck form only asks "I'm learning"; the source is the
+  app language.
+- **First login:** the language comes from the browser's `Accept-Language`
+  (`uiLanguageFromPreferences`, first listed app language by quality, else English). The first
+  deck is then `es -> de` named "Alemán". Existing users have no `uiLang` stored and read as `'en'`.
+- **Switching converts decks, never deletes** (`src/worker/services/switchLanguage.ts`, one read
+  plus one `db.batch` with the new settings, so it's all or nothing):
+  - `decks.source_lang` becomes the new language. A deck whose target is the new language (an
+    en -> es deck when switching to Spanish) is left alone.
+  - Cards keep their id, FSRS state and review logs. `entry_id` moves to the same German lemma's
+    entry in the new pair (same target, `lemma_key`, `sense_key`). No counterpart: the old entry stays.
+  - The user's own text is kept as typed: `override_json` (typed/edited meanings and sentences)
+    and `extra_translations_json`. So a meaning typed in English stays English after the switch.
+  - `needs_meaning` cards without a user meaning go back to `pending` (the new dictionary may know them).
+  - `card_glosses` are rebuilt with the new language's gloss keys (duplicates, "Also in your deck").
+  - A deck still named by its default ("German") is renamed ("Alemán"), and back.
+- **Spanish dictionary (es -> de):** the same 723 German entries; only the Spanish side differs.
+  `data/seed/de/es/{dev,batch-1..4}.json` hold `{ lemma, translation, alt_translations,
+  example_source, note }` per entry, same order as the German source (checked by `withSpanish`
+  in `curated.de.ts`). `CURATED_ES_DE` = German entry + Spanish side (the note replaces
+  `grammar.note`). Rules: Spain Spanish; nouns without article ("casa"); verbs infinitive;
+  adjectives masculine with the feminine as an alt; no `,` `;` `/` in a translation (they split
+  answers); examples translate the German sentence. Ids are `cur-es-de-<lemma_key>` (the en ids
+  stay `cur-de-*`). Seeded by `migrations/0006_seed_es_de.sql`, a new stage of
+  `scripts/curated-to-sql.ts` (stages now carry a `pair`; deltas are per pair; 0003/0005 are
+  byte-identical). Spanish alias conflicts that the rank rule got wrong are fixed in
+  `ES_SOURCE_WINNERS` (apenas -> kaum, jefe -> Chef, tío -> Onkel, tarde -> spät, ...).
+  Written with AI help at authoring time and checked by tests (same German side, valid markers,
+  no articles on nouns); no runtime AI.
+- **UI text:** no i18n library. `src/client/lib/i18n.tsx`: each file keeps
+  `messages(en, es)` next to its code (TypeScript requires the same keys on both sides);
+  `useT(M)` picks the app language (browser language before /me has loaded). Shared helpers that
+  return text take a `ui` parameter defaulting to `'en'` (existing tests unchanged). Language
+  names come from `LanguageConfig.uiNames`. `<html lang>` follows the app language.
+  Not translated: server error messages (rare; shown as sent) and the YouTube pronunciation search.
+- **Migration order:** 0006 only adds rows, so it is safe with the old code; the new code works
+  without 0006 too (an es deck would just get "Needs meaning").

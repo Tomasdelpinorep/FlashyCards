@@ -15,7 +15,7 @@ import { LANGUAGES, type LanguageCode } from '../../shared/languages'
 import { glossKey, termKey } from '../../shared/normalize'
 import type { GenerationInput, GenerationRequest, SentenceGenerator, SuggestedWord, SuggestWordsRequest } from './generator'
 import type { Gender, GeneratedItem, Grammar, VerbTable } from './schema'
-import { CURATED_DE, type CuratedEntry as DevEntry } from './curated.de'
+import { CURATED_DE, CURATED_ES_DE, type CuratedEntry as DevEntry } from './curated.de'
 
 type Six = [string, string, string, string, string, string]
 
@@ -248,31 +248,34 @@ export class FakeGenerator implements SentenceGenerator {
 }
 
 /**
- * Curated entries (curated.de.ts) keyed like the lexicon: `target:<lemma key>` (also
+ * Curated entries (curated.de.ts: en -> de and es -> de) keyed like the lexicon: `target:<lemma key>` (also
  * without a leading "sich ") and `source:<key>` for the translation and alternatives, with and
  * without "to"/"a"/"the" (first entry wins). Consulted after the built-in/test lexicon, so tests
  * keep their outputs. Built once, on first use.
  */
-let devIndexDe: Map<string, DevEntry> | undefined
+const devIndexes = new Map<string, Map<string, DevEntry>>()
 function devLexiconFor(targetLang: LanguageCode, sourceLang: LanguageCode): Map<string, DevEntry> | undefined {
-  if (targetLang !== 'de' || sourceLang !== 'en') return undefined
-  if (devIndexDe) return devIndexDe
+  if (targetLang !== 'de') return undefined
+  const entries = sourceLang === 'en' ? CURATED_DE : sourceLang === 'es' ? CURATED_ES_DE : undefined
+  if (!entries) return undefined
+  const cached = devIndexes.get(sourceLang)
+  if (cached) return cached
   const index = new Map<string, DevEntry>()
   const add = (key: string, e: DevEntry) => {
     if (!key.endsWith(':') && !index.has(key)) index.set(key, e)
   }
-  for (const e of CURATED_DE) {
+  for (const e of entries) {
     const lemma = e.lemma!
     add(`target:${termKey('de', lemma)}`, e)
     if (lemma.startsWith('sich ')) add(`target:${termKey('de', lemma.slice(5))}`, e)
   }
-  for (const e of CURATED_DE) {
+  for (const e of entries) {
     for (const gloss of [e.translation!, ...e.alt_translations]) {
-      add(`source:${termKey('en', gloss)}`, e)
-      add(`source:${glossKey('en', gloss)}`, e)
+      add(`source:${termKey(sourceLang, gloss)}`, e)
+      add(`source:${glossKey(sourceLang, gloss)}`, e)
     }
   }
-  devIndexDe = index
+  devIndexes.set(sourceLang, index)
   return index
 }
 

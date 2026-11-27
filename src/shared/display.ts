@@ -4,7 +4,7 @@
  * forms, and duplicate references. Shared by the Worker (building the Card DTO) and the client
  * (rendering it). No language branches: articles/genders come from languages.ts.
  */
-import { LANGUAGES, isLanguageCode } from './languages'
+import { LANGUAGES, isLanguageCode, type UiLanguage } from './languages'
 
 export type GrammarView = {
   gender: 'masculine' | 'feminine' | 'neuter' | null
@@ -151,19 +151,19 @@ export function articleColor(lang: string, word: string): { article: string; res
 }
 
 /** "big · also: large, tall" (extras are the user's own extra translations). */
-export function translationLine(translation: string | null, extras: readonly string[]): string {
+export function translationLine(translation: string | null, extras: readonly string[], ui: UiLanguage = 'en'): string {
   const main = translation ?? extras[0] ?? ''
   const rest = translation ? extras : extras.slice(1)
   const others = rest.filter((x) => x.toLowerCase() !== main.toLowerCase())
   if (!main) return ''
-  return others.length > 0 ? `${main} · also: ${others.join(', ')}` : main
+  return others.length > 0 ? `${main} · ${ui === 'es' ? 'también' : 'also'}: ${others.join(', ')}` : main
 }
 
 /**
  * The forms worth showing next to the word: the plural for nouns, the 3rd person present ·
  * past · perfect for verbs, the comparative · superlative for adjectives.
  */
-export function formsLine(content: Pick<CardContent, 'pos' | 'grammar'> | null): string | null {
+export function formsLine(content: Pick<CardContent, 'pos' | 'grammar'> | null, ui: UiLanguage = 'en'): string | null {
   const g = content?.grammar
   if (!g) return null
   const join = (parts: (string | null | undefined)[]) => {
@@ -173,8 +173,21 @@ export function formsLine(content: Pick<CardContent, 'pos' | 'grammar'> | null):
   if (content.pos === 'verb' && g.verb) return join([g.verb.present_3sg, g.verb.past_3sg, g.verb.perfect_3sg])
   if (content.pos === 'noun') return g.plural ? `Plural: ${g.plural}` : null
   if (content.pos === 'adjective' || content.pos === 'adverb') return join([g.comparative, g.superlative])
-  if (g.governs_case) return `+ ${g.governs_case}`
+  if (g.governs_case) return `+ ${governedCaseName(g.governs_case, ui)}`
   return null
+}
+
+const CASE_NAMES_ES: Readonly<Record<string, string>> = {
+  nominative: 'nominativo',
+  accusative: 'acusativo',
+  dative: 'dativo',
+  genitive: 'genitivo',
+}
+
+/** The case a preposition takes ("dative", "accusative or dative") in the app language. */
+export function governedCaseName(governsCase: string, ui: UiLanguage = 'en'): string {
+  if (ui === 'en') return governsCase
+  return governsCase.replace(/\b(nominative|accusative|dative|genitive)\b/gi, (m) => CASE_NAMES_ES[m.toLowerCase()] ?? m).replace(/\bor\b/g, 'o')
 }
 
 /** One row of the verb table: the person label, its present form and its past form. */
@@ -235,7 +248,8 @@ export function highlightSegments(s: string | null | undefined): Segment[] {
 // ---------- duplicates ----------
 
 /** "Already in your deck as der Hund" for a card with status 'duplicate'. */
-export function duplicateOfText(duplicateOf: { display: string } | undefined): string {
+export function duplicateOfText(duplicateOf: { display: string } | undefined, ui: UiLanguage = 'en'): string {
+  if (ui === 'es') return duplicateOf ? `Ya está en tu mazo como ${duplicateOf.display}` : 'Ya está en tu mazo'
   return duplicateOf ? `Already in your deck as ${duplicateOf.display}` : 'Already in your deck'
 }
 
@@ -286,9 +300,13 @@ export type CardFaces = {
  *   translated word highlighted (`hideSentenceOnFront` applies to DE->EN only).
  * The back is the full card; "Also in your deck" only for source-target and when non-empty.
  */
-export function cardFaces(card: StudyCardInput, direction: FaceDirection, opts: { hideSentenceOnFront?: boolean } = {}): CardFaces {
+export function cardFaces(
+  card: StudyCardInput,
+  direction: FaceDirection,
+  opts: { hideSentenceOnFront?: boolean; ui?: UiLanguage } = {},
+): CardFaces {
   const c = card.content
-  const translation = translationLine(card.translation, card.extraTranslations)
+  const translation = translationLine(card.translation, card.extraTranslations, opts.ui)
   const front: CardFaces['front'] =
     direction === 'target-source'
       ? { kind: 'target', word: card.display, sentence: opts.hideSentenceOnFront ? null : blankMarkers(c?.exampleTarget) }
@@ -298,7 +316,7 @@ export function cardFaces(card: StudyCardInput, direction: FaceDirection, opts: 
     front,
     back: {
       word: card.display,
-      forms: formsLine(c),
+      forms: formsLine(c, opts.ui),
       translation,
       exampleTarget: c?.exampleTarget ?? null,
       exampleSource: c?.exampleSource ?? null,
@@ -315,8 +333,8 @@ export function cardFaces(card: StudyCardInput, direction: FaceDirection, opts: 
  */
 export type IntroFaces = CardFaces['back'] & { speech: CardFaces['speech'] }
 
-export function introFaces(card: StudyCardInput): IntroFaces {
-  const { back, speech } = cardFaces(card, 'source-target')
+export function introFaces(card: StudyCardInput, ui: UiLanguage = 'en'): IntroFaces {
+  const { back, speech } = cardFaces(card, 'source-target', { ui })
   return { ...back, alsoInDeck: [...(card.alsoInDeck ?? [])], speech }
 }
 

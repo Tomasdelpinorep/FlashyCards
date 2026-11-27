@@ -1,0 +1,904 @@
+[
+  {
+    "lemma": "Bildschirm",
+    "translation": "pantalla",
+    "alt_translations": [
+      "monitor"
+    ],
+    "example_source": "La [[pantalla]] está demasiado oscura.",
+    "note": null
+  },
+  {
+    "lemma": "Konto",
+    "translation": "cuenta",
+    "alt_translations": [
+      "cuenta bancaria"
+    ],
+    "example_source": "Tengo una [[cuenta]] en este banco.",
+    "note": null
+  },
+  {
+    "lemma": "Münze",
+    "translation": "moneda",
+    "alt_translations": [],
+    "example_source": "¿Tienes una [[moneda]] para el carro de la compra?",
+    "note": null
+  },
+  {
+    "lemma": "Quittung",
+    "translation": "recibo",
+    "alt_translations": [
+      "justificante"
+    ],
+    "example_source": "¿Me puede dar un [[recibo]], por favor?",
+    "note": null
+  },
+  {
+    "lemma": "Ladegerät",
+    "translation": "cargador",
+    "alt_translations": [],
+    "example_source": "Me he dejado el [[cargador]] en casa.",
+    "note": null
+  },
+  {
+    "lemma": "Akku",
+    "translation": "batería",
+    "alt_translations": [],
+    "example_source": "Tengo la [[batería]] casi descargada.",
+    "note": "La batería integrada de un móvil o un portátil. Una pila es die Batterie."
+  },
+  {
+    "lemma": "Tastatur",
+    "translation": "teclado",
+    "alt_translations": [],
+    "example_source": "El [[teclado]] de mi portátil está roto.",
+    "note": null
+  },
+  {
+    "lemma": "Passwort",
+    "translation": "contraseña",
+    "alt_translations": [
+      "clave"
+    ],
+    "example_source": "Se me ha olvidado la [[contraseña]].",
+    "note": null
+  },
+  {
+    "lemma": "Steckdose",
+    "translation": "enchufe",
+    "alt_translations": [
+      "toma de corriente"
+    ],
+    "example_source": "¿Hay algún [[enchufe]] por aquí?",
+    "note": null
+  },
+  {
+    "lemma": "Mantel",
+    "translation": "abrigo",
+    "alt_translations": [],
+    "example_source": "Ponte el [[abrigo]], que hace frío.",
+    "note": "Ojo: der Mantel no es «mantel» (= die Tischdecke)."
+  },
+  {
+    "lemma": "Prüfung",
+    "translation": "examen",
+    "alt_translations": [
+      "prueba"
+    ],
+    "example_source": "Mañana tengo un [[examen]].",
+    "note": "eine Prüfung machen = hacer un examen; eine Prüfung bestehen = aprobar un examen."
+  },
+  {
+    "lemma": "Werkzeug",
+    "translation": "herramienta",
+    "alt_translations": [
+      "herramientas"
+    ],
+    "example_source": "¿Llevas la [[herramienta]] adecuada?",
+    "note": "También como sustantivo colectivo: das Werkzeug = las herramientas."
+  },
+  {
+    "lemma": "Küche",
+    "translation": "cocina",
+    "alt_translations": [],
+    "example_source": "Normalmente comemos en la [[cocina]].",
+    "note": null
+  },
+  {
+    "lemma": "Fahrplan",
+    "translation": "horario",
+    "alt_translations": [
+      "horarios"
+    ],
+    "example_source": "Según el [[horario]], el autobús llega a las ocho.",
+    "note": null
+  },
+  {
+    "lemma": "Unterkunft",
+    "translation": "alojamiento",
+    "alt_translations": [],
+    "example_source": "Buscamos un [[alojamiento]] barato en Berlín.",
+    "note": null
+  },
+  {
+    "lemma": "Ausflug",
+    "translation": "excursión",
+    "alt_translations": [
+      "salida"
+    ],
+    "example_source": "El domingo hacemos una [[excursión]] al lago.",
+    "note": null
+  },
+  {
+    "lemma": "Umgebung",
+    "translation": "alrededores",
+    "alt_translations": [
+      "entorno",
+      "zona"
+    ],
+    "example_source": "En los [[alrededores]] hay muchos lagos.",
+    "note": null
+  },
+  {
+    "lemma": "Einladung",
+    "translation": "invitación",
+    "alt_translations": [],
+    "example_source": "¡Muchas gracias por la [[invitación]]!",
+    "note": null
+  },
+  {
+    "lemma": "Bauch",
+    "translation": "barriga",
+    "alt_translations": [
+      "vientre",
+      "tripa",
+      "estómago"
+    ],
+    "example_source": "Me duele la [[barriga]].",
+    "note": "Bauchschmerzen = dolor de barriga."
+  },
+  {
+    "lemma": "Erkältung",
+    "translation": "resfriado",
+    "alt_translations": [
+      "catarro",
+      "constipado"
+    ],
+    "example_source": "Tengo un [[resfriado]].",
+    "note": "sich erkälten = resfriarse."
+  },
+  {
+    "lemma": "Möglichkeit",
+    "translation": "posibilidad",
+    "alt_translations": [
+      "oportunidad",
+      "opción"
+    ],
+    "example_source": "Hay otra [[posibilidad]].",
+    "note": null
+  },
+  {
+    "lemma": "Jacke",
+    "translation": "chaqueta",
+    "alt_translations": [],
+    "example_source": "Llévate una [[chaqueta]], que va a hacer frío.",
+    "note": null
+  },
+  {
+    "lemma": "Schuh",
+    "translation": "zapato",
+    "alt_translations": [],
+    "example_source": "Estos [[zapatos]] son muy cómodos.",
+    "note": null
+  },
+  {
+    "lemma": "Wecker",
+    "translation": "despertador",
+    "alt_translations": [],
+    "example_source": "Mi [[despertador]] suena todas las mañanas a las seis.",
+    "note": null
+  },
+  {
+    "lemma": "Treppe",
+    "translation": "escalera",
+    "alt_translations": [
+      "escaleras"
+    ],
+    "example_source": "El ascensor está estropeado, vamos por la [[escalera]].",
+    "note": "El alemán usa el singular: die Treppe = la escalera o las escaleras."
+  },
+  {
+    "lemma": "Müll",
+    "translation": "basura",
+    "alt_translations": [
+      "residuos"
+    ],
+    "example_source": "¿Puedes sacar la [[basura]], por favor?",
+    "note": "Sin plural. den Müll rausbringen = sacar la basura."
+  },
+  {
+    "lemma": "Flasche",
+    "translation": "botella",
+    "alt_translations": [],
+    "example_source": "Una [[botella]] de agua, por favor.",
+    "note": null
+  },
+  {
+    "lemma": "Termin",
+    "translation": "cita",
+    "alt_translations": [
+      "hora (médico)"
+    ],
+    "example_source": "Mañana tengo [[cita]] con el médico.",
+    "note": "einen Termin machen/vereinbaren = pedir cita. Ojo: Termin no es «término»."
+  },
+  {
+    "lemma": "Wetter",
+    "translation": "tiempo",
+    "alt_translations": [
+      "tiempo atmosférico",
+      "clima"
+    ],
+    "example_source": "¿Qué [[tiempo]] hace hoy?",
+    "note": "Sin plural en el uso cotidiano. El tiempo que pasa es die Zeit."
+  },
+  {
+    "lemma": "Verspätung",
+    "translation": "retraso",
+    "alt_translations": [],
+    "example_source": "El tren lleva diez minutos de [[retraso]].",
+    "note": "Verspätung haben = llegar con retraso (trenes, autobuses, personas)."
+  },
+  {
+    "lemma": "Nachbar",
+    "translation": "vecino",
+    "alt_translations": [],
+    "example_source": "Nuestro [[vecino]] es muy simpático.",
+    "note": "Sustantivo débil: den/dem/des Nachbarn. Una mujer: die Nachbarin."
+  },
+  {
+    "lemma": "Alltag",
+    "translation": "día a día",
+    "alt_translations": [
+      "vida cotidiana",
+      "rutina diaria"
+    ],
+    "example_source": "En mi [[día a día]] hablo mucho alemán.",
+    "note": "Sin plural en el uso cotidiano."
+  },
+  {
+    "lemma": "Freizeit",
+    "translation": "tiempo libre",
+    "alt_translations": [
+      "ocio"
+    ],
+    "example_source": "¿Qué haces en tu [[tiempo libre]]?",
+    "note": "Sin plural."
+  },
+  {
+    "lemma": "Unterschied",
+    "translation": "diferencia",
+    "alt_translations": [],
+    "example_source": "¿Cuál es la [[diferencia]] entre las dos palabras?",
+    "note": null
+  },
+  {
+    "lemma": "reparieren",
+    "translation": "reparar",
+    "alt_translations": [
+      "arreglar"
+    ],
+    "example_source": "¿Me puedes [[arreglar]] la bici?",
+    "note": null
+  },
+  {
+    "lemma": "leihen",
+    "translation": "prestar",
+    "alt_translations": [
+      "pedir prestado"
+    ],
+    "example_source": "¿Me puedes [[prestar]] tu coche?",
+    "note": "jemandem etwas leihen = prestar algo a alguien; sich (dativo) etwas leihen = pedir algo prestado."
+  },
+  {
+    "lemma": "einschalten",
+    "translation": "encender",
+    "alt_translations": [
+      "conectar"
+    ],
+    "example_source": "¿Puedes [[encender]] la luz, por favor?",
+    "note": null
+  },
+  {
+    "lemma": "ausschalten",
+    "translation": "apagar",
+    "alt_translations": [
+      "desconectar"
+    ],
+    "example_source": "No te olvides de [[apagar]] el ordenador.",
+    "note": null
+  },
+  {
+    "lemma": "überweisen",
+    "translation": "transferir",
+    "alt_translations": [
+      "hacer una transferencia"
+    ],
+    "example_source": "Mañana te [[transfiero]] el dinero.",
+    "note": "No separable: ich überweise, überwiesen (sin ge-)."
+  },
+  {
+    "lemma": "ausgeben",
+    "translation": "gastar",
+    "alt_translations": [],
+    "example_source": "¿Cuánto dinero te has [[gastado]] en las vacaciones?",
+    "note": "Geld für etwas (acusativo) ausgeben = gastar dinero en algo."
+  },
+  {
+    "lemma": "sparen",
+    "translation": "ahorrar",
+    "alt_translations": [],
+    "example_source": "Estamos [[ahorrando]] para un coche nuevo.",
+    "note": "También: Zeit sparen = ahorrar tiempo. Salvar una vida es retten."
+  },
+  {
+    "lemma": "zurückrufen",
+    "translation": "devolver la llamada",
+    "alt_translations": [
+      "volver a llamar"
+    ],
+    "example_source": "Te [[vuelvo a llamar]] en diez minutos.",
+    "note": null
+  },
+  {
+    "lemma": "dauern",
+    "translation": "durar",
+    "alt_translations": [
+      "tardar"
+    ],
+    "example_source": "¿Cuánto [[dura]] la película?",
+    "note": "Sobre todo en 3.ª persona: Das dauert zwei Stunden = eso dura dos horas."
+  },
+  {
+    "lemma": "sich anmelden",
+    "translation": "inscribirse",
+    "alt_translations": [
+      "apuntarse",
+      "registrarse",
+      "matricularse"
+    ],
+    "example_source": "Hoy [[me apunto]] al curso.",
+    "note": "sich für etwas (acusativo) anmelden = inscribirse en algo; sich bei … anmelden = registrarse en …"
+  },
+  {
+    "lemma": "umsteigen",
+    "translation": "hacer transbordo",
+    "alt_translations": [
+      "cambiar de tren",
+      "cambiar de autobús"
+    ],
+    "example_source": "En Colonia tenemos que [[hacer transbordo]].",
+    "note": null
+  },
+  {
+    "lemma": "erreichen",
+    "translation": "alcanzar",
+    "alt_translations": [
+      "localizar",
+      "llegar a",
+      "coger (tren)"
+    ],
+    "example_source": "¿Cuál es la mejor manera de [[localizarlo]]?",
+    "note": "También: den Zug erreichen = coger el tren."
+  },
+  {
+    "lemma": "einschlafen",
+    "translation": "dormirse",
+    "alt_translations": [
+      "quedarse dormido"
+    ],
+    "example_source": "Por las noches muchas veces no puedo [[dormirme]].",
+    "note": null
+  },
+  {
+    "lemma": "aufwachen",
+    "translation": "despertarse",
+    "alt_translations": [],
+    "example_source": "[[Me despierto]] todos los días a las seis.",
+    "note": "Despertar a otra persona es wecken."
+  },
+  {
+    "lemma": "sich ausruhen",
+    "translation": "descansar",
+    "alt_translations": [],
+    "example_source": "El fin de semana [[descanso]] de verdad.",
+    "note": null
+  },
+  {
+    "lemma": "fehlen",
+    "translation": "faltar",
+    "alt_translations": [
+      "estar ausente",
+      "echar de menos"
+    ],
+    "example_source": "A mi libro le [[falta]] una página.",
+    "note": "Du fehlst mir = te echo de menos (como «me faltas»: la persona que se echa de menos es el sujeto). Was fehlt Ihnen? = ¿Qué le pasa?"
+  },
+  {
+    "lemma": "aufräumen",
+    "translation": "ordenar",
+    "alt_translations": [
+      "recoger"
+    ],
+    "example_source": "Hoy tengo que [[ordenar]] mi habitación.",
+    "note": null
+  },
+  {
+    "lemma": "schneiden",
+    "translation": "cortar",
+    "alt_translations": [],
+    "example_source": "¿Puedes [[cortar]] el pan, por favor?",
+    "note": "sich die Haare schneiden lassen = cortarse el pelo (en la peluquería)."
+  },
+  {
+    "lemma": "abholen",
+    "translation": "recoger",
+    "alt_translations": [
+      "ir a buscar",
+      "pasar a buscar"
+    ],
+    "example_source": "¿Puedes [[recoger]] a los niños del colegio?",
+    "note": null
+  },
+  {
+    "lemma": "empfehlen",
+    "translation": "recomendar",
+    "alt_translations": [],
+    "example_source": "¿Qué nos [[recomienda]] hoy?",
+    "note": "jemandem (dativo) etwas empfehlen = recomendar algo a alguien."
+  },
+  {
+    "lemma": "teilnehmen",
+    "translation": "participar",
+    "alt_translations": [
+      "tomar parte"
+    ],
+    "example_source": "Me gustaría [[participar]] en el curso de alemán.",
+    "note": "teilnehmen an + dativo = participar en."
+  },
+  {
+    "lemma": "wehtun",
+    "translation": "doler",
+    "alt_translations": [],
+    "example_source": "Me [[duele]] la cabeza.",
+    "note": "La persona va en dativo, como en español: Mir tut der Rücken weh = me duele la espalda. Wo tut es weh? = ¿Dónde te duele?"
+  },
+  {
+    "lemma": "öffnen",
+    "translation": "abrir",
+    "alt_translations": [],
+    "example_source": "¿Puedes [[abrir]] la ventana, por favor?",
+    "note": "En el habla, a menudo aufmachen."
+  },
+  {
+    "lemma": "schließen",
+    "translation": "cerrar",
+    "alt_translations": [],
+    "example_source": "Las tiendas [[cierran]] a las ocho.",
+    "note": "En el habla, a menudo zumachen."
+  },
+  {
+    "lemma": "entscheiden",
+    "translation": "decidir",
+    "alt_translations": [],
+    "example_source": "Eso lo puedes [[decidir]] tú mismo.",
+    "note": "sich entscheiden (für + acusativo) = decidirse (por)."
+  },
+  {
+    "lemma": "putzen",
+    "translation": "limpiar",
+    "alt_translations": [],
+    "example_source": "El sábado [[limpio]] el piso.",
+    "note": "sich (dativo) die Zähne putzen = lavarse los dientes."
+  },
+  {
+    "lemma": "abgeben",
+    "translation": "entregar",
+    "alt_translations": [
+      "dar",
+      "regalar"
+    ],
+    "example_source": "Mañana tengo que [[entregar]] los deberes.",
+    "note": null
+  },
+  {
+    "lemma": "reservieren",
+    "translation": "reservar",
+    "alt_translations": [],
+    "example_source": "Quería [[reservar]] una mesa para dos personas.",
+    "note": null
+  },
+  {
+    "lemma": "zurückgeben",
+    "translation": "devolver",
+    "alt_translations": [],
+    "example_source": "Mañana te [[devuelvo]] el libro.",
+    "note": null
+  },
+  {
+    "lemma": "einkaufen",
+    "translation": "hacer la compra",
+    "alt_translations": [
+      "ir de compras",
+      "comprar"
+    ],
+    "example_source": "El sábado voy a [[hacer la compra]].",
+    "note": "einkaufen gehen = ir a comprar o ir de compras."
+  },
+  {
+    "lemma": "anziehen",
+    "translation": "ponerse",
+    "alt_translations": [
+      "vestir"
+    ],
+    "example_source": "Deberías [[ponerte]] una chaqueta calentita.",
+    "note": "sich anziehen = vestirse."
+  },
+  {
+    "lemma": "anprobieren",
+    "translation": "probarse",
+    "alt_translations": [],
+    "example_source": "¿Puedo [[probarme]] los pantalones?",
+    "note": null
+  },
+  {
+    "lemma": "beginnen",
+    "translation": "comenzar",
+    "alt_translations": [
+      "empezar"
+    ],
+    "example_source": "El curso [[comienza]] a las nueve.",
+    "note": "Un poco más formal que anfangen."
+  },
+  {
+    "lemma": "zufrieden",
+    "translation": "satisfecho",
+    "alt_translations": [
+      "satisfecha",
+      "contento",
+      "contenta"
+    ],
+    "example_source": "¿Estás [[contento]] con tu piso nuevo?",
+    "note": "zufrieden mit + dativo."
+  },
+  {
+    "lemma": "dringend",
+    "translation": "urgente",
+    "alt_translations": [
+      "urgentemente"
+    ],
+    "example_source": "Tengo que hablar contigo [[urgentemente]].",
+    "note": null
+  },
+  {
+    "lemma": "gesund",
+    "translation": "sano",
+    "alt_translations": [
+      "sana",
+      "saludable"
+    ],
+    "example_source": "La fruta y la verdura son [[saludables]].",
+    "note": null
+  },
+  {
+    "lemma": "erreichbar",
+    "translation": "localizable",
+    "alt_translations": [
+      "disponible",
+      "accesible"
+    ],
+    "example_source": "Mañana estaré [[localizable]] todo el día.",
+    "note": "telefonisch erreichbar = localizable por teléfono."
+  },
+  {
+    "lemma": "günstig",
+    "translation": "económico",
+    "alt_translations": [
+      "barato",
+      "asequible",
+      "favorable"
+    ],
+    "example_source": "El hotel es pequeño, pero muy [[económico]].",
+    "note": null
+  },
+  {
+    "lemma": "bar",
+    "translation": "en efectivo",
+    "alt_translations": [
+      "en metálico"
+    ],
+    "example_source": "¿Puedo pagar [[en efectivo]]?",
+    "note": "bar bezahlen = pagar en efectivo. El dinero en efectivo es das Bargeld."
+  },
+  {
+    "lemma": "leise",
+    "translation": "silencioso",
+    "alt_translations": [
+      "silenciosa",
+      "bajo",
+      "en voz baja"
+    ],
+    "example_source": "[[No hagas ruido]], por favor, que el bebé está durmiendo.",
+    "note": "Contrario: laut."
+  },
+  {
+    "lemma": "bequem",
+    "translation": "cómodo",
+    "alt_translations": [
+      "cómoda",
+      "práctico"
+    ],
+    "example_source": "El sofá es muy [[cómodo]].",
+    "note": null
+  },
+  {
+    "lemma": "rechtzeitig",
+    "translation": "a tiempo",
+    "alt_translations": [
+      "con tiempo"
+    ],
+    "example_source": "Llegamos a la estación [[a tiempo]].",
+    "note": "rechtzeitig = con tiempo suficiente; pünktlich = a la hora exacta."
+  },
+  {
+    "lemma": "drinnen",
+    "translation": "dentro",
+    "alt_translations": [
+      "adentro"
+    ],
+    "example_source": "Cuando llueve, los niños juegan [[dentro]].",
+    "note": "Contrario: draußen."
+  },
+  {
+    "lemma": "müde",
+    "translation": "cansado",
+    "alt_translations": [
+      "cansada",
+      "con sueño"
+    ],
+    "example_source": "Después del trabajo siempre estoy [[cansado]].",
+    "note": null
+  },
+  {
+    "lemma": "meistens",
+    "translation": "casi siempre",
+    "alt_translations": [
+      "normalmente",
+      "la mayoría de las veces"
+    ],
+    "example_source": "[[Casi siempre]] voy en autobús.",
+    "note": null
+  },
+  {
+    "lemma": "schwierig",
+    "translation": "difícil",
+    "alt_translations": [],
+    "example_source": "El examen fue muy [[difícil]].",
+    "note": null
+  },
+  {
+    "lemma": "gemeinsam",
+    "translation": "juntos",
+    "alt_translations": [
+      "juntas",
+      "en común",
+      "compartido"
+    ],
+    "example_source": "Esta noche cocinamos [[juntos]].",
+    "note": "Como adjetivo: común, compartido (unser gemeinsamer Freund = nuestro amigo en común)."
+  },
+  {
+    "lemma": "leer",
+    "translation": "vacío",
+    "alt_translations": [
+      "vacía",
+      "descargado (batería)"
+    ],
+    "example_source": "La botella ya está [[vacía]].",
+    "note": "También para baterías: Der Akku ist leer = la batería está descargada."
+  },
+  {
+    "lemma": "pünktlich",
+    "translation": "puntual",
+    "alt_translations": [
+      "a la hora"
+    ],
+    "example_source": "Hoy el tren llega [[puntual]].",
+    "note": null
+  },
+  {
+    "lemma": "nass",
+    "translation": "mojado",
+    "alt_translations": [
+      "mojada"
+    ],
+    "example_source": "Tengo los zapatos completamente [[mojados]].",
+    "note": "También nässer, am nässesten."
+  },
+  {
+    "lemma": "trocken",
+    "translation": "seco",
+    "alt_translations": [
+      "seca"
+    ],
+    "example_source": "La ropa ya está [[seca]].",
+    "note": null
+  },
+  {
+    "lemma": "Können Sie das bitte wiederholen?",
+    "translation": "¿puede repetirlo por favor?",
+    "alt_translations": [
+      "¿podría repetirlo por favor?",
+      "¿puede repetir eso?"
+    ],
+    "example_source": "Perdone, ¿[[puede repetirlo, por favor]]?",
+    "note": "Formal (Sie = usted). A un amigo: Kannst du das bitte wiederholen?"
+  },
+  {
+    "lemma": "Ich bin gleich zurück.",
+    "translation": "ahora vuelvo",
+    "alt_translations": [
+      "vuelvo enseguida",
+      "enseguida vuelvo"
+    ],
+    "example_source": "¿Esperas un momento? [[Ahora vuelvo.]]",
+    "note": null
+  },
+  {
+    "lemma": "Es funktioniert nicht.",
+    "translation": "no funciona",
+    "alt_translations": [],
+    "example_source": "He reiniciado la impresora, pero [[no funciona]].",
+    "note": null
+  },
+  {
+    "lemma": "zum Glück",
+    "translation": "por suerte",
+    "alt_translations": [
+      "afortunadamente",
+      "menos mal"
+    ],
+    "example_source": "[[Por suerte]], no ha llovido.",
+    "note": "zum = zu dem. También: glücklicherweise."
+  },
+  {
+    "lemma": "Es lohnt sich.",
+    "translation": "merece la pena",
+    "alt_translations": [
+      "vale la pena"
+    ],
+    "example_source": "El museo es caro, pero [[merece la pena]].",
+    "note": "sich lohnen = merecer la pena. Lohnt es sich? = ¿Merece la pena?"
+  },
+  {
+    "lemma": "Gute Besserung!",
+    "translation": "¡que te mejores!",
+    "alt_translations": [
+      "¡que se mejore!",
+      "¡mejórate!"
+    ],
+    "example_source": "¿Estás enfermo? [[¡Que te mejores!]]",
+    "note": null
+  },
+  {
+    "lemma": "Wie gefällt dir …?",
+    "translation": "¿qué te parece …?",
+    "alt_translations": [
+      "¿te gusta …?"
+    ],
+    "example_source": "[[¿Qué te parece]] el piso nuevo?",
+    "note": "Lo que gusta es el sujeto, como con «gustar»: Wie gefällt dir die Stadt? Formal: Wie gefällt Ihnen …?"
+  },
+  {
+    "lemma": "Es tut mir leid.",
+    "translation": "lo siento",
+    "alt_translations": [
+      "lo lamento",
+      "perdona"
+    ],
+    "example_source": "[[Siento]] llegar tarde.",
+    "note": "Corto e informal: Tut mir leid."
+  },
+  {
+    "lemma": "Ich bin nicht sicher.",
+    "translation": "no estoy seguro",
+    "alt_translations": [
+      "no estoy segura"
+    ],
+    "example_source": "[[No estoy seguro]] de si la tienda abre hoy.",
+    "note": null
+  },
+  {
+    "lemma": "Einen Moment, bitte.",
+    "translation": "un momento por favor",
+    "alt_translations": [
+      "un momentito",
+      "espere un momento"
+    ],
+    "example_source": "[[Un momento, por favor]], llamo a mi compañero.",
+    "note": null
+  },
+  {
+    "lemma": "Ich freue mich darauf.",
+    "translation": "tengo muchas ganas",
+    "alt_translations": [
+      "me hace mucha ilusión",
+      "estoy deseándolo"
+    ],
+    "example_source": "Mañana nos vamos a la playa. ¡[[Tengo muchas ganas]]!",
+    "note": "sich freuen auf + acusativo = tener ganas de algo, esperarlo con ilusión."
+  },
+  {
+    "lemma": "Ich bin damit einverstanden.",
+    "translation": "estoy de acuerdo",
+    "alt_translations": [
+      "me parece bien",
+      "estoy de acuerdo con eso"
+    ],
+    "example_source": "Tu plan es bueno. [[Estoy de acuerdo]].",
+    "note": "einverstanden sein mit + dativo = estar de acuerdo con, parecerle bien a uno."
+  },
+  {
+    "lemma": "Es kommt darauf an.",
+    "translation": "depende",
+    "alt_translations": [
+      "eso depende"
+    ],
+    "example_source": "A lo mejor vamos a nadar. [[Depende]] del tiempo que haga.",
+    "note": "En el habla, a menudo: Kommt drauf an. darauf ankommen, ob/wie … = depender de si/cómo …"
+  },
+  {
+    "lemma": "Ich weiß nicht.",
+    "translation": "no sé",
+    "alt_translations": [
+      "no lo sé"
+    ],
+    "example_source": "¿Dónde está mi llave? [[No sé]].",
+    "note": "También: Ich weiß es nicht (= no lo sé)."
+  },
+  {
+    "lemma": "Keine Ahnung!",
+    "translation": "¡ni idea!",
+    "alt_translations": [
+      "no tengo ni idea"
+    ],
+    "example_source": "¿A qué hora sale el último autobús? [[¡Ni idea!]]",
+    "note": "Coloquial. Más largo: Ich habe keine Ahnung."
+  },
+  {
+    "lemma": "Das macht nichts.",
+    "translation": "no pasa nada",
+    "alt_translations": [
+      "no importa",
+      "da igual"
+    ],
+    "example_source": "¿Has perdido el autobús? [[No pasa nada]], el siguiente viene enseguida.",
+    "note": null
+  },
+  {
+    "lemma": "Ich habe keine Zeit.",
+    "translation": "no tengo tiempo",
+    "alt_translations": [],
+    "example_source": "Lo siento, hoy [[no tengo tiempo]].",
+    "note": null
+  },
+  {
+    "lemma": "Wie spät ist es?",
+    "translation": "¿qué hora es?",
+    "alt_translations": [
+      "¿qué hora tienes?"
+    ],
+    "example_source": "Perdone, ¿[[qué hora es]]?",
+    "note": "También: Wie viel Uhr ist es?"
+  }
+]

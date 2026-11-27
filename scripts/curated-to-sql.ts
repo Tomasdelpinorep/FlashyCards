@@ -46,14 +46,15 @@ export const CURATED_MODEL = 'curated'
 /** Fixed created_at, so the generated SQL is reproducible (2026-11-23T00:00:00Z). */
 export const SEED_CREATED_AT = 1_795_392_000_000
 
-const PAIR: LanguagePair = { sourceLang: 'en', targetLang: 'de' }
+/** The pair of the first stages (en -> de); a stage's `pair` option names another (es -> de). */
+const EN_DE: LanguagePair = { sourceLang: 'en', targetLang: 'de' }
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 
 const sql = (v: string | number | null) => (v === null ? 'NULL' : typeof v === 'number' ? String(v) : `'${v.replace(/'/g, "''")}'`)
 
 type Claim = { lemmaKey: string; primary: boolean; rank: number; lemma: string; variant: boolean }
 type AliasRow = [side: string, key: string, lemmaKey: string]
-type Plan = { entries: readonly CuratedEntry[]; aliasRows: AliasRow[]; conflicts: string[] }
+type Plan = { entries: readonly CuratedEntry[]; aliasRows: AliasRow[]; conflicts: string[]; pair: LanguagePair }
 export type CuratedSql = { sql: string; entries: number; aliases: number; conflicts: string[] }
 
 /** termKey of a lemma, also without a leading reflexive "sich " (the word list's form). */
@@ -70,12 +71,12 @@ function canonical(v: unknown): string {
 }
 
 /** Problems (empty when fine): the entry must be a valid item that post-validation leaves unchanged. */
-function checkEntry(e: CuratedEntry): string[] {
+function checkEntry(e: CuratedEntry, pair: LanguagePair): string[] {
   const item = { input: e.lemma ?? '', input_side: 'target' as const, status: 'ok' as const, ...e }
   const parsed = ItemSchema.safeParse(item)
   if (!parsed.success) return [`${e.lemma}: not a valid item (${parsed.error.issues.map((i) => i.path.join('.')).join(', ')})`]
   const group = { input: { input: item.input, hint: null, inputLang: 'target' as const }, cards: [{ hintKey: '' }] }
-  const v = validateItem(parsed.data, group as unknown as Parameters<typeof validateItem>[1], PAIR)
+  const v = validateItem(parsed.data, group as unknown as Parameters<typeof validateItem>[1], pair)
   if (v.kind !== 'ok') return [`${e.lemma}: rejected by post-validation (${v.kind === 'invalid' ? v.reason : v.kind})`]
   const x = v.entry
   const same = (a: unknown, b: unknown) => canonical(a) === canonical(b)
@@ -99,7 +100,15 @@ export type CuratedSqlOptions = {
   keyVariants?: boolean
   /** Extra target alias keys: alias -> lemma of an existing entry. */
   targetAliases?: Readonly<Record<string, string>>
+  /** The language pair (default en -> de). Entry ids are `cur-de-<key>` for en -> de, `cur-<src>-de-<key>` otherwise. */
+  pair?: LanguagePair
 }
+
+const pairOf = (opts: CuratedSqlOptions | undefined): LanguagePair => opts?.pair ?? EN_DE
+/** Entry id prefix of a pair: the en -> de ids predate the other pairs. */
+const idPrefix = (pair: LanguagePair) =>
+  pair.sourceLang === 'en' && pair.targetLang === 'de' ? `cur-${pair.targetLang}-` : `cur-${pair.sourceLang}-${pair.targetLang}-`
+const pairLabel = (pair: LanguagePair) => `${pair.sourceLang} -> ${pair.targetLang}`
 
 /** Variants of an alias key: without final punctuation/ellipsis, with ASCII apostrophes. */
 function variantsOf(key: string): string[] {
@@ -111,7 +120,9 @@ function variantsOf(key: string): string[] {
 
 /** The entries and alias rows of `entries`, which must cover every lemma of `lemmas` (throws on any problem). */
 function planCurated(entries: readonly CuratedEntry[], lemmas: readonly string[], opts: CuratedSqlOptions = {}): Plan {
-  const problems = entries.flatMap(checkEntry)
+  const pair = pairOf(opts)
+  const src = pair.sourceLang
+  const problems = entries.flatMap((e) => checkEntry(e, pair))
 
   // Lemma key -> entry, and each entry's rank (its position in `lemmas`).
   const byKey = new Map<string, CuratedEntry>()
@@ -157,7 +168,7 @@ function planCurated(entries: readonly CuratedEntry[], lemmas: readonly string[]
     const bare = opts.keyVariants && lemmaKey.startsWith('sich ') ? [lemmaKey.slice(5)] : []
     for (const k of [...variants(targetKeys), ...bare]) claim('target', k, { ...base, primary: true, variant: true })
     ;[e.translation!, ...e.alt_translations].forEach((t, j) => {
-      const keys = [termKey('en', t), glossKey('en', t)]
+      const keys = [termKey(src, t), glossKey(src, t)]
       for (const k of keys) claim('source', k, { ...base, primary: j === 0, variant: false })
       for (const k of variants(keys)) claim('source', k, { ...base, primary: j === 0, variant: true })
     })
@@ -195,17 +206,17 @@ function planCurated(entries: readonly CuratedEntry[], lemmas: readonly string[]
 
   for (const k of unusedWinners) problems.push(`winner for "${k}": no such source alias`)
   if (problems.length > 0) throw new Error(`curated dictionary has ${problems.length} problem(s):\n  ${problems.join('\n  ')}`)
-  return { entries, aliasRows, conflicts }
+  return { entries, aliasRows, conflicts, pair }
 }
 
 /**
  * The seed SQL for `entries`, which must cover every lemma of `lemmas` (the word-list forms, in
  * rank order). Pure: the script's main() and the tests call it.
  */
-export function curatedToSql(entries: readonly CuratedEntry[], lemmas: readonly string[], opts: CuratedSqlOptions = {}): CuratedSql {
+export function curatedToSql(entries: readonly CuratedEntry[], lemmas: readonly string[], opts: CuratedSqlOptions = {}, trailer?: string): CuratedSql {
   const plan = planCurated(entries, lemmas, opts)
-  const header = `-- The curated en -> de dictionary: ${entries.length} entries, ${plan.aliasRows.length} aliases.`
-  return { sql: renderSql(plan.entries, plan.aliasRows, [header]), entries: entries.length, aliases: plan.aliasRows.length, conflicts: plan.conflicts }
+  const header = `-- The curated ${pairLabel(plan.pair)} dictionary: ${entries.length} entries, ${plan.aliasRows.length} aliases.`
+  return { sql: renderSql(plan.pair, plan.entries, plan.aliasRows, [header], trailer), entries: entries.length, aliases: plan.aliasRows.length, conflicts: plan.conflicts }
 }
 
 export type SeedInput = { entries: readonly CuratedEntry[]; lemmas: readonly string[]; opts?: CuratedSqlOptions }
@@ -231,24 +242,24 @@ export function curatedDeltaSql(base: SeedInput, next: SeedInput, trailer?: stri
   const entries = b.entries.filter((e) => before.get(key(e)) !== canonical(e))
   const aliasRows = b.aliasRows.filter((r) => !oldRows.has(rowId(r)))
   const oldConflicts = new Set(a.conflicts)
-  const header = `-- Additions to the curated en -> de dictionary (on top of the earlier seed migrations): ${entries.length} entries, ${aliasRows.length} aliases.`
+  const header = `-- Additions to the curated ${pairLabel(b.pair)} dictionary (on top of the earlier seed migrations): ${entries.length} entries, ${aliasRows.length} aliases.`
   return {
-    sql: renderSql(entries, aliasRows, [header], trailer),
+    sql: renderSql(b.pair, entries, aliasRows, [header], trailer),
     entries: entries.length,
     aliases: aliasRows.length,
     conflicts: b.conflicts.filter((c) => !oldConflicts.has(c)),
   }
 }
 
-function renderSql(entries: readonly CuratedEntry[], aliasRows: readonly AliasRow[], header: string[], trailer?: string): string {
+function renderSql(pair: LanguagePair, entries: readonly CuratedEntry[], aliasRows: readonly AliasRow[], header: string[], trailer?: string): string {
   const out = ['-- Generated by scripts/curated-to-sql.ts (npm run seed:sql) from src/worker/ai/curated.de.ts. Do not edit by hand.', ...header]
   for (let i = 0; i < entries.length; i += ENTRIES_PER_INSERT) {
     const values = entries.slice(i, i + ENTRIES_PER_INSERT).map((e) => {
       const k = termKey('de', e.lemma!)
       return `(${[
-        sql(`cur-de-${k}`),
-        sql(PAIR.sourceLang),
-        sql(PAIR.targetLang),
+        sql(`${idPrefix(pair)}${k}`),
+        sql(pair.sourceLang),
+        sql(pair.targetLang),
         sql(e.lemma!),
         sql(k),
         sql(''),
@@ -273,8 +284,8 @@ function renderSql(entries: readonly CuratedEntry[], aliasRows: readonly AliasRo
     const values = aliasRows.slice(i, i + ALIASES_PER_INSERT).map(([side, key, lk]) => `(${sql(side)}, ${sql(key)}, ${sql(lk)})`)
     out.push(
       `INSERT OR REPLACE INTO entry_aliases (source_lang, target_lang, input_side, alias_key, sense_key, entry_id)\n` +
-        `SELECT ${sql(PAIR.sourceLang)}, ${sql(PAIR.targetLang)}, v.column1, v.column2, '', e.id FROM (VALUES\n${values.join(',\n')}\n) v\n` +
-        `JOIN entries e ON e.source_lang = ${sql(PAIR.sourceLang)} AND e.target_lang = ${sql(PAIR.targetLang)} AND e.lemma_key = v.column3 AND e.sense_key = '';`,
+        `SELECT ${sql(pair.sourceLang)}, ${sql(pair.targetLang)}, v.column1, v.column2, '', e.id FROM (VALUES\n${values.join(',\n')}\n) v\n` +
+        `JOIN entries e ON e.source_lang = ${sql(pair.sourceLang)} AND e.target_lang = ${sql(pair.targetLang)} AND e.lemma_key = v.column3 AND e.sense_key = '';`,
     )
   }
   if (trailer) out.push(trailer.trimEnd())
@@ -342,6 +353,34 @@ UPDATE cards SET status = 'pending', gen_error = NULL, gen_attempts = 0, gen_cla
 WHERE status = 'failed' AND gen_error = 'needs_meaning' AND override_json IS NULL
   AND deck_id IN (SELECT id FROM decks WHERE source_lang = 'en' AND target_lang = 'de');`
 
+/**
+ * Source-side picks for the es -> de dictionary, where the rule (primary beats alternative, then
+ * word-list rank) picks a worse answer for a Spanish word typed alone.
+ */
+export const ES_SOURCE_WINNERS: Readonly<Record<string, string>> = {
+  abajo: 'unten', // where; runter is the direction
+  apenas: 'kaum',
+  cuando: 'wenn', // the general "when"; als is one past event
+  entonces: 'dann', // damals is "back then"
+  jefe: 'Chef', // Boss is film-speak
+  lejos: 'weit',
+  mientras: 'während',
+  no: 'nein',
+  normalmente: 'meistens', // not sonst ("otherwise")
+  poco: 'wenig',
+  realmente: 'wirklich',
+  sentir: 'fühlen', // leidtun is "lo siento"
+  simplemente: 'einfach',
+  tarde: 'spät', // the adverb, not der Abend
+  tío: 'Onkel', // the relative; Kerl is "tío" as slang
+  uno: 'eins', // the number, not the pronoun man
+}
+
+/** Re-queue es -> de cards waiting for a meaning (decks created before the Spanish dictionary). */
+export const REQUEUE_NEEDS_MEANING_ES_SQL = REQUEUE_NEEDS_MEANING_SQL.replace('en -> de', 'es -> de').replace("source_lang = 'en'", "source_lang = 'es'")
+
+const ES_DE_FILE = '0006_seed_es_de.sql'
+
 /** One seed migration: its file and the dictionary it brings the database to. */
 export type SeedStage = { file: string; input: () => Promise<SeedInput>; trailer?: string }
 
@@ -362,6 +401,16 @@ export const SEED_STAGES: readonly SeedStage[] = [
     }),
     trailer: REQUEUE_NEEDS_MEANING_SQL,
   },
+  {
+    // The Spanish -> German dictionary: the same German entries with Spanish meanings (data/seed/de/es).
+    file: ES_DE_FILE,
+    input: async () => ({
+      entries: (await curated()).CURATED_ES_DE,
+      lemmas: readSeedLemmas(),
+      opts: { ranks: readWordRanks(), winners: ES_SOURCE_WINNERS, keyVariants: true, targetAliases: A2_TARGET_ALIASES, pair: { sourceLang: 'es', targetLang: 'de' } },
+    }),
+    trailer: REQUEUE_NEEDS_MEANING_ES_SQL,
+  },
 ]
 
 export const seedSqlPath = (file: string) => join(root, 'migrations', file)
@@ -369,19 +418,22 @@ export const seedSqlPath = (file: string) => join(root, 'migrations', file)
 /** Every stage's SQL, in order (main() and curated.test.ts). */
 export async function seedStagesSql(): Promise<{ file: string; result: CuratedSql }[]> {
   const out: { file: string; result: CuratedSql }[] = []
-  let prev: SeedInput | null = null
+  // A stage adds to the previous stage of the same pair; the first stage of a pair holds it all.
+  const prev = new Map<string, SeedInput>()
   for (const stage of SEED_STAGES) {
     const input = await stage.input()
-    const result = prev ? curatedDeltaSql(prev, input, stage.trailer) : curatedToSql(input.entries, input.lemmas, input.opts)
+    const label = pairLabel(pairOf(input.opts))
+    const before = prev.get(label)
+    const result = before ? curatedDeltaSql(before, input, stage.trailer) : curatedToSql(input.entries, input.lemmas, input.opts, stage.trailer)
     out.push({ file: stage.file, result })
-    prev = input
+    prev.set(label, input)
   }
   return out
 }
 
-/** The whole current dictionary as one migration's SQL (what the stages add up to). */
+/** The whole current en -> de dictionary as one migration's SQL (what its stages add up to). */
 export async function fullSeedSql(): Promise<CuratedSql> {
-  const last = await SEED_STAGES.at(-1)!.input()
+  const last = await SEED_STAGES.filter((st) => st.file !== ES_DE_FILE).at(-1)!.input()
   return curatedToSql(last.entries, last.lemmas, last.opts)
 }
 

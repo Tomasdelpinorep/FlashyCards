@@ -3,19 +3,39 @@ import { Link } from 'react-router'
 import { MAX_IMPORT_ROWS } from '../../shared/parseImport'
 import { GRADE_LABELS } from '../../shared/srs'
 import { LEARN_GROUP_SIZE, LEARN_MORE_STEP } from '../lib/learnSession'
+import { messages, useT, useUiLang } from '../lib/i18n'
 import { card, muted, Screen } from '../components/ui'
 
-/** A plain-language guide to the app. Button names in quotes match the real UI labels. */
+const M = messages({ title: 'How to use the app', home: 'Home' }, { title: 'Cómo se usa la app', home: 'Inicio' })
+
+/** Grade names as the Spanish Train screen shows them (same order as GRADE_LABELS). */
+const GRADE_LABELS_ES = { 1: 'Otra vez', 2: 'Difícil', 3: 'Bien', 4: 'Fácil' } as const
+
+/**
+ * A plain-language guide to the app. Button names in quotes match the real UI labels. The page is
+ * long, so each language is its own component (same sections in the same order) rather than
+ * per-string keys.
+ */
 export function HowTo() {
+  const t = useT(M)
+  const lang = useUiLang()
   return (
     <Screen
-      title="How to use the app"
+      title={t.title}
       action={
         <Link to="/" className="-mr-2 inline-flex min-h-11 items-center px-2 text-sm font-medium text-zinc-500 underline dark:text-zinc-400">
-          Home
+          {t.home}
         </Link>
       }
     >
+      {lang === 'es' ? <HowToEs /> : <HowToEn />}
+    </Screen>
+  )
+}
+
+function HowToEn() {
+  return (
+    <>
       <p className="text-sm">
         Flashcards helps you learn vocabulary in another language, a few words at a time. You add words, the app prepares a translation
         and an example sentence for each one, and then it shows you each word again just before you're likely to forget it.
@@ -24,8 +44,7 @@ export function HowTo() {
       <Section title="Decks">
         <p>
           A deck holds the words you're learning in one language. To make one, tap <B>Create a deck</B> (or <B>New deck</B> in Settings),
-          give it a name and choose <B>I speak</B> and <B>I'm learning</B>. The language pair can't be changed later, so make a new deck
-          for another language.
+          give it a name and choose the language under <B>I'm learning</B>. You learn from the app's language (see Language below).
         </p>
         <p>If you have more than one deck, switch between them with the menu at the top of Home. Decks can be deleted in Settings.</p>
       </Section>
@@ -175,6 +194,14 @@ export function HowTo() {
         </ul>
       </Section>
 
+      <Section title="Language">
+        <p>
+          <B>Settings → Language</B>: choose <B>English</B> or <B>Español</B>. The app language is also the language you learn
+          from: your decks switch to Spanish (or English) meanings, and your progress and words are kept. Meanings you typed
+          yourself stay as you typed them.
+        </p>
+      </Section>
+
       <Section title="Weak connection">
         <p>
           If your connection drops in the middle of Learn or Train, keep going: your answers are saved on your phone and sent
@@ -203,7 +230,217 @@ export function HowTo() {
           <li>If a translation or sentence looks wrong, fix it with Edit.</li>
         </ul>
       </Section>
-    </Screen>
+    </>
+  )
+}
+
+function HowToEs() {
+  return (
+    <>
+      <p className="text-sm">
+        Flashcards te ayuda a aprender vocabulario de otro idioma, unas pocas palabras cada vez. Tú añades palabras, la app prepara
+        una traducción y una frase de ejemplo para cada una, y luego te vuelve a mostrar cada palabra justo antes de que se te olvide.
+      </p>
+
+      <Section title="Mazos">
+        <p>
+          Un mazo guarda las palabras que estás aprendiendo de un idioma. Para crear uno, toca <B>Crear un mazo</B> (o{' '}
+          <B>Nuevo mazo</B> en Ajustes), ponle un nombre y elige el idioma en <B>Estoy aprendiendo</B>. Aprendes desde el idioma de
+          la app (mira Idioma, más abajo).
+        </p>
+        <p>Si tienes más de un mazo, cambia de uno a otro con el menú de arriba en Inicio. Los mazos se pueden borrar en Ajustes.</p>
+      </Section>
+
+      <Section title="Añadir palabras">
+        <p>
+          Toca <B>Añadir palabras</B>. Hay dos pestañas:
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            <B>Añadir palabras nuevas</B> añade las palabras más comunes del idioma que todavía no tienes. Elige cuántas (5, 10, 20 o
+            Personalizado) y toca <B>Añadir 10 palabras</B>. Si ya sabes lo básico, configura “Saltar las N palabras más comunes” en
+            Ajustes.
+          </li>
+          <li>
+            <B>Importar</B> usa tu propia lista. Escribe o pega una palabra por línea, o toca <B>Elegir archivo…</B> para cargar un
+            archivo .txt, .csv o .tsv. Puedes añadir un significado después de un tabulador, “;” o “|” (por ejemplo{' '}
+            <span className="font-mono">Hund;perro</span>). Las líneas que empiezan por # se ignoran. En “Las palabras están en”, indica
+            en qué idioma está tu lista, o elige Automático. Primero verás una vista previa; hasta {MAX_IMPORT_ROWS} palabras cada vez.
+          </li>
+        </ul>
+        <p>
+          La traducción, la frase de ejemplo y los demás detalles vienen de un diccionario revisado a mano, así que las palabras del
+          diccionario están listas al momento. Una palabra que el diccionario no conoce aparece como “Falta el significado”: ábrela en
+          Palabras y escribe tú el significado. Las palabras que ya tienes no se añaden dos veces: aparecen como “ya está en tu mazo”.
+          Puedes corregir cualquier palabra más tarde.
+        </p>
+        <p className="font-medium">Qué significan los estados de una palabra</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            <B>Preparando</B>: todavía se está buscando (solo un momento).
+          </li>
+          <li>
+            <B>Lista</B>: ya se puede aprender y repasar.
+          </li>
+          <li>
+            <B>Falta el significado</B>: el diccionario no la conoce (o no se reconoció como palabra). Ábrela y añade la palabra en
+            alemán y su significado; queda lista para aprender enseguida.
+          </li>
+          <li>
+            <B>Duplicadas</B>: resultó ser una palabra que ya tenías, así que no se estudia dos veces.
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="Aprender palabras nuevas">
+        <p>
+          Toca <B>Aprender nuevas</B> en Inicio. Las palabras nuevas llegan en grupos de {LEARN_GROUP_SIZE}. Cada palabra empieza con
+          su significado en tu idioma; toca <B>Ver la palabra</B> (o desliza, o pulsa →) para verla con su artículo, sus formas y un
+          ejemplo, y luego <B>Entendido</B>. Vuelve atrás con ← o deslizando hacia el otro lado, o toca <B>Ya me la sé</B> para
+          saltarte una palabra. Después, una <B>Comprobación rápida</B> pone a prueba el grupo, igual que en Repasar.
+        </p>
+        <p>
+          Hay un límite diario de palabras nuevas para que no se acumulen los repasos. Cuando llegas a él, Inicio dice{' '}
+          <B>Límite diario alcanzado</B>; aun así puedes tocar <B>Aprender {LEARN_MORE_STEP} más</B> si quieres.
+        </p>
+      </Section>
+
+      <Section title="Repasar">
+        <p>
+          Toca <B>Repasar</B> en Inicio para repasar las palabras que tocan hoy. Escribe la respuesta (o toca el micrófono y dila; la
+          entrada por voz funciona mejor en Chrome o Edge). Si aciertas, la tarjeta se da la vuelta sola; si no, pulsa Intro, o toca{' '}
+          <B>Ver respuesta</B> si no la sabes. Los sustantivos necesitan su artículo (<B>der Hund</B>, no solo Hund). Las mayúsculas
+          no importan, y puedes escribir ae, oe, ue y ss en lugar de ä, ö, ü y ß. Una pequeña errata en una palabra larga cuenta como{' '}
+          <B>{GRADE_LABELS_ES[2]}</B>.
+        </p>
+        <p>
+          El micrófono es un interruptor: mientras está encendido, cada tarjeta nueva escucha sola (se pausa después de unos cuantos
+          intentos en silencio; tócalo para seguir). Activa <B>Auto</B> arriba en Repasar y, al acertar, pasarás a la siguiente
+          tarjeta al cabo de un segundo; con los dos activados puedes repasar sin manos. Toca cualquier cosa para quedarte en la
+          tarjeta.
+        </p>
+        <p>
+          La app pone nota a una respuesta correcta según lo que tardaste: el tiempo hasta tu primera tecla (o hasta que empiezas a
+          hablar), y el tiempo que tardas en escribirla comparado con lo que debería llevar esa palabra (las palabras largas, las
+          diéresis y los artículos tienen más tiempo). Aprende tu velocidad habitual en cada dispositivo, por separado para el móvil y
+          el teclado. La tarjeta muestra la nota, por ejemplo <B>{GRADE_LABELS_ES[3]} · 2,1 s</B>; toca <B>Siguiente</B> (o pulsa
+          Intro) para aceptarla, o <B>Cambiar</B> para elegir otra:
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            <B>{GRADE_LABELS_ES[1]}</B>: no la sabías. Vuelve dentro de unos minutos.
+          </li>
+          <li>
+            <B>{GRADE_LABELS_ES[2]}</B>: la sabías, pero te costó (pensaste mucho o escribiste despacio). Vuelve un poco antes.
+          </li>
+          <li>
+            <B>{GRADE_LABELS_ES[3]}</B>: la sabías. Es la respuesta normal.
+          </li>
+          <li>
+            <B>{GRADE_LABELS_ES[4]}</B>: la sabías al instante (empezaste rápido y escribiste rápido). Tarda más en volver.
+          </li>
+        </ul>
+        <p>
+          Cada botón de nota muestra cuándo volverás a ver la palabra. Si la app te marcó un fallo pero tenías razón, toca{' '}
+          <B>Tenía razón</B>. Sé sincero: así tus repasos llegan en el momento justo.
+        </p>
+        <p>
+          El interruptor de arriba elige la dirección: primero el idioma que aprendes, primero tu idioma, o Mezclado. En el reverso
+          de una tarjeta, <B>Escuchar</B> lee en voz alta la palabra y la frase, y <B>Vídeo de pronunciación</B> abre una búsqueda en
+          YouTube de vídeos de un hablante nativo diciendo la palabra. Cuando no toca nada verás <B>Todo hecho</B>, y{' '}
+          <B>Practicar de todos modos</B> te deja repasar antes de tiempo.
+        </p>
+        <p className={muted}>
+          Con teclado: Intro comprueba la respuesta y pasa a la siguiente con la nota de la app, y del 1 al 4 eligen{' '}
+          {Object.values(GRADE_LABELS_ES).join(', ')}.
+        </p>
+      </Section>
+
+      <Section title="Cómo se programan los repasos">
+        <p>
+          La app usa repetición espaciada: cada vez que recuerdas una palabra, el tiempo hasta su próximo repaso crece, de minutos a
+          días y a meses. Las palabras que olvidas vuelven antes, así que tu tiempo se dedica a las que te cuestan.
+        </p>
+      </Section>
+
+      <Section title="Tus palabras">
+        <p>
+          La pestaña <B>Palabras</B> muestra todo lo que hay en el mazo. Busca, o filtra por Todas, Preparando, Listas, Falta el
+          significado, Suspendidas o Duplicadas. Toca una palabra para abrir su página.
+        </p>
+        <p>En la página de una palabra puedes:</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            <B>Editar</B> la traducción, otros significados (“También significa”), la frase de ejemplo y su traducción, y una nota. En
+            una frase, pon la palabra entre dobles corchetes, como <span className="font-mono">Der [[Hund]] bellt.</span>, para
+            resaltarla. Deja un campo vacío para volver al texto del diccionario.
+          </li>
+          <li>
+            <B>Suspender</B> una palabra para que deje de salir en Aprender y Repasar, y <B>Reactivar</B> para recuperarla.
+          </li>
+          <li>
+            <B>Añadir el significado</B> de una palabra que lo necesita, o <B>Borrarla</B>.
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="Ajustes">
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            <B>Leer las palabras en voz alta</B>: dice la palabra automáticamente cuando se presenta una palabra nueva y cuando ves una
+            respuesta.
+          </li>
+          <li>
+            <B>Ocultar la frase en el anverso</B>: muestra solo la palabra hasta que ves la respuesta, lo que lo hace más difícil.
+          </li>
+          <li>
+            <B>Tema</B>: los colores de la app (Sistema sigue el modo claro u oscuro de tu dispositivo, o elige Claro, Oscuro, Sepia,
+            Solarized Light, Nord o Dracula); se guarda solo en este dispositivo.
+          </li>
+          <li>
+            <B>Saltar las N palabras más comunes</B>: dónde empieza “Añadir palabras nuevas” en la lista de frecuencia, para este mazo.
+          </li>
+          <li>Crear y borrar mazos, y ver los créditos de la lista de palabras en Acerca de.</li>
+        </ul>
+      </Section>
+
+      <Section title="Idioma">
+        <p>
+          <B>Ajustes → Idioma</B>: elige <B>English</B> o <B>Español</B>. El idioma de la app es también el idioma desde el que
+          aprendes: tus mazos pasan a tener los significados en español (o en inglés), y se conservan tu progreso y tus palabras. Los
+          significados que escribiste tú se quedan tal como los escribiste.
+        </p>
+      </Section>
+
+      <Section title="Conexión débil">
+        <p>
+          Si se corta la conexión en mitad de Aprender o Repasar, sigue: tus respuestas se guardan en el móvil y se envían solas
+          cuando vuelves a tener conexión. Necesitas conexión para abrir la app y para añadir palabras.
+        </p>
+      </Section>
+
+      <Section title="Añádela a tu pantalla de inicio">
+        <p>Instala la app para abrirla como cualquier otra, a pantalla completa.</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            <B>iPhone (Safari)</B>: toca Compartir y luego <B>Añadir a pantalla de inicio</B>.
+          </li>
+          <li>
+            <B>Android (Chrome)</B>: toca el menú ⋮ y luego <B>Instalar aplicación</B> o <B>Añadir a pantalla de inicio</B>.
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="Consejos">
+        <ul className="list-disc space-y-1 pl-5">
+          <li>Estudia un poco cada día. Diez minutos diarios valen más que una hora a la semana.</li>
+          <li>Haz tus repasos en Repasar antes de aprender palabras nuevas.</li>
+          <li>Di la palabra en voz alta, o toca Escuchar, para recordar también cómo suena.</li>
+          <li>Añade palabras que te encuentres de verdad, en libros, series o conversaciones.</li>
+          <li>Si una traducción o una frase parece incorrecta, corrígela con Editar.</li>
+        </ul>
+      </Section>
+    </>
   )
 }
 

@@ -1,5 +1,6 @@
 import { DEFAULT_USER_SETTINGS, parseSettings, UserSettingsSchema, type UserDTO, type UserSettings } from '../../shared/schemas'
-import { DEFAULT_DECK } from './decks'
+import { DEFAULT_UI_LANGUAGE, type UiLanguage } from '../../shared/languages'
+import { defaultDeckFor } from './decks'
 
 export type UserRow = {
   id: string
@@ -14,7 +15,7 @@ export async function getUserByEmail(db: D1Database, email: string): Promise<Use
 }
 
 /**
- * Return the user for `email` (lowercased), creating it if missing. Reads first so the
+ * Return the user for `email` (lowercased), creating it if missing (in app language `uiLang`). Reads first so the
  * common path costs no D1 write.
  *
  * A brand-new user also gets the default deck, in the same batch: the deck insert is
@@ -22,17 +23,20 @@ export async function getUserByEmail(db: D1Database, email: string): Promise<Use
  * first requests race, only the one whose user insert won creates a deck. Nothing ever
  * recreates the default deck later; a user may have zero decks.
  */
-export async function upsertUser(db: D1Database, rawEmail: string): Promise<UserRow> {
+export async function upsertUser(db: D1Database, rawEmail: string, uiLang: UiLanguage = DEFAULT_UI_LANGUAGE): Promise<UserRow> {
   const email = rawEmail.trim().toLowerCase()
   const existing = await getUserByEmail(db, email)
   if (existing) return existing
   const id = crypto.randomUUID()
   const now = Date.now()
-  const d = DEFAULT_DECK
+  // A new user starts in their browser's language (Accept-Language), which is also the source
+  // language of their first deck.
+  const d = defaultDeckFor(uiLang)
+  const settings = uiLang === DEFAULT_UI_LANGUAGE ? '{}' : JSON.stringify({ uiLang })
   await db.batch([
     db
       .prepare('INSERT INTO users (id, email, settings_json, created_at) VALUES (?, ?, ?, ?) ON CONFLICT(email) DO NOTHING')
-      .bind(id, email, '{}', now),
+      .bind(id, email, settings, now),
     db
       .prepare(
         `INSERT INTO decks (id, user_id, name, source_lang, target_lang, settings_json, created_at)
