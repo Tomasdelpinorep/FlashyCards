@@ -3,7 +3,7 @@ import { expect, newWord, test } from './fixtures'
 test.describe('first run', () => {
   test('home shows the default German deck, the empty-deck guidance and empty states everywhere', async ({ page, shot }) => {
     await page.goto('/')
-    await expect(page.getByRole('heading', { level: 1, name: 'Flashcards' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: 'FlashyCards' })).toBeVisible()
     await expect(page.getByTestId('deck-name')).toHaveText('German')
 
     // Empty deck: guidance instead of a grid of zeros.

@@ -7,7 +7,7 @@ const M = messages(
   {
     title: 'About',
     settings: 'Settings',
-    appName: 'Flashcards',
+    appName: 'FlashyCards',
     licenseBefore: "A spaced-repetition vocabulary app. The app's source code is released under the",
     licenseAfter: '.',
     dictionary:
@@ -18,7 +18,7 @@ const M = messages(
   {
     title: 'Acerca de',
     settings: 'Ajustes',
-    appName: 'Flashcards',
+    appName: 'FlashyCards',
     licenseBefore: 'Una app de vocabulario con repetición espaciada. El código fuente de la app se publica bajo la',
     licenseAfter: '.',
     dictionary:

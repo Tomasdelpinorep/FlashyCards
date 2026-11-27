@@ -37,7 +37,7 @@ function HowToEn() {
   return (
     <>
       <p className="text-sm">
-        Flashcards helps you learn vocabulary in another language, a few words at a time. You add words, the app prepares a translation
+        FlashyCards helps you learn vocabulary in another language, a few words at a time. You add words, the app prepares a translation
         and an example sentence for each one, and then it shows you each word again just before you're likely to forget it.
       </p>
 
@@ -193,6 +193,10 @@ function HowToEn() {
             <B>Skip the N most common words</B>: where “Add new words” starts in the frequency list, for this deck.
           </li>
           <li>Create and delete decks, and see the word list credits under About.</li>
+          <li>
+            <B>Install the app</B>: puts FlashyCards on your home screen, opening in its own window. The button only shows while your
+            browser can install it (Chrome, Edge); on iPhone use Share → Add to Home Screen in Safari.
+          </li>
         </ul>
       </Section>
 
@@ -240,7 +244,7 @@ function HowToEs() {
   return (
     <>
       <p className="text-sm">
-        Flashcards te ayuda a aprender vocabulario de otro idioma, unas pocas palabras cada vez. Tú añades palabras, la app prepara
+        FlashyCards te ayuda a aprender vocabulario de otro idioma, unas pocas palabras cada vez. Tú añades palabras, la app prepara
         una traducción y una frase de ejemplo para cada una, y luego te vuelve a mostrar cada palabra justo antes de que se te olvide.
       </p>
 
@@ -406,6 +410,10 @@ function HowToEs() {
             <B>Saltar las N palabras más comunes</B>: dónde empieza “Añadir palabras nuevas” en la lista de frecuencia, para este mazo.
           </li>
           <li>Crear y borrar mazos, y ver los créditos de la lista de palabras en Acerca de.</li>
+          <li>
+            <B>Instalar la app</B>: pone FlashyCards en tu pantalla de inicio y se abre en su propia ventana. El botón solo aparece
+            cuando tu navegador puede instalarla (Chrome, Edge); en iPhone usa Compartir → Añadir a pantalla de inicio en Safari.
+          </li>
         </ul>
       </Section>
 
