@@ -1,4 +1,5 @@
 /** Small shared UI pieces and class names (mobile-first, light and dark). */
+import { useKeyboard } from '../lib/keyboard'
 import type { ReactNode } from 'react'
 import { articleColor, highlightSegments } from '../../shared/display'
 
@@ -14,7 +15,16 @@ export const card = 'rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800
 export const muted = 'text-sm text-zinc-500 dark:text-zinc-400'
 
 /** The study card of Learn and Train: fills the space of a `fill` Screen and scrolls inside. */
-export const studyCard = `${card} flex min-h-40 flex-1 flex-col overflow-y-auto text-center`
+export const studyCard = `${card} flex min-h-40 flex-1 flex-col overflow-y-auto text-center group-data-[keyboard=open]/screen:min-h-24`
+
+/**
+ * Hidden on a study screen while the on-screen keyboard is open (lib/keyboard.ts), to leave room
+ * for the word above the answer box.
+ */
+export const hideWhileTyping = 'group-data-[keyboard=open]/screen:hidden'
+
+/** A min-height that drops while the keyboard is open (the study footer). */
+export const studyFooterMinH = 'min-h-40 group-data-[keyboard=open]/screen:min-h-0'
 /** The buttons under a study card, anchored at the bottom of a `fill` Screen. */
 export const studyFooter = 'flex shrink-0 flex-col justify-end gap-2'
 
@@ -23,15 +33,34 @@ export const studyFooter = 'flex shrink-0 flex-col justify-end gap-2'
  * TabBar, so a study card takes the free height and the buttons under it never move.
  */
 export function Screen({ title, children, action, fill }: { title: string; children: ReactNode; action?: ReactNode; fill?: boolean }) {
+  if (fill) return <FillScreen title={title} action={action}>{children}</FillScreen>
+  return (
+    <div className="flex flex-col gap-4">
+      <header className="flex min-h-11 shrink-0 items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        {action}
+      </header>
+      {children}
+    </div>
+  )
+}
+
+/**
+ * `fill`: while the on-screen keyboard is open, the screen covers only the visible area above it
+ * (top/height from visualViewport) and goes compact (`hideWhileTyping`, smaller gaps), so the
+ * card's word stays on screen while typing.
+ */
+function FillScreen({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) {
+  const keyboard = useKeyboard()
   return (
     <div
-      className={
-        fill
-          ? 'fixed inset-x-0 top-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] mx-auto flex w-full max-w-[480px] flex-col gap-4 overflow-y-auto px-4 pt-6 pb-3'
-          : 'flex flex-col gap-4'
-      }
+      data-keyboard={keyboard.open ? 'open' : 'closed'}
+      style={keyboard.open ? { top: keyboard.top, height: keyboard.height, bottom: 'auto' } : undefined}
+      className={`group/screen fixed inset-x-0 top-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] mx-auto flex w-full max-w-[480px] flex-col overflow-y-auto px-4 ${
+        keyboard.open ? 'gap-2 pt-2 pb-2' : 'gap-4 pt-6 pb-3'
+      }`}
     >
-      <header className="flex min-h-11 shrink-0 items-center justify-between gap-3">
+      <header className={`flex min-h-11 shrink-0 items-center justify-between gap-3 ${hideWhileTyping}`}>
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         {action}
       </header>

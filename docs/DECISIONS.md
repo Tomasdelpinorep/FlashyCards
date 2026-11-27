@@ -870,3 +870,20 @@
   "made before"); `test/worker/importToTrain.test.ts` and `e2e/import-to-train.spec.ts` cover it on.
 - **Migration order:** 0007 only adds a column with a default; the deployed code's inserts name
   their columns, so it keeps working before the new code is live.
+
+## Typing on a phone (keyboard covering the word)
+
+- **Problem:** Learn and Train are fixed full-height screens with the word in the middle of a tall
+  card and the answer box near the bottom. Opening the on-screen keyboard made the browser scroll
+  the box into view, pushing the word off the top.
+- **Fix:** `lib/keyboard.ts` detects the keyboard from `window.visualViewport`: a text field has
+  focus and the visible height is under 80% of the tallest seen at this width (not while
+  pinch-zoomed; the pure rule is `keyboardState.ts`, unit-tested). While it is open, a `fill`
+  Screen covers exactly the visible area (visualViewport top/height) and goes compact:
+  `hideWhileTyping` hides the header, the direction tabs and the "N left" lines; the card and the
+  footer drop their min-heights; the TabBar is not rendered. The word then sits right above the box.
+- `index.html` sets `interactive-widget=resizes-content`, so Chrome on Android shrinks the page
+  for the keyboard (Safari on iOS ignores it and pans the visible area, which the visualViewport
+  top/height handle).
+- **Verified:** e2e `keyboard.spec.ts` emulates the Android behaviour (focus the box, shrink the
+  viewport to 430 px). A real keyboard, and iOS Safari, can only be checked on a device.

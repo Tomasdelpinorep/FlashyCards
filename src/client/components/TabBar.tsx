@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router'
 import { messages, useT } from '../lib/i18n'
+import { useKeyboard } from '../lib/keyboard'
 
 const M = messages(
   { main: 'Main', home: 'Home', words: 'Words', settings: 'Settings' },
@@ -18,6 +19,9 @@ const TABS = [
 
 export function TabBar() {
   const t = useT(M)
+  // Hidden while typing: on Android it would sit on top of the keyboard and hide the answer box.
+  const keyboard = useKeyboard()
+  if (keyboard.open) return null
   return (
     <nav
       aria-label={t.main}

@@ -27,7 +27,7 @@ import { AUTO_ADVANCE_MS, shouldAutoAdvance } from '../lib/handsFree'
 import { speak, stopSpeaking } from '../lib/tts'
 import { AnswerInput, type AnswerResult } from './AnswerInput'
 import { CardBack, CardFront, GradeButtons, GradeSummary, useGradeNames } from './StudyCard'
-import { btnPrimary, btnSecondary, studyCard, studyFooter } from './ui'
+import { btnPrimary, btnSecondary, studyCard, studyFooter, studyFooterMinH } from './ui'
 import { messages, useT, useUiLang } from '../lib/i18n'
 
 const M = messages(
@@ -231,7 +231,7 @@ export function AnswerCard({
       </p>
 
       {/* Tall enough for either state, so the card keeps its size when it flips. */}
-      <div className={`${studyFooter} min-h-40`}>
+      <div className={`${studyFooter} ${studyFooterMinH}`}>
       {!revealed ? (
         <>
           <AnswerInput expected={expected} lang={lang} kind={lang === targetLang ? 'word' : 'meaning'} onResult={reveal} />
