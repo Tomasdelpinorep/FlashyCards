@@ -4,7 +4,7 @@ import { MAX_IMPORT_ROWS } from '../../shared/parseImport'
 import {
   CardListQuerySchema,
   CreateDeckSchema,
-  DEFAULT_DECK_SETTINGS,
+  NEW_DECK_SETTINGS,
   DeckIdParamSchema,
   ImportSchema,
   LearnQuerySchema,
@@ -32,7 +32,7 @@ export const deckRoutes = new Hono<AppEnv>()
       name: body.name,
       sourceLang: body.sourceLang,
       targetLang: body.targetLang,
-      settings: { ...DEFAULT_DECK_SETTINGS, ...body.settings },
+      settings: { ...NEW_DECK_SETTINGS, ...body.settings },
     })
     return c.json({ deck: toDeckDTO(row) }, 201)
   })

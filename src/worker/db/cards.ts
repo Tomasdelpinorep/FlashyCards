@@ -256,7 +256,13 @@ export async function alsoInDeck(db: D1Database, cardIds: readonly string[]): Pr
 export const DEFAULT_REVIEW_LIMIT = 50
 
 /**
- * GET /decks/:id/review: ready, already-studied cards (state <> New) due within the learn-ahead
+ * The cards Train shows (alias `c`): already studied (Learning, Review, Relearning), or never
+ * studied but imported straight to Train (skip_learn, docs/DECISIONS.md "Imports go to Train").
+ */
+const IN_TRAIN = '(c.state IN (1, 2, 3) OR (c.state = 0 AND c.skip_learn = 1))'
+
+/**
+ * GET /decks/:id/review: ready cards in Train (IN_TRAIN: studied, or imported to skip Learn) due within the learn-ahead
  * window, soonest first. `ahead` ("practice anyway") drops the due filter: the cards due soonest,
  * due or not. Pending, failed, suspended, duplicate and deleted cards never appear
  * (status = 'ready'). Each card carries `alsoInDeck`. 2 statements, +1 for `nextDueAt` when the
@@ -273,7 +279,7 @@ export async function reviewQueue(
   const dueLimit = opts.ahead ? Number.MAX_SAFE_INTEGER : now + LEARN_AHEAD_MS
   const { results } = await db
     .prepare(
-      `${LIST_SELECT} WHERE c.deck_id = ?1 AND c.status = 'ready' AND c.state IN (1, 2, 3) AND c.due <= ?3
+      `${LIST_SELECT} WHERE c.deck_id = ?1 AND c.status = 'ready' AND ${IN_TRAIN} AND c.due <= ?3
        ORDER BY c.due, c.id LIMIT ?2`,
     )
     .bind(deckId, limit, dueLimit)
@@ -284,7 +290,7 @@ export async function reviewQueue(
   let nextDueAt: number | null = cards[0]?.due ?? null
   if (cards.length === 0) {
     const row = await db
-      .prepare(`SELECT MIN(due) AS next FROM cards WHERE deck_id = ? AND status = 'ready' AND state IN (1, 2, 3)`)
+      .prepare(`SELECT MIN(due) AS next FROM cards c WHERE deck_id = ? AND status = 'ready' AND ${IN_TRAIN}`)
       .bind(deckId)
       .first<{ next: number | null }>()
     nextDueAt = row?.next ?? null
@@ -308,7 +314,7 @@ export function localDayStart(now: number, tzOffset = 0): number {
  * state before the review was New. Shared by /stats and /learn so both count the same thing.
  */
 const NEW_TODAY_SQL = `(SELECT COUNT(DISTINCT l.card_id) FROM review_logs l JOIN cards lc ON lc.id = l.card_id
-   WHERE l.user_id = ?4 AND l.reviewed_at >= ?5 AND lc.deck_id = ?3 AND l.state_before = 0)`
+   WHERE l.user_id = ?4 AND l.reviewed_at >= ?5 AND lc.deck_id = ?3 AND l.state_before = 0 AND lc.skip_learn = 0)`
 
 export const DEFAULT_LEARN_LIMIT = 50
 
@@ -328,7 +334,7 @@ export async function learnQueue(
   const counts = await db
     .prepare(
       `SELECT ${NEW_TODAY_SQL} AS newToday,
-         (SELECT COUNT(*) FROM cards WHERE deck_id = ?3 AND status = 'ready' AND state = 0) AS readyNewTotal`,
+         (SELECT COUNT(*) FROM cards WHERE deck_id = ?3 AND status = 'ready' AND state = 0 AND skip_learn = 0) AS readyNewTotal`,
     )
     // ?1/?2 are unused here: NEW_TODAY_SQL is numbered for deckStats' statement.
     .bind(null, null, deckId, opts.userId, localDayStart(now, opts.tzOffset))
@@ -343,7 +349,7 @@ export async function learnQueue(
   if (take > 0) {
     const { results } = await db
       .prepare(
-        `${LIST_SELECT} WHERE c.deck_id = ?1 AND c.status = 'ready' AND c.state = 0
+        `${LIST_SELECT} WHERE c.deck_id = ?1 AND c.status = 'ready' AND c.state = 0 AND c.skip_learn = 0
          ORDER BY c.created_at, c.rowid LIMIT ?2`,
       )
       .bind(deckId, take)
@@ -371,11 +377,11 @@ export async function deckStats(
          COALESCE(SUM(status = 'pending'), 0) AS pending,
          COALESCE(SUM(status = 'failed'), 0) AS failed,
          COALESCE(SUM(status = 'suspended'), 0) AS suspended,
-         COALESCE(SUM(status = 'ready' AND state = 0), 0) AS "new",
+         COALESCE(SUM(status = 'ready' AND state = 0 AND skip_learn = 0), 0) AS "new",
          COALESCE(SUM(status = 'ready' AND state IN (1, 3)), 0) AS learning,
          COALESCE(SUM(status = 'ready' AND state = 2), 0) AS review,
-         COALESCE(SUM(status = 'ready' AND state <> 0 AND due <= ?1), 0) AS dueNow,
-         COALESCE(SUM(status = 'ready' AND state <> 0 AND due < ?2), 0) AS dueToday,
+         COALESCE(SUM(status = 'ready' AND (state <> 0 OR skip_learn = 1) AND due <= ?1), 0) AS dueNow,
+         COALESCE(SUM(status = 'ready' AND (state <> 0 OR skip_learn = 1) AND due < ?2), 0) AS dueToday,
          COALESCE(SUM(status = 'duplicate'), 0) AS duplicates,
          COALESCE(SUM(status = 'failed' AND gen_error = 'needs_meaning'), 0) AS needsMeaning,
          (SELECT COUNT(*) FROM review_logs l JOIN cards lc ON lc.id = l.card_id

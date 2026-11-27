@@ -10,8 +10,14 @@ const BOB = 'bob@example.com'
 type Ctx = ReturnType<typeof setup>
 
 async function deckOf(ctx: Ctx, email = ALICE): Promise<string> {
-  const res = await ctx.as(email, '/api/me')
-  return ((await res.json()) as MeResponse).decks[0]!.id
+  const id = await (async () => {
+    const res = await ctx.as(email, '/api/me')
+    return ((await res.json()) as MeResponse).decks[0]!.id
+  })()
+  // These tests cover the Learn path for imported words: use a deck made before importToTrain
+  // existed (its imports go to Learn). test/worker/importToTrain.test.ts covers the new default.
+  await ctx.as(email, `/api/decks/${id}`, { method: 'PATCH', body: { settings: { importToTrain: false } } })
+  return id
 }
 
 async function importText(ctx: Ctx, deckId: string, text: string, inputLang: 'target' | 'source' | 'auto' = 'target', email = ALICE) {

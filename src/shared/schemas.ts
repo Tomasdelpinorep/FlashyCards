@@ -39,10 +39,16 @@ export const DeckSettingsSchema = z.object({
   dailyNewLimit: z.number().int().min(0).max(200),
   sentenceLevel: SentenceLevelSchema,
   skipTopN: z.number().int().min(0).max(50_000),
+  /** Imported words skip Learn and go straight to Train (cards.skip_learn). Off for decks made before it existed. */
+  importToTrain: z.boolean(),
 })
 export type DeckSettings = z.infer<typeof DeckSettingsSchema>
 
-export const DEFAULT_DECK_SETTINGS: DeckSettings = { dailyNewLimit: 10, sentenceLevel: 'A1-A2', skipTopN: 0 }
+/** Fallbacks for settings missing from a stored deck: importToTrain is off, so older decks keep Learn. */
+export const DEFAULT_DECK_SETTINGS: DeckSettings = { dailyNewLimit: 10, sentenceLevel: 'A1-A2', skipTopN: 0, importToTrain: false }
+
+/** Settings of a deck created now: imported words go straight to Train. */
+export const NEW_DECK_SETTINGS: DeckSettings = { ...DEFAULT_DECK_SETTINGS, importToTrain: true }
 
 /**
  * Parse a stored settings_json blob leniently: unknown keys are dropped and each

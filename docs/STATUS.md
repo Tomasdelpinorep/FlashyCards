@@ -33,6 +33,9 @@ Last updated: 2026-11-27
   Spanish, a Spanish -> German dictionary (723 entries, `migrations/0006_seed_es_de.sql`), and
   switching the language converts the decks (progress kept). New users start in their browser's language.
 
+- **Imports go to Train** (`DECISIONS.md` "Imports go to Train"): imported words skip Learn in new
+  decks (`cards.skip_learn`, migration 0007); existing decks keep Learn unless switched in Settings.
+
 ## Next steps, in order
 1. Push the M8+M9 commit. It is committed on `main` but not pushed, and not deployed.
    - It covers card edit and suspend, the About page, the Settings toggles, the PWA manifest (no service worker), the QA fixes and the en→es check (`DECISIONS.md` "M8+M9").
