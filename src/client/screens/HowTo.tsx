@@ -193,6 +193,10 @@ function HowToEn() {
             <B>Skip the N most common words</B>: where “Add new words” starts in the frequency list, for this deck.
           </li>
           <li>Create and delete decks, and see the word list credits under About.</li>
+          <li>
+            <B>Install the app</B>: puts FlashyCards on your home screen, opening in its own window. The button only shows while your
+            browser can install it (Chrome, Edge); on iPhone use Share → Add to Home Screen in Safari.
+          </li>
         </ul>
       </Section>
 
@@ -406,6 +410,10 @@ function HowToEs() {
             <B>Saltar las N palabras más comunes</B>: dónde empieza “Añadir palabras nuevas” en la lista de frecuencia, para este mazo.
           </li>
           <li>Crear y borrar mazos, y ver los créditos de la lista de palabras en Acerca de.</li>
+          <li>
+            <B>Instalar la app</B>: pone FlashyCards en tu pantalla de inicio y se abre en su propia ventana. El botón solo aparece
+            cuando tu navegador puede instalarla (Chrome, Edge); en iPhone usa Compartir → Añadir a pantalla de inicio en Safari.
+          </li>
         </ul>
       </Section>
 

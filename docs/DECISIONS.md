@@ -899,3 +899,19 @@
   doesn't depend on the phone's fonts; the SVG stays the browser-tab favicon.
 - An already installed app picks up a new icon/name when Chrome next checks the manifest (can take
   a day); uninstalling and installing again shows it at once. iOS keeps the icon it was added with.
+
+## Install button (Settings)
+
+- Chrome/Edge fire `beforeinstallprompt` while the app can be installed, and never once it is.
+  `lib/install.ts` keeps that event (started in `main.tsx`, since it can fire before Settings is
+  opened; `preventDefault` replaces Chrome's own mini-bar) and Settings shows **Install app**,
+  which opens the browser's dialog (`prompt()`, usable once; Chrome sends a new event later if declined).
+- Hidden: inside the installed app (`display-mode: standalone`, iOS `navigator.standalone`), after
+  `appinstalled`, and whenever the browser offers nothing (already installed, Firefox, ...). The
+  rule is `installState.ts` (unit-tested).
+- iOS Safari has no install event: Settings shows "Share → Add to Home Screen" instead (also
+  hidden inside the installed app).
+- Why Chrome stops offering it by itself: after the user dismisses its prompt it waits (up to
+  ~3 months), and it never offers an installed app.
+- e2e `install.spec.ts` fires a stand-in event (a test browser never gets the real one); the real
+  dialog can only be checked on a device.

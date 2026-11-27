@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { CreateDeckForm } from '../components/CreateDeckForm'
 import type { DeckDTO, UserSettings } from '../../shared/schemas'
-import { btnSecondary, btnSmall, card, ErrorText, input, muted, Screen } from '../components/ui'
+import { btnPrimary, btnSecondary, btnSmall, card, ErrorText, input, muted, Screen } from '../components/ui'
 import { useCurrentDeck } from '../lib/deck'
 import { THEMES, useTheme } from '../lib/theme'
 import { themeLabel } from '../lib/themeInfo'
+import { promptInstall, useInstallView } from '../lib/install'
 import { useDeleteDeck, useMe, useUpdateDeck, useUpdateMe } from '../lib/queries'
 import { useLanguageName, useT, useUiLang, messages } from '../lib/i18n'
 import { UI_LANGUAGES, type UiLanguage } from '../../shared/languages'
@@ -37,6 +38,10 @@ const M = messages(
     languageHelp:
       'The app’s language is also the language you learn from: your decks switch to its meanings. Your words and progress are kept, and meanings you typed yourself stay as you typed them.',
     switching: 'Switching…',
+    installTitle: 'Install the app',
+    installHelp: 'Add FlashyCards to your home screen. It opens in its own window, like any other app, and updates by itself.',
+    installButton: 'Install app',
+    iosHint: 'On iPhone or iPad: tap Share (the square with an arrow) in Safari, then “Add to Home Screen”.',
     importToTrain: 'Imported words go straight to Train',
     importToTrainHelp: 'Words you import skip Learn and are ready to practise in Train at once. Suggested words still go to Learn. Changing this only affects words you import afterwards.',
   },
@@ -66,6 +71,10 @@ const M = messages(
     languageHelp:
       'El idioma de la app es también el idioma desde el que aprendes: tus mazos pasan a sus significados. Tus palabras y tu progreso se conservan, y los significados que escribiste tú se quedan como los escribiste.',
     switching: 'Cambiando…',
+    installTitle: 'Instalar la app',
+    installHelp: 'Añade FlashyCards a tu pantalla de inicio. Se abre en su propia ventana, como cualquier otra app, y se actualiza sola.',
+    installButton: 'Instalar app',
+    iosHint: 'En iPhone o iPad: toca Compartir (el cuadrado con una flecha) en Safari y luego «Añadir a pantalla de inicio».',
     importToTrain: 'Las palabras importadas van directamente a Repasar',
     importToTrainHelp: 'Las palabras que importas se saltan Aprender y puedes practicarlas en Repasar al momento. Las palabras sugeridas siguen yendo a Aprender. Cambiarlo solo afecta a las palabras que importes después.',
   },
@@ -86,6 +95,8 @@ export function Settings() {
   return (
     <Screen title={t.title}>
       <LanguagePicker />
+
+      <InstallApp />
 
       <section className={card}>
         <h2 className={muted}>{t.signedInAs}</h2>
@@ -149,6 +160,27 @@ const TOGGLES: { key: ToggleKey; label: 'readAloud' | 'hideSentence'; help: 'rea
   { key: 'ttsAutoplay', label: 'readAloud', help: 'readAloudHelp' },
   { key: 'hideSentenceOnFront', label: 'hideSentence', help: 'hideSentenceHelp' },
 ]
+
+/**
+ * "Install app": shown only while the browser can install the app (lib/install.ts), or as a
+ * how-to on iOS Safari; never inside the installed app.
+ */
+function InstallApp() {
+  const t = useT(M)
+  const view = useInstallView()
+  if (view === 'hidden') return null
+  return (
+    <section className={`${card} flex flex-col gap-3`} data-testid="install-app">
+      <h2 className="font-semibold">{t.installTitle}</h2>
+      <p className={muted}>{view === 'button' ? t.installHelp : t.iosHint}</p>
+      {view === 'button' && (
+        <button type="button" className={btnPrimary} onClick={() => void promptInstall()}>
+          {t.installButton}
+        </button>
+      )}
+    </section>
+  )
+}
 
 /**
  * The app language (stored in the account). Switching converts the decks on the server

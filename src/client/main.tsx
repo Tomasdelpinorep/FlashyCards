@@ -4,10 +4,13 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
 import App from './App'
 import { ApiError } from './lib/api'
+import { startInstallListener } from './lib/install'
 import { startTheme } from './lib/theme'
 import './styles.css'
 
 startTheme()
+// Before anything renders: Chrome can offer installing the app right after load.
+startInstallListener()
 
 const queryClient = new QueryClient({
   defaultOptions: {
